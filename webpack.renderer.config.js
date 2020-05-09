@@ -2,6 +2,11 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+    },
+  },
   module: {
     rules: [
       {
