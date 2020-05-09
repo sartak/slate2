@@ -1,9 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-const App = () => {
-  return <h1>slate2</h1>;
-};
+import App from './App';
 
 document.addEventListener('DOMContentLoaded', () => {
   ReactDOM.render(
