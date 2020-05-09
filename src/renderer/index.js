@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 const App = () => {
-  return React.createElement('h1', null, 'slate2');
+  return <h1>slate2</h1>;
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   ReactDOM.render(
-    React.createElement(App, {}, null),
+    <App />,
     document.getElementById('app'),
   );
 });
