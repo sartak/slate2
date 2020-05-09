@@ -1,0 +1,11 @@
+{
+  "name": "slate2",
+  "version": "0.0.1",
+  "description": "a JavaScript game IDE",
+  "author": {
+    "name": "Shawn M Moore",
+    "email": "code@sartak.org"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/sartak/slate2"
+}
