@@ -1,4 +1,7 @@
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 module.exports = {
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/main/index.js',
   module: {
     rules: [
