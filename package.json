@@ -47,11 +47,11 @@
           {
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
-              "config": "./webpack.renderer.config.js",
+              "config": "./webpack.ide.config.js",
               "entryPoints": [
                 {
-                  "html": "./src/renderer/index.html",
-                  "js": "./src/renderer/index.js",
+                  "html": "./src/ide/index.html",
+                  "js": "./src/ide/index.js",
                   "name": "main_window"
                 }
               ]
