@@ -12,7 +12,7 @@ const createWindow = () => {
     height: 600,
   });
 
-  mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 };
 
 app.allowRendererProcessReuse = true;
