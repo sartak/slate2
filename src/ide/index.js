@@ -1,12 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+import { Provider } from 'react-redux';
 import App from './App';
+import { projectStore } from './project';
 
 const render = (Component) => {
   ReactDOM.render(
     <AppContainer>
-      <Component />
+      <Provider store={projectStore}>
+        <App />
+      </Provider>
     </AppContainer>,
     document.getElementById('app'),
   );
