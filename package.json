@@ -53,7 +53,7 @@
                 {
                   "html": "./src/ide/index.html",
                   "js": "./src/ide/index.js",
-                  "name": "main_window"
+                  "name": "ide"
                 }
               ]
             }
