@@ -19,6 +19,7 @@ module.exports = {
   resolve: {
     alias: {
       'react-dom': isBuildWebIDE ? 'react-dom' : '@hot-loader/react-dom',
+      '@ide/bridge': path.resolve(__dirname, isBuildWebIDE ? 'src/ide/bridge/browser' : 'src/ide/bridge/electron'),
     },
   },
 
