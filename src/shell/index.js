@@ -16,7 +16,7 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(IDE_WEBPACK_ENTRY);
 };
 
 app.allowRendererProcessReuse = true;
