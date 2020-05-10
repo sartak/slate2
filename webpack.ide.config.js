@@ -1,5 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isBuildWebIDE = process.env.SLATE2_ENV === 'web';
@@ -41,5 +42,8 @@ module.exports = {
   },
   plugins: [
     ...(isDevelopment ? [] : [new MiniCssExtractPlugin()]),
+    new HtmlWebpackPlugin({
+      template: './src/ide/index.html',
+    }),
   ],
 };
