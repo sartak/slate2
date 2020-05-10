@@ -1,11 +1,46 @@
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 .title-bar {
   -webkit-app-region: drag;
 }
 
-.window-body {
+.app.window {
+  background-color: rgb(160, 160, 160);
+}
+
+.app.window > .window-body {
   height: calc(100vh - 42px);
+}
+
+.window.canvas, .window.editor {
+  width: 300px !important;
+  display: inline-block;
+  margin-right: 8px;
+}
+.window.canvas canvas {
+  background: url("https://tmp.sartak.org/vb-bg.png");
+}
+
+.window.editor .option {
+  margin: 4px 8px 0 8px;
+  display: inline-block;
+}
+.window.editor .option select {
+  width: 100px;
+}
+
+.wrap {
+  .decorationsOverviewRuler { display: none }
+  .squiggly-error { display: none }
+  .mtk20 { color: green !important }
+  .mtk22 { color: blue !important }
+  .mtk7 { color: black !important }
+}
+
+.wrap {
+      padding: 3px 4px;
+    box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
 }

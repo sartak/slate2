@@ -1,6 +1,6 @@
 {
-  "name": "slate2",
-  "productName": "slate2",
+  "name": "visual-advanced",
+  "productName": "Visual Advanced",
   "version": "0.0.1",
   "description": "a JavaScript game IDE",
   "scripts": {
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "slate2"
+            "name": "Visual Advanced"
           }
         },
         {
@@ -79,12 +79,15 @@
     "babel-loader": "^8.1.0",
     "css-loader": "^3.5.3",
     "electron": "8.2.5",
+    "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "less-loader": "^6.1.0",
     "mini-css-extract-plugin": "^0.9.0",
+    "monaco-editor-webpack-plugin": "^1.9.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hot-loader": "^4.12.21",
+    "react-monaco-editor": "^0.36.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "style-loader": "^1.2.1",
