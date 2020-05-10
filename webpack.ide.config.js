@@ -7,17 +7,21 @@ const isBuildWebIDE = process.env.SLATE2_ENV === 'web';
 
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
+  target: isBuildWebIDE ? 'web' : 'electron-renderer',
+
   ...(isBuildWebIDE ? {
     entry: './src/ide/index.js',
     output: {
       path: path.join(__dirname, 'out', 'web-ide'),
     },
   } : null),
+
   resolve: {
     alias: {
       'react-dom': isBuildWebIDE ? 'react-dom' : '@hot-loader/react-dom',
     },
   },
+
   module: {
     rules: [
       {
@@ -40,6 +44,7 @@ module.exports = {
       },
     ],
   },
+
   plugins: [
     ...(isDevelopment ? [] : [new MiniCssExtractPlugin()]),
     new HtmlWebpackPlugin({
