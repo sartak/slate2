@@ -15,7 +15,7 @@ module.exports = {
   } : null),
   resolve: {
     alias: {
-      'react-dom': '@hot-loader/react-dom',
+      'react-dom': isBuildWebIDE ? 'react-dom' : '@hot-loader/react-dom',
     },
   },
   module: {
