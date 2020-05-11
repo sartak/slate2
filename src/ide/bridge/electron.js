@@ -110,3 +110,9 @@ ipc.on('load-project-cancel', (event) => {
 });
 
 export const canLoadProject = true;
+
+export const downloadProject = (project) => {
+  throw new Error('Unable to download project in the app version of slate2. You can save the project file instead.');
+};
+
+export const canDownloadProject = false;
