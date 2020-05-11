@@ -7,7 +7,10 @@ ipc.on('build-project', (event, project) => {
   const {sender} = event;
 
   makeTempDir().then((directory) => {
-    saveFile(directory, 'game.js', project.code).then(() => {
+    Promise.all([
+      ['game.js', project.code],
+      ['index.html', project.indexHtml],
+    ].map((args) => saveFile(directory, ...args))).then(() => {
       if (shell.openItem(directory)) {
         event.reply('build-project-success', directory);
       } else {

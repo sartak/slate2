@@ -1,3 +1,5 @@
+import defaultIndexHtml from '!!raw-loader!./default-index.html';
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case 'create-project': {
@@ -13,4 +15,6 @@ export const projectReducer = (state = null, action) => {
       return state;
     }
   }
-}
+};
+
+export { defaultIndexHtml };

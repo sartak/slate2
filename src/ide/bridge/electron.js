@@ -1,6 +1,7 @@
 const { ipcRenderer: ipc } = require('electron');
+import { defaultIndexHtml } from '../project';
 
-const ipcRoundTrip = (name, {onSuccess, onError, onCancel} = {}) => {
+const ipcRoundTrip = (name, {onSuccess, onError, onCancel, massageInput} = {}) => {
   let promiseResolve = null;
   let promiseReject = null;
 
@@ -63,7 +64,12 @@ const ipcRoundTrip = (name, {onSuccess, onError, onCancel} = {}) => {
     return new Promise((resolve, reject) => {
       promiseResolve = resolve;
       promiseReject = reject;
-      ipc.send(name, ...args);
+
+      if (massageInput) {
+        ipc.send(name, ...massageInput(...args));
+      } else {
+        ipc.send(name, ...args);
+      }
     });
   };
 };
@@ -93,6 +99,13 @@ export const downloadProject = (project) => {
 
 export const canDownloadProject = false;
 
-export const buildProject = ipcRoundTrip('build-project');
+export const buildProject = ipcRoundTrip('build-project', {
+  massageInput: (project) => {
+    return [{
+      indexHtml: defaultIndexHtml,
+      ...project,
+    }];
+  },
+});
 
 export const canBuildProject = true;
