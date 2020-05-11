@@ -3,6 +3,7 @@ export default class Game {
   options = null;
   preloaded = false;
   activated = false;
+  renderer = null;
 
   constructor(options) {
     this.options = options;
@@ -23,6 +24,9 @@ export default class Game {
     };
 
     container.addEventListener('click', clickHandler);
+
+    this.renderer = new this.options.renderer();
+    this.renderer.attach(container);
 
     return this;
   }

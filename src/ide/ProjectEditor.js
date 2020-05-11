@@ -12,6 +12,7 @@ export const ProjectEditor = () => {
   const dispatch = useDispatch();
   const project = useSelector(project => project);
   const code = useSelector(project => project.code);
+  const renderer = useSelector(project => project.renderer);
 
   const save = () => {
     setSaving(true);
@@ -51,6 +52,11 @@ export const ProjectEditor = () => {
         value={code}
         onChange={(code) => dispatch({type: 'change-code', code})}
       />
+      <select value={renderer} onChange={(e) => dispatch({type: 'set-renderer', renderer: e.target.value})}>
+        <option value="canvas">Canvas</option>
+        <option value="webgl">WebGL</option>
+        <option value="webgpu">WebGPU (experimental)</option>
+      </select>
       {canSaveProject && <button disabled={isSaving || isBuilding} onClick={save}>Save Project</button>}
       {canDownloadProject && <button disabled={isSaving || isBuilding} onClick={download}>Download Project</button>}
       {canBuildProject && <button disabled={isSaving || isBuilding} onClick={build}>Build Project</button>}
