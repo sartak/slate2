@@ -1,8 +1,61 @@
 const { ipcRenderer: ipc } = require('electron');
 
+// @Refactor: there's clearly duplication between how saving and loading
+// manage events and promises
+
+let savePromiseResolve = null;
+let savePromiseReject = null;
 export const saveProject = (project) => {
-  ipc.send('save-project', project);
+  if (savePromiseResolve || savePromiseReject) {
+    throw new Error('Inconsistent state: saveProject called before previous saveProject finished');
+  }
+
+  const savePromise = new Promise((resolve, reject) => {
+    savePromiseResolve = resolve;
+    savePromiseReject = reject;
+    ipc.send('save-project', project);
+  });
+
+  return savePromise;
 };
+
+ipc.on('save-project-success', (event, project) => {
+  if (!savePromiseResolve) {
+    throw new Error('Inconsistent state: got save-project-success with no expected saveProject');
+  }
+
+  const resolve = savePromiseResolve;
+  savePromiseResolve = null;
+  savePromiseReject = null;
+
+  resolve(true);
+});
+
+ipc.on('save-project-error', (event, err) => {
+  if (!savePromiseReject) {
+    throw new Error('Inconsistent state: got save-project-error with no expected saveProject');
+  }
+
+  const reject = savePromiseReject;
+  savePromiseResolve = null;
+  savePromiseReject = null;
+
+  reject(err);
+});
+
+ipc.on('save-project-cancel', (event) => {
+  if (!savePromiseResolve) {
+    throw new Error('Inconsistent state: got save-project-cancel with no expected saveProject');
+  }
+
+  const resolve = savePromiseResolve;
+  savePromiseResolve = null;
+  savePromiseReject = null;
+
+  resolve(false);
+});
+
+export const canSaveProject = true;
 
 let loadPromiseResolve = null;
 let loadPromiseReject = null;

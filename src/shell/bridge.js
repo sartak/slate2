@@ -15,14 +15,23 @@ ipc.on('save-project', (event, project) => {
       ],
     }).then(({canceled, filePath}) => {
       if (canceled) {
+        event.reply('save-project-cancel');
         return;
       }
       currentProjectFileForWindow.set(sender, filePath);
-      saveProject(project, filePath);
+      saveProject(project, filePath).then(() => {
+        event.reply('save-project-success');
+      }).catch((err) => {
+        event.reply('save-project-error', err);
+      });
     });
   }
   else {
-    saveProject(project, name);
+    saveProject(project, name).then(() => {
+      event.reply('save-project-success');
+    }).catch((err) => {
+      event.reply('save-project-error', err);
+    });
   }
 });
 
@@ -57,11 +66,15 @@ ipc.on('load-project', (event) => {
 });
 
 const saveProject = (project, filename) => {
-  const data = JSON.stringify(project);
-
-  // @Performance: this can be made asynchronous, though we'll want to
-  // serialize concurrent saves
-  fs.writeFileSync(filename, data);
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(project);
+    fs.writeFile(filename, data, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  });
 };
 
 const loadProject = (filename) => {
