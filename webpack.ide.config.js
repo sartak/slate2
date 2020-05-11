@@ -11,9 +11,13 @@ module.exports = {
   target: isBuildWebIDE ? 'web' : 'electron-renderer',
 
   ...(isBuildWebIDE ? {
-    entry: './src/ide/index.js',
+    entry: './src/ide/web.js',
     output: {
       path: path.join(__dirname, 'out', 'web-ide'),
+      filename: 'slate2.js',
+      library: 'slate2',
+      libraryTarget: 'var',
+      libraryExport: 'default',
     },
   } : null),
 
@@ -62,7 +66,8 @@ module.exports = {
   plugins: [
     ...(isDevelopment ? [] : [new MiniCssExtractPlugin()]),
     new HtmlWebpackPlugin({
-      template: './src/ide/index.html',
+      filename: 'index.html',
+      template: isBuildWebIDE ? './src/ide/web.html' : './src/ide/index.html',
     }),
     new MonacoWebpackPlugin({
       languages: [

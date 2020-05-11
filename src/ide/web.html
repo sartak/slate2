@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' 'unsafe-inline';">
+    <title>slate2</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to use this app.</noscript>
+    <div id="App"></div>
+    <script type="text/javascript">
+      (function () {
+        window.addEventListener("DOMContentLoaded", function () {
+          var container = document.getElementById('App');
+          slate2(container);
+        });
+      }())
+    </script>
+  </body>
+</html>
