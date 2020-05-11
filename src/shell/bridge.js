@@ -1,4 +1,4 @@
-const { dialog, ipcMain: ipc } = require('electron');
+const { app, dialog, ipcMain: ipc } = require('electron');
 const fs = require('fs');
 
 const currentProjectFileForWindow = new WeakMap();
@@ -66,6 +66,8 @@ ipc.on('load-project', (event) => {
 });
 
 const saveProject = (project, filename) => {
+  app.addRecentDocument(filename);
+
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(project);
     fs.writeFile(filename, data, (err) => {
@@ -78,6 +80,8 @@ const saveProject = (project, filename) => {
 };
 
 const loadProject = (filename) => {
+  app.addRecentDocument(filename);
+
   return new Promise((resolve, reject) => {
     // @Compatibility: Windows can specify a nonexistent file here, which
     // we should use as a signal to create the file rather than loading it.
