@@ -8,7 +8,7 @@ import { projectReducer } from './project';
 
 const projectStore = createStore(projectReducer);
 
-const render = (Component) => {
+const render = () => {
   ReactDOM.render(
     <AppContainer>
       <Provider store={projectStore}>
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 if (module.hot) {
   module.hot.accept('./App', () => {
     const NextApp = require('./App').default;
-    render(NextApp);
+    render();
   });
 
   module.hot.accept('./project', () => {
