@@ -92,3 +92,7 @@ export const downloadProject = (project) => {
 };
 
 export const canDownloadProject = false;
+
+export const buildProject = ipcRoundTrip('build-project');
+
+export const canBuildProject = true;

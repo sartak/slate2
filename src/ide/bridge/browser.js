@@ -24,3 +24,9 @@ export const downloadProject = (project) => {
 };
 
 export const canDownloadProject = true;
+
+export const buildProject = (project) => {
+  return Promise.reject(new Error('Unable to build project in the web version of slate2. You can download the project file then build using the app version of slate2 instead.'));
+};
+
+export const canBuildProject = false;
