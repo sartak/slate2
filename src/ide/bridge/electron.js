@@ -1,113 +1,89 @@
 const { ipcRenderer: ipc } = require('electron');
 
-// @Refactor: there's clearly duplication between how saving and loading
-// manage events and promises
+const ipcRoundTrip = (name, {onSuccess, onError, onCancel} = {}) => {
+  let promiseResolve = null;
+  let promiseReject = null;
 
-let savePromiseResolve = null;
-let savePromiseReject = null;
-export const saveProject = (project) => {
-  if (savePromiseResolve || savePromiseReject) {
-    throw new Error('Inconsistent state: saveProject called before previous saveProject finished');
-  }
+  ipc.on(`${name}-success`, (event, ...response) => {
+    if (!promiseResolve) {
+      throw new Error(`Inconsistent state: got ${name}-success with no expected ${name}`);
+    }
 
-  const savePromise = new Promise((resolve, reject) => {
-    savePromiseResolve = resolve;
-    savePromiseReject = reject;
-    ipc.send('save-project', project);
+    const resolve = promiseResolve;
+    promiseResolve = null;
+    promiseReject = null;
+
+    if (onSuccess) {
+      onSuccess(resolve, ...response);
+    } else {
+      resolve(response[0]);
+    }
   });
 
-  return savePromise;
+  ipc.on(`${name}-error`, (event, ...response) => {
+    if (!promiseReject) {
+      throw new Error(`Inconsistent state: got ${name}-error with no expected ${name}`);
+    }
+
+    const reject = promiseReject;
+    promiseResolve = null;
+    promiseReject = null;
+
+    if (onError) {
+      onError(reject, ...response);
+    } else {
+      reject(response[0]);
+    }
+  });
+
+  if (onCancel) {
+    ipc.on(`${name}-cancel`, (event, ...response) => {
+      if (!promiseResolve) {
+        throw new Error(`Inconsistent state: got ${name}-cancel with no expected ${name}`);
+      }
+
+      const resolve = promiseResolve;
+      const reject = promiseReject;
+      promiseResolve = null;
+      promiseReject = null;
+
+      onCancel(resolve, reject, ...response);
+    });
+  } else {
+    ipc.on(`${name}-cancel`, () => {
+      throw new Error(`Internal error: got ${name}-cancel with no onCancel configuration`);
+    });
+  }
+
+  return (...args) => {
+    if (promiseResolve || promiseReject) {
+      throw new Error(`Inconsistent state: ${name} called before previous ${name} finished`);
+    }
+
+    return new Promise((resolve, reject) => {
+      promiseResolve = resolve;
+      promiseReject = reject;
+      ipc.send(name, ...args);
+    });
+  };
 };
 
-ipc.on('save-project-success', (event, project) => {
-  if (!savePromiseResolve) {
-    throw new Error('Inconsistent state: got save-project-success with no expected saveProject');
-  }
-
-  const resolve = savePromiseResolve;
-  savePromiseResolve = null;
-  savePromiseReject = null;
-
-  resolve(true);
-});
-
-ipc.on('save-project-error', (event, err) => {
-  if (!savePromiseReject) {
-    throw new Error('Inconsistent state: got save-project-error with no expected saveProject');
-  }
-
-  const reject = savePromiseReject;
-  savePromiseResolve = null;
-  savePromiseReject = null;
-
-  reject(err);
-});
-
-ipc.on('save-project-cancel', (event) => {
-  if (!savePromiseResolve) {
-    throw new Error('Inconsistent state: got save-project-cancel with no expected saveProject');
-  }
-
-  const resolve = savePromiseResolve;
-  savePromiseResolve = null;
-  savePromiseReject = null;
-
-  resolve(false);
-});
+export const saveProject = ipcRoundTrip(
+  'save-project',
+  {
+    onSuccess: (resolve) => resolve(true),
+    onCancel: (resolve) => resolve(false),
+  },
+);
 
 export const canSaveProject = true;
 
-let loadPromiseResolve = null;
-let loadPromiseReject = null;
-export const loadProject = () => {
-  if (loadPromiseResolve || loadPromiseReject) {
-    throw new Error('Inconsistent state: loadProject called before previous loadProject finished');
-  }
-
-  const loadPromise = new Promise((resolve, reject) => {
-    loadPromiseResolve = resolve;
-    loadPromiseReject = reject;
-    ipc.send('load-project');
-  });
-
-  return loadPromise;
-};
-
-ipc.on('load-project-success', (event, project) => {
-  if (!loadPromiseResolve) {
-    throw new Error('Inconsistent state: got load-project-success with no expected loadProject');
-  }
-
-  const resolve = loadPromiseResolve;
-  loadPromiseResolve = null;
-  loadPromiseReject = null;
-
-  resolve(project);
-});
-
-ipc.on('load-project-error', (event, err) => {
-  if (!loadPromiseReject) {
-    throw new Error('Inconsistent state: got load-project-error with no expected loadProject');
-  }
-
-  const reject = loadPromiseReject;
-  loadPromiseResolve = null;
-  loadPromiseReject = null;
-
-  reject(err);
-});
-
-ipc.on('load-project-cancel', (event) => {
-  if (!loadPromiseResolve) {
-    throw new Error('Inconsistent state: got load-project-cancel with no expected loadProject');
-  }
-
-  const resolve = loadPromiseResolve;
-  loadPromiseResolve = null;
-  loadPromiseReject = null;
-
-  resolve(null);
-});
+export const loadProject = ipcRoundTrip(
+  'load-project',
+  {
+    onCancel: (resolve) => resolve(null),
+  },
+);
 
 export const canLoadProject = true;
 
