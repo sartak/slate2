@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CodeEditor } from './CodeEditor';
-import { saveProject, canSaveProject, downloadProject, canDownloadProject } from '@ide/bridge';
+import { saveProject, canSaveProject, downloadProject, canDownloadProject, buildProject, canBuildProject } from '@ide/bridge';
 
 export const ProjectEditor = () => {
   const [error, setError] = useState(null);
 
   const [isSaving, setSaving] = useState(false);
+  const [isBuilding, setBuilding] = useState(false);
 
   const dispatch = useDispatch();
   const project = useSelector(project => project);
@@ -20,6 +21,18 @@ export const ProjectEditor = () => {
       setSaving(false);
     }).catch((err) => {
       setSaving(false);
+      setError(err);
+    });
+  }
+
+  const build = () => {
+    setBuilding(true);
+    setError(null);
+
+    buildProject(project).then((directory) => {
+      setBuilding(false);
+    }).catch((err) => {
+      setBuilding(false);
       setError(err);
     });
   }
@@ -38,8 +51,9 @@ export const ProjectEditor = () => {
         value={code}
         onChange={(code) => dispatch({type: 'change-code', code})}
       />
-      {canSaveProject && <button disabled={isSaving} onClick={save}>Save Project</button>}
-      {canDownloadProject && <button onClick={download}>Download Project</button>}
+      {canSaveProject && <button disabled={isSaving || isBuilding} onClick={save}>Save Project</button>}
+      {canDownloadProject && <button disabled={isSaving || isBuilding} onClick={download}>Download Project</button>}
+      {canBuildProject && <button disabled={isSaving || isBuilding} onClick={build}>Build Project</button>}
     </div>
   );
 };
