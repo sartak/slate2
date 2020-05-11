@@ -1,9 +1,11 @@
 export default class Game {
+  container = null;
+  options = null;
+  preloaded = false;
+  activated = false;
+
   constructor(options) {
-    this.container = null;
     this.options = options;
-    this.preloaded = false;
-    this.activated = false;
   }
 
   attach(container) {
