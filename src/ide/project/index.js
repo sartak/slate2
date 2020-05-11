@@ -1,4 +1,5 @@
 import defaultIndexHtml from '!!raw-loader!./default-index.html';
+import defaultWebpackConfig from '!!raw-loader!./default-webpack.config.js';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -17,4 +18,4 @@ export const projectReducer = (state = null, action) => {
   }
 };
 
-export { defaultIndexHtml };
+export { defaultIndexHtml, defaultWebpackConfig };

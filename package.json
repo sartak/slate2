@@ -79,6 +79,7 @@
     "babel-loader": "^8.1.0",
     "css-loader": "^3.5.3",
     "electron": "8.2.5",
+    "eval": "^0.1.4",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "less-loader": "^6.1.0",
@@ -92,6 +93,7 @@
     "react-monaco-editor": "^0.36.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
+    "require-from-string": "^2.0.2",
     "style-loader": "^1.2.1",
     "webpack-cli": "^3.3.11"
   }
