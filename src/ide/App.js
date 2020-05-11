@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { hot } from 'react-hot-loader/root';
 import './App.less';
 import { OpenProject } from './OpenProject';
+import { ProjectEditor } from './ProjectEditor';
 import { canLoadProject } from '@ide/bridge';
 
 const App = () => {
   const project = useSelector(project => project);
   if (project) {
-    return <pre>{JSON.stringify(project, null, 2)}</pre>;
+    return <ProjectEditor />;
   }
   else if (canLoadProject) {
     return <OpenProject />;

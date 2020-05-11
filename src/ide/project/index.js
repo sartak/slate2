@@ -6,6 +6,9 @@ export const projectReducer = (state = null, action) => {
     case 'load-project': {
       return action.project;
     }
+    case 'change-code': {
+      return {...state, code: action.code};
+    }
     default: {
       return state;
     }
