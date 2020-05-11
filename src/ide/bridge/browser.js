@@ -8,3 +8,4 @@ export const loadProject = () => {
   return Promise.resolve({});
 };
 
+export const canLoadProject = false;

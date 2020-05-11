@@ -108,3 +108,5 @@ ipc.on('load-project-cancel', (event) => {
 
   resolve(null);
 });
+
+export const canLoadProject = true;
