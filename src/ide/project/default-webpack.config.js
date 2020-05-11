@@ -7,15 +7,23 @@ const slate2_path = path.resolve(slate2_home, 'node_modules');
 module.exports = {
   mode: 'production',
   target: 'web',
-  entry: {
-    'game': './src/game.js',
-  },
+  entry: './src/game.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
+    filename: 'game.js',
+    library: 'slate2_game',
+    libraryTarget: 'var',
+    libraryExport: 'default',
   },
 
   resolveLoader: {
     modules: [slate2_path],
+  },
+
+  resolve: {
+    alias: {
+      '@slate2': path.resolve(slate2_home, 'src', 'engine'),
+    },
   },
 
   module: {

@@ -1,5 +1,5 @@
 const { ipcRenderer: ipc } = require('electron');
-import { defaultIndexHtml, defaultWebpackConfig } from '../project';
+import { assembleProject, defaultIndexHtml, defaultWebpackConfig } from '../project';
 
 const ipcRoundTrip = (name, {onSuccess, onError, onCancel, massageInput} = {}) => {
   let promiseResolve = null;
@@ -105,6 +105,7 @@ export const buildProject = ipcRoundTrip('build-project', {
       indexHtml: defaultIndexHtml,
       webpackConfig: defaultWebpackConfig,
       ...project,
+      code: assembleProject(project),
     }];
   },
 });
