@@ -1,5 +1,7 @@
 body {
   height: 100vh;
+  background-color: rgb(31, 31, 31);
+  color: rgb(220, 220, 220);
 }
 
 body, #App {
@@ -24,3 +26,42 @@ body, #App {
   color: red;
   background: rgba(255, 200, 200, 0.9);
 }
+
+button {
+  color: rgb(173, 173, 173);
+  border-radius: 4px;
+  background-color: rgb(74, 74, 74);
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+  border-right: 1px solid rgb(74, 74, 74);
+  border-top: 1px solid rgb(82, 82, 82);
+  outline: none;
+  margin: 5px;
+
+  &:hover {
+    color: rgb(200, 200, 200);
+    background-color: rgb(94, 94, 94);
+    cursor: pointer;
+  }
+
+  &:active {
+    color: rgb(150, 150, 150);
+    background-color: rgb(60, 60, 60);
+    border-top: 1px solid rgb(60, 60, 60);
+    border-right: 1px solid rgb(60, 60, 60);
+    border-left: 1px solid rgb(60, 60, 60);
+    border-bottom: 1px solid rgb(60, 60, 60);
+  }
+
+  &:disabled, &:disabled:hover {
+    color: rgb(150, 150, 150);
+    background-color: rgb(100, 100, 100);
+    border-top: 1px solid rgb(100, 100, 100);
+    border-right: 1px solid rgb(100, 100, 100);
+    border-left: 1px solid rgb(100, 100, 100);
+    border-bottom: 1px solid rgb(100, 100, 100);
+    cursor: default;
+    pointer-events: all !important;
+  }
+}
+
