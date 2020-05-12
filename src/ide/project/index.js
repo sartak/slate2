@@ -1,7 +1,3 @@
-import assembleProject from './assemble';
-import defaultIndexHtml from '!!raw-loader!./default-index.html';
-import defaultWebpackConfig from '!!raw-loader!./default-webpack.config.js';
-
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case 'create-project': {
@@ -18,5 +14,3 @@ export const projectReducer = (state = null, action) => {
     }
   }
 };
-
-export { assembleProject, defaultIndexHtml, defaultWebpackConfig };
