@@ -1,17 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import CanvasRenderer from './renderer/canvas';
-import WebGLRenderer from './renderer/webgl';
-import WebGPURenderer from './renderer/webgpu';
-
-const rendererForType = (type) => {
-  switch (type) {
-    case 'canvas': return CanvasRenderer;
-    case 'webgl': return WebGLRenderer;
-    case 'webgpu': return WebGPURenderer;
-    default: throw new Error(`Unknown renderer type '${type}'`);
-  }
-};
+import { rendererForType } from './renderer';
 
 export const Surface = () => {
   const rendererType = useSelector(project => project.renderer);
