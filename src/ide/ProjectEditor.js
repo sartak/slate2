@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CodeEditor } from './CodeEditor';
+import { Surface } from './Surface';
 import { saveProject, canSaveProject, downloadProject, canDownloadProject, buildProject, canBuildProject } from '@ide/bridge';
 
 export const ProjectEditor = () => {
@@ -60,6 +61,7 @@ export const ProjectEditor = () => {
       {canSaveProject && <button disabled={isSaving || isBuilding} onClick={save}>Save Project</button>}
       {canDownloadProject && <button disabled={isSaving || isBuilding} onClick={download}>Download Project</button>}
       {canBuildProject && <button disabled={isSaving || isBuilding} onClick={build}>Build Project</button>}
+      <Surface />
     </div>
   );
 };
