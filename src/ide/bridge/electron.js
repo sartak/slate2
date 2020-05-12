@@ -105,7 +105,7 @@ export const buildProject = ipcRoundTrip('build-project', {
       indexHtml: defaultIndexHtml,
       webpackConfig: defaultWebpackConfig,
       ...project,
-      code: assembleProject(project),
+      assembly: assembleProject(project),
     }];
   },
 });

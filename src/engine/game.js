@@ -1,12 +1,20 @@
+import Loop from './loop';
+
 export default class Game {
   container = null;
   options = null;
   preloaded = false;
   activated = false;
   renderer = null;
+  loop = null;
 
   constructor(options) {
     this.options = options;
+
+    this.renderer = new this.options.renderer();
+    this.loop = new Loop(options);
+
+    this.loop.setRenderer(this.renderer);
   }
 
   attach(container) {
@@ -25,7 +33,6 @@ export default class Game {
 
     container.addEventListener('click', clickHandler);
 
-    this.renderer = new this.options.renderer();
     this.renderer.attach(container);
 
     return this;
@@ -46,6 +53,6 @@ export default class Game {
       return;
     }
 
-    eval(this.options.run);
+    this.loop.run();
   }
 }

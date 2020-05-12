@@ -12,7 +12,6 @@ export const ProjectEditor = () => {
 
   const dispatch = useDispatch();
   const project = useSelector(project => project);
-  const code = useSelector(project => project.code);
   const renderer = useSelector(project => project.renderer);
 
   const save = () => {
@@ -46,13 +45,6 @@ export const ProjectEditor = () => {
   return (
     <div className="ProjectEditor" style={{padding: 20}}>
       {error && <div className="error-banner">{error.toString()}</div>}
-      <CodeEditor
-        width="400"
-        height="300"
-        language="javascript"
-        value={code}
-        onChange={(code) => dispatch({type: 'change-code', code})}
-      />
       <select value={renderer} onChange={(e) => dispatch({type: 'set-renderer', renderer: e.target.value})}>
         <option value="canvas">Canvas</option>
         <option value="webgl">WebGL</option>

@@ -5,7 +5,8 @@ export default (project) => {
 
     export default new Game({
       renderer: Renderer,
-      run: ${JSON.stringify(project.code)},
+      init: () => { },
+      update: (dt, time) => { },
     });
   `;
 };

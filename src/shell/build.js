@@ -46,7 +46,7 @@ const buildWithLiveWebpack = (project, tmpDir) => {
 
   return Promise.all([
     [tmpDir, 'webpack.config.js', project.webpackConfig],
-    [srcDir, 'game.js', project.code],
+    [srcDir, 'game.js', project.assembly],
     [srcDir, 'index.html', project.indexHtml],
   ].map((args) => saveFile(...args))).then(() => {
     process.chdir(tmpDir);
@@ -82,7 +82,7 @@ const buildWithExternalWebpack = (project, tmpDir) => {
 
   return Promise.all([
     [tmpDir, 'webpack.config.js', project.webpackConfig],
-    [srcDir, 'game.js', project.code],
+    [srcDir, 'game.js', project.assembly],
     [srcDir, 'index.html', project.indexHtml],
   ].map((args) => saveFile(...args))).then(() => {
     return new Promise((resolve, reject) => {
