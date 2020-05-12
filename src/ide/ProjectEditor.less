@@ -1,0 +1,83 @@
+.ProjectEditor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  & > .v {
+    height: 100%;
+  }
+
+  .v, .h {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    align-content: stretch;
+    justify-content: center;
+  }
+
+  .v {
+    flex-direction: column;
+  }
+
+  .h {
+    flex-direction: row;
+  }
+
+  .PanelTop, .PanelLeft, .PanelRight, .PanelBottom, .PanelCenter {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .PanelTop {
+    border-bottom: 1px solid black;
+  }
+
+  .PanelRight {
+    border-left: 1px solid black;
+  }
+
+  .PanelBottom {
+    border-top: 1px solid black;
+  }
+
+  .PanelLeft {
+    border-right: 1px solid black;
+  }
+
+  .PanelTop > *, .PanelLeft > *, .PanelRight > *, .PanelBottom > *, .PanelCenter > * {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+  }
+
+  .PanelTop {
+    flex-grow: 0;
+    min-height: 30px;
+    height: 30px;
+    width: 100%;
+  }
+
+  .PanelLeft {
+    flex-grow: 0.75;
+  }
+
+  .PanelRight {
+    flex-grow: 0.5;
+  }
+
+  .PanelBottom {
+    flex-grow: 0.5;
+  }
+
+  .PanelCenter {
+    flex-grow: 2;
+  }
+}
