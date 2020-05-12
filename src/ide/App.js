@@ -7,6 +7,8 @@ import { ProjectEditor } from './ProjectEditor';
 import { canLoadProject } from '@ide/bridge';
 import { createProjectAction } from './project';
 
+export const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+
 const App = () => {
   const project = useSelector(project => project);
   if (project) {
