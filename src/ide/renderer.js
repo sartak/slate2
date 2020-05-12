@@ -10,6 +10,36 @@ const classes = {};
   ['WebGPURenderer', BaseWebGPURenderer],
 ].forEach(([name, baseClass]) => {
   const dynamicClass = class extends baseClass {
+    panX = 0;
+    panY = 0;
+
+    attach(...args) {
+      const ret = super.attach(...args);
+      const { canvas } = this;
+
+      canvas.onmousedown = (e) => {
+        const originX = e.pageX;
+        const originY = e.pageY;
+        const { panX, panY } = this;
+
+        const mouseMove = (e) => {
+          const dx = e.pageX - originX;
+          const dy = e.pageY - originY;
+          this.panX = Math.floor(panX + dx);
+          this.panY = Math.floor(panY + dy);
+          this.render();
+        };
+
+        document.addEventListener('mousemove', mouseMove);
+        canvas.onmouseup = () => {
+          document.removeEventListener('mousemove', mouseMove);
+          canvas.onmouseup = null;
+        };
+      };
+
+      return ret;
+    }
+
     didResize() {
       const { container, canvas } = this;
       if (container && canvas) {
@@ -20,13 +50,19 @@ const classes = {};
       }
     }
 
+    prepareRender() {
+      super.prepareRender();
+      const { ctx, panX, panY } = this;
+      ctx.translate(panX, panY);
+    }
+
     render() {
       super.render();
       this.drawGrid();
     }
 
     drawGrid() {
-      const { canvas, ctx } = this;
+      const { canvas, ctx, panX, panY } = this;
       const { width, height } = canvas;
 
       const size = 32;
@@ -35,10 +71,10 @@ const classes = {};
       ctx.resetTransform();
       ctx.translate(0.5, 0.5); // crisper lines
 
-      const x0 = 0;
-      const x1 = width;
-      const y0 = 0;
-      const y1 = height;
+      const x0 = panX % size - size;
+      const x1 = x0 + width + 2 * size;
+      const y0 = panY % size - size;
+      const y1 = y0 + height + 2 * size;
 
       for (let x = x0; x < x1; x += size) {
         ctx.moveTo(x, y0);
