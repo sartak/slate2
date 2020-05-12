@@ -5,6 +5,7 @@ import './App.less';
 import { OpenProject } from './OpenProject';
 import { ProjectEditor } from './ProjectEditor';
 import { canLoadProject } from '@ide/bridge';
+import { createProjectAction } from './project';
 
 const App = () => {
   const project = useSelector(project => project);
@@ -15,7 +16,7 @@ const App = () => {
     return <OpenProject />;
   } else {
     const dispatch = useDispatch();
-    dispatch({ type: 'create-project' });
+    dispatch(createProjectAction());
     return null;
   }
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadProject } from '@ide/bridge';
+import { createProjectAction, loadProjectAction } from './project';
 import './OpenProject.less';
 
 export const OpenProject = () => {
@@ -11,7 +12,7 @@ export const OpenProject = () => {
 
   const createProject = () => {
     setLoadError(null);
-    dispatch({ type: 'create-project' });
+    dispatch(createProjectAction());
   };
 
   const loadExistingProject = () => {
@@ -21,7 +22,7 @@ export const OpenProject = () => {
     loadProject().then((project) => {
       setLoading(false);
       if (project) {
-        dispatch({ type: 'load-project', project });
+        dispatch(loadProjectAction(project));
       }
     }).catch((error) => {
       setLoading(false);
