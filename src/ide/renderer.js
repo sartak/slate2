@@ -22,7 +22,18 @@ const classes = {};
         const originY = e.pageY;
         const { panX, panY } = this;
 
+        const finishMove = () => {
+          document.removeEventListener('mousemove', mouseMove);
+          canvas.onmouseup = null;
+        };
+
         const mouseMove = (e) => {
+          // this can occasionally happen
+          if (e.buttons === 0) {
+            finishMove();
+            return;
+          }
+
           const dx = e.pageX - originX;
           const dy = e.pageY - originY;
           this.panX = Math.floor(panX + dx);
@@ -32,8 +43,7 @@ const classes = {};
 
         document.addEventListener('mousemove', mouseMove);
         canvas.onmouseup = () => {
-          document.removeEventListener('mousemove', mouseMove);
-          canvas.onmouseup = null;
+          finishMove();
         };
       };
 
