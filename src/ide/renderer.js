@@ -130,7 +130,7 @@ const classes = {};
       const { width, height } = canvas;
 
       const size = 32 * zoom;
-      if (size < 8) {
+      if (size < 16) {
         return;
       }
 
