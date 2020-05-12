@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import CanvasRenderer from './renderer/canvas';
 import WebGLRenderer from './renderer/webgl';
@@ -42,6 +42,21 @@ export const Surface = () => {
       rendererRef.current = null;
     };
   }, [rendererType]);
+
+  const handleResize = useCallback(() => {
+    if (rendererRef.current) {
+      rendererRef.current.didResize();
+    }
+  });
+
+  useLayoutEffect(() => {
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  });
 
   return (
     <div className="Surface" ref={surfaceCallback} />
