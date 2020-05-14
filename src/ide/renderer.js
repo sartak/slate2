@@ -184,8 +184,8 @@ const classes = {};
       const { container, canvas } = this;
       if (container && canvas) {
         const { width, height } = container.getBoundingClientRect();
-        canvas.width = Math.floor(width);
-        canvas.height = Math.floor(height);
+        this.width = canvas.width = Math.floor(width);
+        this.height = canvas.height = Math.floor(height);
         this.render();
       }
     }
@@ -202,8 +202,7 @@ const classes = {};
     }
 
     drawGrid() {
-      const { canvas, ctx, panX, panY, zoom } = this;
-      const { width, height } = canvas;
+      const { canvas, ctx, panX, panY, zoom, width, height } = this;
 
       const size = 32 * zoom;
       if (size < 16) {

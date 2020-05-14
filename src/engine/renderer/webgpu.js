@@ -2,6 +2,8 @@ export default class WebGPURenderer {
   container = null;
   canvas = null;
   ctx = null;
+  width = null;
+  height = null;
 
   attach(container) {
     if (this.container) {
@@ -14,8 +16,8 @@ export default class WebGPURenderer {
     this.canvas = canvas;
 
     const { width, height } = container.getBoundingClientRect();
-    canvas.width = Math.floor(width);
-    canvas.height = Math.floor(height);
+    this.width = canvas.width = Math.floor(width);
+    this.height = canvas.height = Math.floor(height);
     container.appendChild(canvas);
 
     this.ctx = canvas.getContext('2d');
