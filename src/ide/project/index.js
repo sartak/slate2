@@ -63,6 +63,7 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         nextEntityId: 1 + state.nextEntityId,
+        selectedEntityIndex: state.entities.length,
         entities: [
           ...state.entities,
           { __id: state.nextEntityId, ...action.entity },
