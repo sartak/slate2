@@ -16,7 +16,7 @@ const FieldComponent = {
   ),
 };
 
-const InspectEntityComponent = ({ index, entity, config, dispatch }) => {
+const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
   const { name: componentName, fields: entityValues } = config;
 
   const [component, label] = ComponentByName[componentName];
@@ -30,7 +30,7 @@ const InspectEntityComponent = ({ index, entity, config, dispatch }) => {
 
           const onChange = (e) => {
             const value = e.target.value;
-            dispatch(changeEntityComponentValueAction(index, componentName, fieldName, value));
+            dispatch(changeEntityComponentValueAction(entityIndex, componentName, fieldName, value));
           };
 
           const value = entityValues[fieldName];
@@ -47,12 +47,12 @@ const InspectEntityComponent = ({ index, entity, config, dispatch }) => {
   );
 };
 
-const AddComponentToEntity = ({ index, entity, dispatch }) => {
+const AddComponentToEntity = ({ entityIndex, entity, dispatch }) => {
   const [isAdding, setAdding] = useState(false);
 
   useEffect(() => {
     setAdding(false);
-  }, [index]);
+  }, [entityIndex]);
 
   if (!isAdding) {
     return (
@@ -61,7 +61,7 @@ const AddComponentToEntity = ({ index, entity, dispatch }) => {
   }
 
   const addComponent = (component) => {
-    dispatch(addComponentToEntityAction(index, newEntityComponent(component)));
+    dispatch(addComponentToEntityAction(entityIndex, newEntityComponent(component)));
     setAdding(false);
   };
 
@@ -86,8 +86,8 @@ const AddComponentToEntity = ({ index, entity, dispatch }) => {
   );
 };
 
-const InspectEntity = ({ index, dispatch }) => {
-  const entity = useSelector(project => project.entities[index]);
+const InspectEntity = ({ entityIndex, dispatch }) => {
+  const entity = useSelector(project => project.entities[entityIndex]);
 
   return (
     <div className="InspectEntity">
@@ -95,7 +95,7 @@ const InspectEntity = ({ index, dispatch }) => {
         {entity.components.map((config, c) => (
           <li key={c}>
             <InspectEntityComponent
-              index={index}
+              entityIndex={entityIndex}
               entity={entity}
               config={config}
               dispatch={dispatch}
@@ -105,7 +105,7 @@ const InspectEntity = ({ index, dispatch }) => {
       </ul>
       <div className="controls">
         <AddComponentToEntity
-          index={index}
+          entityIndex={entityIndex}
           entity={entity}
           dispatch={dispatch}
         />
@@ -115,12 +115,12 @@ const InspectEntity = ({ index, dispatch }) => {
 };
 
 export const Inspector = () => {
-  const index = useSelector(project => project.selectedEntityIndex);
+  const entityIndex = useSelector(project => project.selectedEntityIndex);
   const dispatch = useDispatch();
 
   return (
     <div className="Inspector">
-      {index !== -1 && <InspectEntity index={index} dispatch={dispatch} />}
+      {entityIndex !== -1 && <InspectEntity entityIndex={entityIndex} dispatch={dispatch} />}
     </div>
   );
 }
