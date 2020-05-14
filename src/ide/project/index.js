@@ -38,6 +38,11 @@ export const commitSurfaceTransformAction = (surface) => {
   return { 'type': COMMIT_SURFACE_TRANSFORM, surface };
 };
 
+const CHANGE_ENTITY_COMPONENT_VALUE = 'change-entity-component-value';
+export const changeEntityComponentValueAction = (entityIndex, componentName, fieldName, value) => {
+  return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentName, fieldName, value };
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -64,6 +69,33 @@ export const projectReducer = (state = null, action) => {
     }
     case COMMIT_SURFACE_TRANSFORM: {
       return {...state, surface: action.surface};
+    }
+    case CHANGE_ENTITY_COMPONENT_VALUE: {
+      const {entityIndex, componentName, fieldName, value} = action;
+      return {
+        ...state,
+        entities: state.entities.map((entity, i) => {
+          if (i !== entityIndex) {
+            return entity;
+          }
+          return {
+            ...entity,
+            components: entity.components.map((component) => {
+              if (component.name !== componentName) {
+                return component;
+              }
+
+              return {
+                ...component,
+                fields: {
+                  ...component.fields,
+                  [fieldName]: value,
+                },
+              };
+            }),
+          };
+        }),
+      };
     }
     default: {
       return state;

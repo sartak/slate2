@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { changeEntityComponentValueAction } from './project';
 import { Components, ComponentByName } from './project/components';
 import './Inspector.less';
 
-const InspectEntityComponent = ({ index, entity, config }) => {
-  const { name: componentName, fields } = config;
+const FieldComponent = {
+  'float': (value, onChange) => (
+    <input type="number" value={value} onChange={onChange} />
+  ),
+  'color': (value, onChange) => (
+    <input type="color" value={value} onChange={onChange} />
+  ),
+  'entity': (value) => (
+    <span>{value === null ? "(null)" : value}</span>
+  ),
+};
+
+const InspectEntityComponent = ({ index, entity, config, dispatch }) => {
+  const { name: componentName, fields: entityValues } = config;
 
   const [component, label] = ComponentByName[componentName];
 
@@ -13,12 +26,19 @@ const InspectEntityComponent = ({ index, entity, config }) => {
       <div className="componentName">{label}</div>
       <ul>
         {component.fields.map((field) => {
-          const { name: fieldName, value } = field;
+          const { name: fieldName, type } = field;
+
+          const onChange = (e) => {
+            const value = e.target.value;
+            dispatch(changeEntityComponentValueAction(index, componentName, fieldName, value));
+          };
+
+          const value = entityValues[fieldName];
 
           return (
             <li key={fieldName}>
               <span className="name">{fieldName}</span>
-              {value}
+              {FieldComponent[type](value, onChange, fieldName)}
             </li>
           );
         })}
@@ -27,7 +47,7 @@ const InspectEntityComponent = ({ index, entity, config }) => {
   );
 };
 
-const InspectEntity = ({ index }) => {
+const InspectEntity = ({ index, dispatch }) => {
   const entity = useSelector(project => project.entities[index]);
   const [isAddingComponent, setAddingComponent] = useState(false);
 
@@ -44,6 +64,7 @@ const InspectEntity = ({ index }) => {
               index={index}
               entity={entity}
               config={config}
+              dispatch={dispatch}
             />
           </li>
         ))}
@@ -65,10 +86,11 @@ const InspectEntity = ({ index }) => {
 
 export const Inspector = () => {
   const index = useSelector(project => project.selectedEntityIndex);
+  const dispatch = useDispatch();
 
   return (
     <div className="Inspector">
-      {index !== -1 && <InspectEntity index={index} />}
+      {index !== -1 && <InspectEntity index={index} dispatch={dispatch} />}
     </div>
   );
 }
