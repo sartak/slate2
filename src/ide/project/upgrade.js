@@ -1,4 +1,4 @@
-export const currentVersion = 4;
+export const currentVersion = 5;
 
 export const newProject = () => {
   return {
@@ -7,6 +7,13 @@ export const newProject = () => {
     entities: [],
     nextEntityId: 1,
     selectedEntityIndex: -1,
+
+    surface: {
+      panX: 0,
+      panY: 0,
+      zoom: 1,
+      prevZoom: 0.5,
+    },
   };
 };
 
@@ -33,6 +40,15 @@ export const upgradeProject = (project) => {
 
   if (project.version < 4) {
     project.selectedEntityIndex = -1;
+  }
+
+  if (project.version < 5) {
+    project.surface = {
+      panX: 0,
+      panY: 0,
+      zoom: 1,
+      prevZoom: 0.5,
+    };
   }
 
   project.version = currentVersion;

@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { commitSurfaceTransformAction } from './project';
 import { rendererForType } from './renderer';
 
 export const Surface = () => {
+  const dispatch = useDispatch();
   const rendererType = useSelector(project => project.renderer);
+  const surfaceOpts = useSelector(project => project.surface);
   const rendererRef = useRef(null);
   const surfaceRef = useRef(null);
 
@@ -20,7 +23,11 @@ export const Surface = () => {
 
   useEffect(() => {
     const rendererClass = rendererForType(rendererType);
-    const renderer = new rendererClass();
+
+    const renderer = new rendererClass(surfaceOpts, (opts) => {
+      dispatch(commitSurfaceTransformAction(opts));
+    });
+
     rendererRef.current = renderer;
 
     renderer.attach(surfaceRef.current);
@@ -46,6 +53,10 @@ export const Surface = () => {
       window.removeEventListener('resize', handleResize);
     };
   });
+
+  if (rendererRef.current) {
+    rendererRef.current.changeTransform(surfaceOpts);
+  }
 
   return (
     <div className="Surface" ref={surfaceCallback} />

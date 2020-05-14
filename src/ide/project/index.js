@@ -30,6 +30,11 @@ export const selectEntityIndexAction = (index) => {
   return { 'type': SELECT_ENTITY_INDEX, index };
 };
 
+const COMMIT_SURFACE_TRANSFORM = 'commit-surface-transform';
+export const commitSurfaceTransformAction = (surface) => {
+  return { 'type': COMMIT_SURFACE_TRANSFORM, surface };
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -53,6 +58,9 @@ export const projectReducer = (state = null, action) => {
     }
     case SELECT_ENTITY_INDEX: {
       return {...state, selectedEntityIndex: action.index};
+    }
+    case COMMIT_SURFACE_TRANSFORM: {
+      return {...state, surface: action.surface};
     }
     default: {
       return state;

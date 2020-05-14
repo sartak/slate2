@@ -15,6 +15,45 @@ const classes = {};
     panY = 0;
     zoom = 1;
     prevZoom = 0.5;
+    onCommitTransform = null;
+    wheelTimeout = null;
+
+    constructor(opts, onCommitTransform) {
+      super();
+
+      this.panX = opts.panX || 0;
+      this.panY = opts.panY || 0;
+      this.zoom = opts.zoom || 1;
+      this.prevZoom = opts.prevZoom || 0.5;
+      this.onCommitTransform = onCommitTransform;
+    }
+
+    changeTransform(opts) {
+      if (this.panX === opts.panX && this.panY === opts.panY && this.zoom === opts.zoom) {
+        return;
+      }
+
+      // @Bugfix: don't allow external change to the transform if we're currently actively changing it
+      this.panX = opts.panX;
+      this.panY = opts.panY;
+      this.zoom = opts.zoom;
+      this.prevZoom = opts.prevZoom;
+
+      this.render();
+    }
+
+    commitTransform() {
+      if (!this.onCommitTransform) {
+        return;
+      }
+
+      this.onCommitTransform({
+        panX: this.panX,
+        panY: this.panY,
+        zoom: this.zoom,
+        prevZoom: this.prevZoom,
+      });
+    }
 
     zoomAtScreenPoint(dz, x, y) {
       const newZoom = this.zoom * dz;
@@ -43,10 +82,15 @@ const classes = {};
         const originX = e.pageX;
         const originY = e.pageY;
         const { panX, panY } = this;
+        let sawMove = false;
 
         const finishMove = () => {
           document.removeEventListener('mousemove', mouseMove);
           canvas.onmouseup = null;
+
+          if (sawMove) {
+            this.commitTransform();
+          }
         };
 
         const mouseMove = (e) => {
@@ -58,6 +102,7 @@ const classes = {};
             return;
           }
 
+          sawMove = true;
           const dx = e.pageX - originX;
           const dy = e.pageY - originY;
           this.panX = panX + dx;
@@ -75,6 +120,15 @@ const classes = {};
       // multitouch
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
+
+        // we don't get an end notification
+        if (this.wheelTimeout) {
+          clearTimeout(this.wheelTimeout);
+        }
+
+        this.wheelTimeout = setTimeout(() => {
+          this.commitTransform();
+        }, 100);
 
         // since we can't prevent user zoom in the web version, have
         // two-finger pan act as zoom, like in google maps
@@ -99,6 +153,7 @@ const classes = {};
         }
 
         this.zoomAtScreenPoint(dz, e.offsetX, e.offsetY);
+        this.commitTransform();
       };
 
       return ret;
