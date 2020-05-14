@@ -77,7 +77,7 @@ export const upgradeProject = (project) => {
           fields: {
             w: 100,
             h: 100,
-            color: '#000000',
+            color: '#FFFFFF',
           },
         }
       ];
