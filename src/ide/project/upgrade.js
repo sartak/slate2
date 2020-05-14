@@ -17,6 +17,10 @@ export const newProject = () => {
   };
 };
 
+export const newEntity = () => {
+  return {};
+};
+
 export const upgradeProject = (project) => {
   if (!project.version) {
     project.version = 0;

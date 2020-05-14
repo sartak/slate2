@@ -1,4 +1,6 @@
-import { newProject } from './upgrade';
+import { newProject, newEntity } from './upgrade';
+
+export { newEntity };
 
 const CREATE_PROJECT = 'create-project';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addEntityAction, selectEntityIndexAction } from './project';
+import { addEntityAction, selectEntityIndexAction, newEntity } from './project';
 import './EntityList.less';
 
 export const EntityList = () => {
@@ -22,7 +22,7 @@ export const EntityList = () => {
         })}
       </ul>
       <div className="controls">
-        <button onClick={() => dispatch(addEntityAction({}))}>Add Entity</button>
+        <button onClick={() => dispatch(addEntityAction(newEntity()))}>Add Entity</button>
       </div>
     </div>
   );
