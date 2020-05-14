@@ -17,6 +17,7 @@ const classes = {};
     prevZoom = 0.5;
     onCommitTransform = null;
     wheelTimeout = null;
+    isTransforming = false;
 
     constructor(opts, onCommitTransform) {
       super();
@@ -29,11 +30,16 @@ const classes = {};
     }
 
     changeTransform(opts) {
+      // If we receive an event from redux, but the user already started
+      // enacting a new transform, then the user wins
+      if (this.isTransforming) {
+        return;
+      }
+
       if (this.panX === opts.panX && this.panY === opts.panY && this.zoom === opts.zoom) {
         return;
       }
 
-      // @Bugfix: don't allow external change to the transform if we're currently actively changing it
       this.panX = opts.panX;
       this.panY = opts.panY;
       this.zoom = opts.zoom;
@@ -42,7 +48,17 @@ const classes = {};
       this.render();
     }
 
+    beginTransform() {
+      if (this.isTransforming) {
+        return;
+      }
+
+      this.isTransforming = true;
+    }
+
     commitTransform() {
+      this.isTransforming = false;
+
       if (!this.onCommitTransform) {
         return;
       }
@@ -78,6 +94,8 @@ const classes = {};
 
       canvas.onmousedown = (e) => {
         e.preventDefault();
+
+        this.beginTransform();
 
         const originX = e.pageX;
         const originY = e.pageY;
@@ -121,6 +139,8 @@ const classes = {};
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
 
+        this.beginTransform();
+
         // we don't get an end notification
         if (this.wheelTimeout) {
           clearTimeout(this.wheelTimeout);
@@ -152,6 +172,7 @@ const classes = {};
           dz = 1 / this.zoom;
         }
 
+        this.beginTransform();
         this.zoomAtScreenPoint(dz, e.offsetX, e.offsetY);
         this.commitTransform();
       };
