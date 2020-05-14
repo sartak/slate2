@@ -5,8 +5,19 @@ import { Components, ComponentByName, newEntityComponent } from './project/compo
 import './Inspector.less';
 
 const FieldComponent = {
-  'float': (value, onChange) => (
-    <input type="number" value={value} onChange={onChange} />
+  'float': (value, onChange, _, defaultValue) => (
+    <input
+      type="number"
+      value={value}
+      placeholder={defaultValue}
+      onChange={onChange}
+      onBlur={(e) => {
+        if (e.target.value === "") {
+          e.target.value = defaultValue;
+          onChange(e);
+        }
+      }}
+    />
   ),
   'color': (value, onChange) => (
     <input type="color" value={value} onChange={onChange} />
@@ -26,7 +37,7 @@ const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
       <div className="componentName">{label}</div>
       <ul>
         {component.fields.map((field) => {
-          const { name: fieldName, type } = field;
+          const { name: fieldName, type, default: defaultValue } = field;
 
           const onChange = (e) => {
             const value = e.target.value;
@@ -38,7 +49,7 @@ const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
           return (
             <li key={fieldName}>
               <span className="name">{fieldName}</span>
-              {FieldComponent[type](value, onChange, fieldName)}
+              {FieldComponent[type](value, onChange, fieldName, defaultValue)}
             </li>
           );
         })}
