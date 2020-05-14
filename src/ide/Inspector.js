@@ -30,11 +30,11 @@ const FieldComponent = {
 const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
   const { name: componentName, fields: entityValues } = config;
 
-  const [component, label] = ComponentByName[componentName];
+  const component = ComponentByName[componentName];
 
   return (
     <div className="InspectEntityComponent">
-      <div className="componentName">{label}</div>
+      <div className="componentName">{component.name}</div>
       <ul>
         {component.fields.map((field) => {
           const { name: fieldName, type, default: defaultValue } = field;
@@ -82,14 +82,14 @@ const AddComponentToEntity = ({ entityIndex, entity, dispatch }) => {
     hasComponent[entityComponent.name] = true;
   });
 
-  const possibleComponents = Components.filter(([component]) => !hasComponent[component.name]);
+  const possibleComponents = Components.filter((component) => !hasComponent[component.name]);
 
   return (
     <ul>
-      {possibleComponents.map(([component, label]) => {
+      {possibleComponents.map((component) => {
         return (
           <li key={component.name}>
-            <a href="javascript:void(0)" onClick={() => addComponent(component)}>{label}</a>
+            <a href="javascript:void(0)" onClick={() => addComponent(component)}>{component.name}</a>
           </li>
         );
       })}

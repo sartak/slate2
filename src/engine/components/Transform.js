@@ -1,4 +1,5 @@
 export class TransformComponent {
+  static name = 'Transform';
   static fields = [
     { name: 'parent', type: 'entity', default: null },
     { name: 'x', type: 'float', default: 0 },

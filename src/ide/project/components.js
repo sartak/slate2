@@ -33,21 +33,16 @@ export const newEntity = (x, y) => {
 };
 
 const Components = [
-  [TransformComponent, ''],
-  [MotionComponent, ''],
-  [JoystickComponent, ''],
-  [RenderRectangleComponent, ''],
+  TransformComponent,
+  MotionComponent,
+  JoystickComponent,
+  RenderRectangleComponent,
 ];
 
 const ComponentByName = {};
 
-Components.forEach((metadata) => {
-  const [classInstance] = metadata;
-  const name = classInstance.name;
-  const label = name.slice(0, -9);
-  metadata[1] = label;
-
-  ComponentByName[name] = metadata;
+Components.forEach((classInstance) => {
+  ComponentByName[classInstance.name] = classInstance;
 });
 
 export { Components, ComponentByName };

@@ -1,4 +1,4 @@
-export const currentVersion = 7;
+export const currentVersion = 8;
 
 export const newProject = () => {
   return {
@@ -81,6 +81,14 @@ export const upgradeProject = (project) => {
           },
         }
       ];
+    });
+  }
+
+  if (project.version < 8) {
+    project.entities.forEach((entity) => {
+      entity.components.forEach((component) => {
+        component.name = component.name.replace('Component', '');
+      });
     });
   }
 
