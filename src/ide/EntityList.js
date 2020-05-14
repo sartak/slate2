@@ -17,7 +17,7 @@ export const EntityList = () => {
               key={entity.__id}
               className={selectedEntityIndex === i ? "active" : null}
               onClick={() => dispatch(selectEntityIndexAction(i))}
-            >{JSON.stringify(entity)}</li>
+            >Entity {entity.__id}</li>
           );
         })}
       </ul>
