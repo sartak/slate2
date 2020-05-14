@@ -1,3 +1,5 @@
+import { newProject } from './upgrade';
+
 const CREATE_PROJECT = 'create-project';
 
 export const createProjectActionStatic = {
@@ -21,9 +23,7 @@ export const setRendererAction = (renderer) => {
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
-      return {
-        renderer: 'canvas',
-      };
+      return newProject();
     }
     case LOAD_PROJECT: {
       return action.project;

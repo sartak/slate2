@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadProject } from '@ide/bridge';
 import { createProjectAction, loadProjectAction } from './project';
+import { upgradeProject } from './project/upgrade';
 import './OpenProject.less';
 
 export const OpenProject = () => {
@@ -22,6 +23,7 @@ export const OpenProject = () => {
     loadProject().then((project) => {
       setLoading(false);
       if (project) {
+        upgradeProject(project);
         dispatch(loadProjectAction(project));
       }
     }).catch((error) => {
