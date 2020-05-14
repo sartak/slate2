@@ -37,7 +37,14 @@ export const projectReducer = (state = null, action) => {
       return {...state, renderer: action.renderer};
     }
     case ADD_ENTITY: {
-      return {...state, entities: [...state.entities, action.entity]};
+      return {
+        ...state,
+        nextEntityId: 1 + state.nextEntityId,
+        entities: [
+          ...state.entities,
+          { __id: state.nextEntityId, ...action.entity },
+        ],
+      };
     }
     default: {
       return state;
