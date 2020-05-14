@@ -6,7 +6,10 @@ import App from './App';
 import { projectReducer } from './project';
 
 export default (container, options = {}) => {
-  const projectStore = createStore(projectReducer, options.project || null);
+  const projectStore = createStore(
+    projectReducer, options.project || null,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  );
 
   ReactDOM.render(
     <Provider store={projectStore}>
