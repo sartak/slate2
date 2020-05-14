@@ -1,4 +1,4 @@
-export const currentVersion = 6;
+export const currentVersion = 7;
 
 export const newProject = () => {
   return {
@@ -54,6 +54,33 @@ export const upgradeProject = (project) => {
   if (project.version < 6) {
     project.entities.forEach((entity) => {
       entity.components = [];
+    });
+  }
+
+  if (project.version < 7) {
+    project.entities.forEach((entity) => {
+      entity.components = [
+        {
+          name: 'TransformComponent',
+          fields: {
+            parent: null,
+            x: 0,
+            y: 0,
+            z: 0,
+            rotation: 0,
+            scale_x: 1,
+            scale_y: 1,
+          },
+        },
+        {
+          name: 'RenderRectangleComponent',
+          fields: {
+            w: 100,
+            h: 100,
+            color: '#000000',
+          },
+        }
+      ];
     });
   }
 

@@ -3,9 +3,34 @@ import { MotionComponent } from '../../engine/components/Motion';
 import { JoystickComponent } from '../../engine/components/Joystick';
 import { RenderRectangleComponent } from '../../engine/components/RenderRectangle';
 
-export const newEntity = () => {
+export const defaultsForComponent = (component) => {
+  const defaults = {};
+
+  component.fields.forEach(({ name, default: defaultValue }) => {
+    defaults[name] = defaultValue;
+  });
+
+  return defaults;
+};
+
+export const newEntity = (x, y) => {
   return {
-    components: [],
+    components: [
+      {
+        name: TransformComponent.name,
+        fields: {
+          ...defaultsForComponent(TransformComponent),
+          x,
+          y,
+        },
+      },
+      {
+        name: RenderRectangleComponent.name,
+        fields: {
+          ...defaultsForComponent(RenderRectangleComponent),
+        },
+      },
+    ],
   };
 };
 

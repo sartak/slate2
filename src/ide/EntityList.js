@@ -22,7 +22,7 @@ export const EntityList = () => {
         })}
       </ul>
       <div className="controls">
-        <button onClick={() => dispatch(addEntityAction(newEntity()))}>Add Entity</button>
+        <button onClick={() => dispatch(addEntityAction(newEntity(0, 0)))}>Add Entity</button>
       </div>
     </div>
   );
