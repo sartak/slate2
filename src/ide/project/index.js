@@ -25,6 +25,11 @@ export const addEntityAction = (entity) => {
   return { 'type': ADD_ENTITY, entity };
 };
 
+const SELECT_ENTITY_INDEX = 'select-entity-index';
+export const selectEntityIndexAction = (index) => {
+  return { 'type': SELECT_ENTITY_INDEX, index };
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -45,6 +50,9 @@ export const projectReducer = (state = null, action) => {
           { __id: state.nextEntityId, ...action.entity },
         ],
       };
+    }
+    case SELECT_ENTITY_INDEX: {
+      return {...state, selectedEntityIndex: action.index};
     }
     default: {
       return state;

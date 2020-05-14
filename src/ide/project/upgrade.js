@@ -1,4 +1,4 @@
-export const currentVersion = 3;
+export const currentVersion = 4;
 
 export const newProject = () => {
   return {
@@ -6,6 +6,7 @@ export const newProject = () => {
     renderer: 'canvas',
     entities: [],
     nextEntityId: 1,
+    selectedEntityIndex: -1,
   };
 };
 
@@ -28,6 +29,10 @@ export const upgradeProject = (project) => {
       entity.__id = nextId++;
     });
     project.nextEntityId = nextId;
+  }
+
+  if (project.version < 4) {
+    project.selectedEntityIndex = -1;
   }
 
   project.version = currentVersion;
