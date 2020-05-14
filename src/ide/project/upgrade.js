@@ -17,12 +17,6 @@ export const newProject = () => {
   };
 };
 
-export const newEntity = () => {
-  return {
-    components: [],
-  };
-};
-
 export const upgradeProject = (project) => {
   if (!project.version) {
     project.version = 0;

@@ -1,4 +1,5 @@
-import { newProject, newEntity } from './upgrade';
+import { newProject } from './upgrade';
+import { newEntity } from './components';
 
 export { newEntity };
 
