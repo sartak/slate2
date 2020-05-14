@@ -1,9 +1,10 @@
-export const currentVersion = 1;
+export const currentVersion = 2;
 
 export const newProject = () => {
   return {
     version: currentVersion,
     renderer: 'canvas',
+    entities: [],
   };
 };
 
@@ -14,6 +15,10 @@ export const upgradeProject = (project) => {
 
   if (project.version < 1) {
     project.renderer = 'canvas';
+  }
+
+  if (project.version < 2) {
+    project.entities = [];
   }
 
   project.version = currentVersion;

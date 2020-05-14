@@ -20,6 +20,11 @@ export const setRendererAction = (renderer) => {
   return { 'type': SET_RENDERER, renderer };
 };
 
+const ADD_ENTITY = 'add-entity';
+export const addEntityAction = (entity) => {
+  return { 'type': ADD_ENTITY, entity };
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -30,6 +35,9 @@ export const projectReducer = (state = null, action) => {
     }
     case SET_RENDERER: {
       return {...state, renderer: action.renderer};
+    }
+    case ADD_ENTITY: {
+      return {...state, entities: [...state.entities, action.entity]};
     }
     default: {
       return state;
