@@ -1,4 +1,4 @@
-export const currentVersion = 5;
+export const currentVersion = 6;
 
 export const newProject = () => {
   return {
@@ -18,7 +18,9 @@ export const newProject = () => {
 };
 
 export const newEntity = () => {
-  return {};
+  return {
+    components: [],
+  };
 };
 
 export const upgradeProject = (project) => {
@@ -53,6 +55,12 @@ export const upgradeProject = (project) => {
       zoom: 1,
       prevZoom: 0.5,
     };
+  }
+
+  if (project.version < 6) {
+    project.entities.forEach((entity) => {
+      entity.components = [];
+    });
   }
 
   project.version = currentVersion;
