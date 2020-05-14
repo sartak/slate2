@@ -43,6 +43,11 @@ export const changeEntityComponentValueAction = (entityIndex, componentName, fie
   return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentName, fieldName, value };
 };
 
+const ADD_COMPONENT_TO_ENTITY = 'add-component-to-entity';
+export const addComponentToEntityAction = (entityIndex, entityComponent) => {
+  return { 'type': ADD_COMPONENT_TO_ENTITY, entityIndex, entityComponent };
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -93,6 +98,21 @@ export const projectReducer = (state = null, action) => {
                 },
               };
             }),
+          };
+        }),
+      };
+    }
+    case ADD_COMPONENT_TO_ENTITY: {
+      const {entityIndex, entityComponent} = action;
+      return {
+        ...state,
+        entities: state.entities.map((entity, i) => {
+          if (i !== entityIndex) {
+            return entity;
+          }
+          return {
+            ...entity,
+            components: [...entity.components, entityComponent],
           };
         }),
       };

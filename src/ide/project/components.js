@@ -13,23 +13,21 @@ export const defaultsForComponent = (component) => {
   return defaults;
 };
 
+export const newEntityComponent = (component, fields) => {
+  return {
+    name: component.name,
+    fields: {
+      ...defaultsForComponent(component),
+      ...fields,
+    },
+  };
+};
+
 export const newEntity = (x, y) => {
   return {
     components: [
-      {
-        name: TransformComponent.name,
-        fields: {
-          ...defaultsForComponent(TransformComponent),
-          x,
-          y,
-        },
-      },
-      {
-        name: RenderRectangleComponent.name,
-        fields: {
-          ...defaultsForComponent(RenderRectangleComponent),
-        },
-      },
+      newEntityComponent(TransformComponent, {x, y}),
+      newEntityComponent(RenderRectangleComponent),
     ],
   };
 };

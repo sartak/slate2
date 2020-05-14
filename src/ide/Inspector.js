@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { changeEntityComponentValueAction } from './project';
-import { Components, ComponentByName } from './project/components';
+import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
+import { Components, ComponentByName, newEntityComponent } from './project/components';
 import './Inspector.less';
 
 const FieldComponent = {
@@ -47,13 +47,47 @@ const InspectEntityComponent = ({ index, entity, config, dispatch }) => {
   );
 };
 
-const InspectEntity = ({ index, dispatch }) => {
-  const entity = useSelector(project => project.entities[index]);
-  const [isAddingComponent, setAddingComponent] = useState(false);
+const AddComponentToEntity = ({ index, entity, dispatch }) => {
+  const [isAdding, setAdding] = useState(false);
 
   useEffect(() => {
-    setAddingComponent(false);
+    setAdding(false);
   }, [index]);
+
+  if (!isAdding) {
+    return (
+      <button onClick={() => setAdding(true)}>Add Component</button>
+    );
+  }
+
+  const addComponent = (component) => {
+    dispatch(addComponentToEntityAction(index, newEntityComponent(component)));
+    setAdding(false);
+  };
+
+
+  const hasComponent = {};
+  entity.components.forEach((entityComponent) => {
+    hasComponent[entityComponent.name] = true;
+  });
+
+  const possibleComponents = Components.filter(([component]) => !hasComponent[component.name]);
+
+  return (
+    <ul>
+      {possibleComponents.map(([component, label]) => {
+        return (
+          <li key={component.name}>
+            <a href="javascript:void(0)" onClick={() => addComponent(component)}>{label}</a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
+const InspectEntity = ({ index, dispatch }) => {
+  const entity = useSelector(project => project.entities[index]);
 
   return (
     <div className="InspectEntity">
@@ -70,15 +104,11 @@ const InspectEntity = ({ index, dispatch }) => {
         ))}
       </ul>
       <div className="controls">
-        {isAddingComponent ? (
-          <ul>
-            {Components.map(([, label], c) => {
-              return <li key={c}>{label}</li>
-            })}
-          </ul>
-        ) : (
-          <button onClick={() => setAddingComponent(true)}>Add Component</button>
-        )}
+        <AddComponentToEntity
+          index={index}
+          entity={entity}
+          dispatch={dispatch}
+        />
       </div>
     </div>
   );
