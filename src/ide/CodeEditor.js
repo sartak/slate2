@@ -14,7 +14,8 @@ export const CodeEditorBase = (props) => {
         minimap: {
           enabled: false,
         },
-        ...(props.options || null)
+        ...(props.options || null),
+        readOnly: props.readOnly,
       }}
     />
   );
