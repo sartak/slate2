@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
 import { Components, ComponentByName, newEntityComponent } from './project/components';
 import './Inspector.less';
@@ -27,10 +27,18 @@ const FieldComponent = {
   ),
 };
 
-const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
-  const { name: componentName, fields: entityValues } = config;
+const InspectEntityComponent = ({ entityIndex, componentName }) => {
+  const dispatch = useDispatch();
 
   const component = ComponentByName[componentName];
+  const entityComponent = useSelector(
+    project => {
+      const entity = project.entities[entityIndex];
+      return entity.components.find((c) => c.name === componentName);
+    },
+    (prev, next) => shallowEqual(prev, next),
+  );
+  const { fields: entityValues } = entityComponent;
 
   return (
     <div className="InspectEntityComponent">
@@ -58,7 +66,8 @@ const InspectEntityComponent = ({ entityIndex, entity, config, dispatch }) => {
   );
 };
 
-const AddComponentToEntity = ({ entityIndex, entity, dispatch }) => {
+const AddComponentToEntity = ({ entityIndex, entity }) => {
+  const dispatch = useDispatch();
   const [isAdding, setAdding] = useState(false);
 
   useEffect(() => {
@@ -97,19 +106,23 @@ const AddComponentToEntity = ({ entityIndex, entity, dispatch }) => {
   );
 };
 
-const InspectEntity = ({ entityIndex, dispatch }) => {
-  const entity = useSelector(project => project.entities[entityIndex]);
+const InspectEntity = ({ entityIndex }) => {
+  const entity = useSelector(
+    project => project.entities[entityIndex],
+    (prev, next) => prev === next || shallowEqual(
+      prev.components.map(({ name }) => name),
+      next.components.map(({ name }) => name),
+    )
+  );
 
   return (
     <div className="InspectEntity">
       <ul className="components">
-        {entity.components.map((config, c) => (
-          <li key={c}>
+        {entity.components.map(({ name }) => (
+          <li key={name}>
             <InspectEntityComponent
               entityIndex={entityIndex}
-              entity={entity}
-              config={config}
-              dispatch={dispatch}
+              componentName={name}
             />
           </li>
         ))}
@@ -118,7 +131,6 @@ const InspectEntity = ({ entityIndex, dispatch }) => {
         <AddComponentToEntity
           entityIndex={entityIndex}
           entity={entity}
-          dispatch={dispatch}
         />
       </div>
     </div>
@@ -131,7 +143,7 @@ export const Inspector = () => {
 
   return (
     <div className="Inspector">
-      {entityIndex !== -1 && <InspectEntity entityIndex={entityIndex} dispatch={dispatch} />}
+      {entityIndex !== -1 && <InspectEntity entityIndex={entityIndex} />}
     </div>
   );
 }
