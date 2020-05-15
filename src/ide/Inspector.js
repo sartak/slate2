@@ -98,7 +98,7 @@ const AddComponentToEntity = ({ entityIndex, entity }) => {
       {possibleComponents.map((component) => {
         return (
           <li key={component.name}>
-            <a href="javascript:void(0)" onClick={() => addComponent(component)}>{component.name}</a>
+            <a href="#" onClick={() => addComponent(component)}>{component.name}</a>
           </li>
         );
       })}
