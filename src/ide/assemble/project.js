@@ -202,6 +202,22 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         ]);
       }
 
+      const {renderer} = project;
+      const renderMethod = `loop_render_${renderer}`;
+      if (system.prototype[renderMethod]) {
+        const loopVar = `${systemVar}_loop_render_${renderer}`;
+        code.push(`let ${loopVar} = null;`);
+
+        ctx.init.push([
+          `${loopVar} = ${systemVar}.${renderMethod}();`,
+        ]);
+
+        needEntities = true;
+        ctx.render.push([
+          `${loopVar}(${entitiesVar}, dt);`,
+        ]);
+      }
+
       if (needEntities) {
         const entitiesWithRequiredComponents = project.entities.filter(({ __id }) => {
           return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
