@@ -17,12 +17,20 @@ export const assembleImports = (project) => {
   `;
 };
 
+export const assembleGameInit = (project) => {
+  return '() => {}';
+};
+
+export const assembleGameUpdate = (project) => {
+  return '(dt, time) => {}';
+};
+
 export const assembleGame = (project) => {
   return `
     export default new Game({
       renderer: Renderer,
-      init: () => { },
-      update: (dt, time) => { },
+      init: ${assembleGameInit(project)},
+      update: ${assembleGameUpdate(project)},
       entities,
       components,
       systems,
