@@ -10,14 +10,16 @@ export class MovementSystem {
 
   loop_update() {
     const { Transform, Motion } = this;
+    const { x, y } = Transform;
+    const { velocity_x, velocity_y, acceleration_x, acceleration_y } = Motion;
 
     return (entities, dt) => {
       entities.forEach((entity) => {
-        Transform.x[entity] += Motion.velocity_x[entity] * dt;
-        Transform.y[entity] += Motion.velocity_y[entity] * dt;
+        x[entity] += velocity_x[entity] * dt;
+        y[entity] += velocity_y[entity] * dt;
 
-        Motion.velocity_x[entity] += Motion.acceleration_x[entity] * dt;
-        Motion.velocity_y[entity] += Motion.acceleration_y[entity] * dt;
+        velocity_x[entity] += acceleration_x[entity] * dt;
+        velocity_y[entity] += acceleration_y[entity] * dt;
       });
     };
   }
