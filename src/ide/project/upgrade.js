@@ -1,8 +1,11 @@
-export const currentVersion = 8;
+import { v4 as uuid } from 'uuid';
+
+export const currentVersion = 9;
 
 export const newProject = () => {
   return {
     version: currentVersion,
+    id: uuid(),
     renderer: 'canvas',
     entities: [],
     nextEntityId: 1,
@@ -90,6 +93,10 @@ export const upgradeProject = (project) => {
         component.name = component.name.replace('Component', '');
       });
     });
+  }
+
+  if (project.version < 9) {
+    project.id = uuid();
   }
 
   project.version = currentVersion;
