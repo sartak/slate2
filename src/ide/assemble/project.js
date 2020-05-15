@@ -3,6 +3,7 @@ import { ComponentByName } from '../project/components';
 export const assembleProject = (project) => {
   return `
     ${assembleImports(project)}
+    ${assembleECSSetup(project)}
     ${assembleGame(project)}
   `;
 };
@@ -21,7 +22,9 @@ export const assembleGame = (project) => {
       renderer: Renderer,
       init: () => { },
       update: (dt, time) => { },
-      ${assembleECS(project)},
+      entities,
+      components,
+      systems,
     });
   `;
 }
@@ -40,7 +43,7 @@ export const assembleECSImports = (project) => {
   `).join("")}`;
 };
 
-export const assembleECS = (project) => {
+export const assembleECSSetup = (project) => {
   const entityComponentsForComponent = {};
   const indexForEntity = {};
 
@@ -60,9 +63,13 @@ export const assembleECS = (project) => {
   });
 
   const components = [];
+  const componentVarName = {};
+
   Object.entries(entityComponentsForComponent).forEach(([componentName, { entities }]) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
+
+    componentVarName[componentName] = `component_${componentName}`;
 
     component.fields.forEach(({name: fieldName, type, default: defaultValue}) => {
       let zeroValue;
@@ -116,16 +123,20 @@ export const assembleECS = (project) => {
     components.push([componentName, componentFields]);
   });
 
-  return `
-    entities: [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}],
-    components: [${components.map(([componentName, fields]) => {
-      return `new ${componentName}Component({
+  return [
+    `const entities = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];`,
+
+    ...components.map(([componentName, fields]) => {
+      return `const ${componentVarName[componentName]} = new ${componentName}Component({
         ${fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
           return `  ${fieldName}: ${JSON.stringify(values)},\n`;
         }).join("")}
-      })\n`;
-    }).join(', ')}],
-    systems: {}
-  `;
+      });\n`;
+    }),
+
+    `const components = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
+
+    `const systems = [];\n`,
+  ].join("\n");
 }
