@@ -2,7 +2,9 @@ import { ComponentByName } from '../project/components';
 import { Systems } from '../project/systems';
 
 const newContext = (project) => {
-  return {};
+  return {
+    imports: [],
+  };
 };
 
 export const assembleProject = (project, ctx = newContext(project)) => {
@@ -14,9 +16,7 @@ export const assembleProject = (project, ctx = newContext(project)) => {
 
 export const assembleImports = (project, ctx = newContext(project)) => {
   return `
-    import Game from '@slate2/game';
-    import Renderer from '@slate2/renderer/${project.renderer}';
-    ${assembleECSImports(project)}
+    ${ctx.imports.map(([symbol, path, isDefault]) => `import ${isDefault ? symbol : `{ ${symbol} }`} from '@slate2/${path}';\n`).join("")}
   `;
 };
 
@@ -29,6 +29,9 @@ export const assembleGameUpdate = (project, ctx = newContext(project)) => {
 };
 
 export const assembleGame = (project, ctx = newContext(project)) => {
+  ctx.imports.push(['Game', 'game', true]);
+  ctx.imports.push(['Renderer', `renderer/${project.renderer}`, true]);
+
   return `
     export default new Game({
       renderer: Renderer,
@@ -40,29 +43,6 @@ export const assembleGame = (project, ctx = newContext(project)) => {
     });
   `;
 }
-
-export const assembleECSImports = (project, ctx = newContext(project)) => {
-  const componentNames = {};
-
-  project.entities.forEach(({ components }) => {
-    components.forEach(({ name }) => {
-      componentNames[name] = true;
-    });
-  });
-
-  const systems = Systems.filter((system) => {
-    return !system.requiredComponents.find((component) => !componentNames[component.name]);
-  });
-
-  return [
-    ...Object.keys(componentNames).map((name) => `
-      import { ${name}Component } from '@slate2/components/${name}';
-    `),
-    ...systems.map((system) => `
-      import { ${system.name}System } from '@slate2/systems/${system.name}';
-    `),
-  ].join("");
-};
 
 export const assembleECSSetup = (project, ctx = newContext(project)) => {
   const entityComponentsForComponent = {};
@@ -87,6 +67,8 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
   Object.entries(entityComponentsForComponent).forEach(([componentName, entities]) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
+
+    ctx.imports.push([`${componentName}Component`, `components/${componentName}`]);
 
     componentVarName[componentName] = `component_${componentName}`;
 
@@ -143,9 +125,16 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
   });
 
   const systemVarName = {};
-  const systems = Systems.filter((system) => {
+  const systems = [];
+
+  Systems.forEach((system) => {
+    if (system.requiredComponents.find((component) => !entityComponentsForComponent[component.name])) {
+      return;
+    }
+
     systemVarName[system.name] = `system_${system.name}`;
-    return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name]);
+    systems.push(system);
+    ctx.imports.push([`${system.name}System`, `systems/${system.name}`]);
   });
 
   return [
