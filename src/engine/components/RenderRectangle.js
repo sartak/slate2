@@ -5,4 +5,8 @@ export class RenderRectangleComponent {
     { name: 'h', type: 'float', default: 100 },
     { name: 'color', type: 'color', default: '#FFFFFF' },
   ];
+
+  w = null;
+  h = null;
+  color = null;
 }

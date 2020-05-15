@@ -153,15 +153,16 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
   });
 
   return [
-    `const ${ctx.entitiesVar} = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];`,
+    `const ${ctx.entitiesVar} = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];\n`,
 
     ...components.map(([componentName, fields]) => {
-      return `const ${componentVarName[componentName]} = new __${componentName}Component({
-        ${fields.map(([fieldName, values]) => {
+      return [
+        `const ${componentVarName[componentName]} = new __${componentName}Component();\n`,
+        ...fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
-          return `  ${fieldName}: ${JSON.stringify(values)},\n`;
-        }).join("")}
-      });\n`;
+          return `${componentVarName[componentName]}.${fieldName} = ${JSON.stringify(values)};\n`;
+        }),
+      ].join("");
     }),
 
     `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
