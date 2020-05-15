@@ -63,19 +63,17 @@ export const assembleECSSetup = (project) => {
     entity.components.forEach((entityComponent) => {
       const { name } = entityComponent;
       if (!entityComponentsForComponent[entityComponent.name]) {
-        entityComponentsForComponent[entityComponent.name] = {
-          entities: {},
-        };
+        entityComponentsForComponent[entityComponent.name] = {};
       }
 
-      entityComponentsForComponent[entityComponent.name].entities[entity.__id] = entityComponent;
+      entityComponentsForComponent[entityComponent.name][entity.__id] = entityComponent;
     });
   });
 
   const components = [];
   const componentVarName = {};
 
-  Object.entries(entityComponentsForComponent).forEach(([componentName, { entities }]) => {
+  Object.entries(entityComponentsForComponent).forEach(([componentName, entities]) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
 
