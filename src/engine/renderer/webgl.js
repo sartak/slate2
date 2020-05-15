@@ -39,6 +39,11 @@ export default class WebGLRenderer {
     }
   }
 
+  prepareRenderer() {
+    const { ctx } = this;
+    return [ctx];
+  }
+
   beginRender() {
     const { canvas, ctx } = this;
     ctx.resetTransform();

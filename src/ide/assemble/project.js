@@ -1,12 +1,20 @@
 import { ComponentByName } from '../project/components';
 import { Systems } from '../project/systems';
 
+const renderVarsForRenderer = {
+  'canvas': '__ctx',
+  'webgl': '__ctx',
+  'webgpu': '__ctx',
+};
+
 const newContext = (project) => {
+  const renderVars = renderVarsForRenderer[project.renderer];
   return {
     imports: [],
     init: [],
     update: [],
     render: [],
+    renderVars,
     entitiesVar: '__allEntities',
     componentsVar: '__allComponents',
     systemsVar: '__allSystems',
@@ -208,8 +216,15 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         const loopVar = `${systemVar}_loop_render_${renderer}`;
         code.push(`let ${loopVar} = null;`);
 
+        if (!ctx.preparedRenderer) {
+          ctx.preparedRenderer = true;
+          ctx.init.push([
+            `const [${ctx.renderVars}] = ${ctx.rendererVar}.prepareRenderer();`,
+          ]);
+        }
+
         ctx.init.push([
-          `${loopVar} = ${systemVar}.${renderMethod}();`,
+          `${loopVar} = ${systemVar}.${renderMethod}(${ctx.renderVars});`,
         ]);
 
         needEntities = true;

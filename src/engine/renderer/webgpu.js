@@ -39,6 +39,11 @@ export default class WebGPURenderer {
     }
   }
 
+  prepareRenderer() {
+    const { ctx } = this;
+    return [ctx];
+  }
+
   beginRender() {
     const { canvas, ctx } = this;
     ctx.resetTransform();

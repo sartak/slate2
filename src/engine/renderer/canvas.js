@@ -39,6 +39,11 @@ export default class CanvasRenderer {
     }
   }
 
+  prepareRenderer() {
+    const { ctx } = this;
+    return [ctx];
+  }
+
   beginRender() {
     const { canvas, ctx } = this;
     ctx.resetTransform();
