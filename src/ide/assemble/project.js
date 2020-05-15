@@ -182,26 +182,37 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     ...systems.map((system) => {
       const systemVar = systemVarName[system.name];
-      const loopVar = `${systemVar}_loop`;
       const entitiesVar = `${systemVar}_entities`;
+      let needEntities = false;
+      const code = [];
 
       // @Performance: let system provide inline code
-      ctx.init.push([
-        `${loopVar} = ${systemVar}.loop_update();`,
-      ]);
 
-      ctx.update.push([
-        `${loopVar}(${entitiesVar}, dt);`,
-      ]);
+      if (system.prototype.loop_update) {
+        const loopVar = `${systemVar}_loop_update`;
+        code.push(`let ${loopVar} = null;`);
 
-      const entitiesWithRequiredComponents = project.entities.filter(({ __id }) => {
-        return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
-      });
+        ctx.init.push([
+          `${loopVar} = ${systemVar}.loop_update();`,
+        ]);
+
+        needEntities = true;
+        ctx.update.push([
+          `${loopVar}(${entitiesVar}, dt);`,
+        ]);
+      }
+
+      if (needEntities) {
+        const entitiesWithRequiredComponents = project.entities.filter(({ __id }) => {
+          return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
+        });
+
+        code.push(`let ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];`);
+      }
 
       return `
         const ${systemVar} = new __${system.name}System();
-        let ${loopVar} = null;
-        let ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];
+        ${code.join("\n")}
         ${system.requiredComponents.map((component) => {
           return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
         }).join("")}
