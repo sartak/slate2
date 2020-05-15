@@ -10,7 +10,7 @@ import { createProjectAction } from './project';
 export const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 
 const App = () => {
-  const project = useSelector(project => project);
+  const project = useSelector(project => project, (prev, next) => prev?.id === next?.id);
   if (project) {
     return <ProjectEditor />;
   }
