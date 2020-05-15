@@ -9,7 +9,12 @@ export const assembleIndexHtml = (project) => {
   return template(project);
 };
 
-export const assembleProject = (project) => {
+export const assembleProject = (baseProject, buildSettings = {}) => {
+  const project = {
+    ...baseProject,
+    ...buildSettings,
+  };
+
   return {
     indexHtml: assembleIndexHtml(project),
     webpackConfig: defaultWebpackConfig,
