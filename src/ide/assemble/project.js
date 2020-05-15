@@ -6,11 +6,13 @@ const newContext = (project) => {
     imports: [],
     init: [],
     update: [],
+    render: [],
     entitiesVar: '__allEntities',
     componentsVar: '__allComponents',
     systemsVar: '__allSystems',
     gameClass: '__Game',
     rendererClass: '__Renderer',
+    rendererVar: '__renderer',
   };
 };
 
@@ -43,15 +45,26 @@ export const assembleGameUpdate = (project, ctx = newContext(project)) => {
   ].join("\n");
 };
 
+export const assembleGameRender = (project, ctx = newContext(project)) => {
+  return [
+    `(dt, time) => {`,
+    ...ctx.render,
+    '}',
+  ].join("\n");
+};
+
 export const assembleGame = (project, ctx = newContext(project)) => {
   ctx.imports.push([ctx.gameClass, 'game', true]);
   ctx.imports.push([ctx.rendererClass, `renderer/${project.renderer}`, true]);
 
   return `
+    const ${ctx.rendererVar} = new ${ctx.rendererClass}();
+
     export default new ${ctx.gameClass}({
-      renderer: ${ctx.rendererClass},
+      renderer: ${ctx.rendererVar},
       init: ${assembleGameInit(project, ctx)},
       update: ${assembleGameUpdate(project, ctx)},
+      render: ${assembleGameRender(project, ctx)},
       entities: ${ctx.entitiesVar},
       components: ${ctx.componentsVar},
       systems: ${ctx.systemsVar},

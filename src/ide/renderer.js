@@ -190,14 +190,17 @@ const classes = {};
       }
     }
 
-    prepareRender() {
-      super.prepareRender();
+    beginRender() {
+      super.beginRender();
       const { ctx, panX, panY, zoom } = this;
       ctx.setTransform(zoom, 0, 0, zoom, panX, panY);
     }
 
     render() {
-      super.render();
+      this.beginRender();
+
+      // @Todo: implement IDE rendering
+
       this.drawGrid();
     }
 

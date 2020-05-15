@@ -5,16 +5,12 @@ export default class Game {
   options = null;
   preloaded = false;
   activated = false;
-  renderer = null;
   loop = null;
 
   constructor(options) {
     this.options = options;
 
-    this.renderer = new this.options.renderer();
     this.loop = new Loop(options);
-
-    this.loop.setRenderer(this.renderer);
   }
 
   attach(container) {
@@ -33,7 +29,7 @@ export default class Game {
 
     container.addEventListener('click', clickHandler);
 
-    this.renderer.attach(container);
+    this.options.renderer.attach(container);
 
     return this;
   }

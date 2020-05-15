@@ -39,18 +39,10 @@ export default class CanvasRenderer {
     }
   }
 
-  prepareRender() {
+  beginRender() {
     const { canvas, ctx } = this;
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
-  }
-
-  renderSceneGraph() {
-  }
-
-  render() {
-    this.prepareRender();
-    this.renderSceneGraph();
   }
 }

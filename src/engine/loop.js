@@ -1,18 +1,13 @@
 export default class Loop {
   options = null;
-  renderer = null;
   raf = null;
 
   constructor(options) {
     this.options = options;
   }
 
-  setRenderer(renderer) {
-    this.renderer = renderer;
-  }
-
   run() {
-    let {init, update} = this.options;
+    let {init, update, render, renderer} = this.options;
 
     init();
     let prev = 0;
@@ -31,11 +26,8 @@ export default class Loop {
       time += dt;
 
       update(dt, time);
-
-      const {renderer} = this;
-      if (renderer) {
-        renderer.render();
-      }
+      renderer.beginRender();
+      render(dt, time);
 
       prev = now;
 
