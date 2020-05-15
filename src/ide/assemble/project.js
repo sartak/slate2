@@ -37,3 +37,17 @@ export const assembleECSImports = (project) => {
     import { ${name}Component } from '@slate2/components/${name}';
   `).join("")}`;
 };
+
+export const assembleECS = (project) => {
+  const indexForEntity = {};
+
+  project.entities.forEach((entity, i) => {
+    indexForEntity[entity.__id] = 1 + i;
+  });
+
+  return `
+    entities: [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}],
+    components: [],
+    systems: {}
+  `;
+}
