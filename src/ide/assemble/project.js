@@ -88,6 +88,26 @@ export const assembleECS = (project) => {
         }
 
         let value = entities[__id].fields[fieldName];
+
+        if (type === 'entity') {
+          value = value ? indexForEntity[value] : 0;
+        } else if (value === undefined || value === null) {
+          value = defaultValue;
+        } else {
+          switch (type) {
+            case 'float': {
+              value = Number(value);
+              break;
+            }
+            case 'color': {
+              value = value.toLowerCase();
+              break;
+            }
+            default: {
+              throw new Error(`Unhandled type ${type} for entity-component values`);
+            }
+          }
+        }
         values.push(value);
       });
 
