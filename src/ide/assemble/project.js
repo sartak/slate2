@@ -4,6 +4,11 @@ import { Systems } from '../project/systems';
 const newContext = (project) => {
   return {
     imports: [],
+    entitiesVar: '__allEntities',
+    componentsVar: '__allComponents',
+    systemsVar: '__allSystems',
+    gameClass: '__Game',
+    rendererClass: '__Renderer',
   };
 };
 
@@ -29,17 +34,17 @@ export const assembleGameUpdate = (project, ctx = newContext(project)) => {
 };
 
 export const assembleGame = (project, ctx = newContext(project)) => {
-  ctx.imports.push(['Game', 'game', true]);
-  ctx.imports.push(['Renderer', `renderer/${project.renderer}`, true]);
+  ctx.imports.push([ctx.gameClass, 'game', true]);
+  ctx.imports.push([ctx.rendererClass, `renderer/${project.renderer}`, true]);
 
   return `
-    export default new Game({
-      renderer: Renderer,
+    export default new ${ctx.gameClass}({
+      renderer: ${ctx.rendererClass},
       init: ${assembleGameInit(project, ctx)},
       update: ${assembleGameUpdate(project, ctx)},
-      entities,
-      components,
-      systems,
+      entities: ${ctx.entitiesVar},
+      components: ${ctx.componentsVar},
+      systems: ${ctx.systemsVar},
     });
   `;
 }
@@ -68,9 +73,9 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
 
-    ctx.imports.push([`${componentName}Component`, `components/${componentName}`]);
+    ctx.imports.push([`${componentName}Component as __${componentName}Component`, `components/${componentName}`]);
 
-    componentVarName[componentName] = `component_${componentName}`;
+    componentVarName[componentName] = `__component_${componentName}`;
 
     component.fields.forEach(({name: fieldName, type, default: defaultValue}) => {
       let zeroValue;
@@ -132,16 +137,16 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       return;
     }
 
-    systemVarName[system.name] = `system_${system.name}`;
+    systemVarName[system.name] = `__system_${system.name}`;
     systems.push(system);
-    ctx.imports.push([`${system.name}System`, `systems/${system.name}`]);
+    ctx.imports.push([`${system.name}System as __${system.name}System`, `systems/${system.name}`]);
   });
 
   return [
-    `const entities = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];`,
+    `const ${ctx.entitiesVar} = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];`,
 
     ...components.map(([componentName, fields]) => {
-      return `const ${componentVarName[componentName]} = new ${componentName}Component({
+      return `const ${componentVarName[componentName]} = new __${componentName}Component({
         ${fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
           return `  ${fieldName}: ${JSON.stringify(values)},\n`;
@@ -149,17 +154,17 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       });\n`;
     }),
 
-    `const components = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
+    `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
 
     ...systems.map((system) => {
       return `
-        const ${systemVarName[system.name]} = new ${system.name}System();
+        const ${systemVarName[system.name]} = new __${system.name}System();
         ${system.requiredComponents.map((component) => {
           return `${systemVarName[system.name]}.${component.name} = ${componentVarName[component.name]};\n`
         }).join("")}
       `;
     }),
 
-    `const systems = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`,
+    `const ${ctx.systemsVar} = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`,
   ].join("\n");
 }
