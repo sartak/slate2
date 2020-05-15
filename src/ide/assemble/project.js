@@ -1,4 +1,5 @@
 import { ComponentByName } from '../project/components';
+import { Systems } from '../project/systems';
 
 export const assembleProject = (project) => {
   return `
@@ -38,9 +39,18 @@ export const assembleECSImports = (project) => {
     });
   });
 
-  return `${Object.keys(componentNames).map((name) => `
-    import { ${name}Component } from '@slate2/components/${name}';
-  `).join("")}`;
+  const systems = Systems.filter((system) => {
+    return !system.requiredComponents.find((component) => !componentNames[component.name]);
+  });
+
+  return [
+    ...Object.keys(componentNames).map((name) => `
+      import { ${name}Component } from '@slate2/components/${name}';
+    `),
+    ...systems.map((system) => `
+      import { ${system.name}System } from '@slate2/systems/${system.name}';
+    `),
+  ].join("");
 };
 
 export const assembleECSSetup = (project) => {
@@ -123,6 +133,12 @@ export const assembleECSSetup = (project) => {
     components.push([componentName, componentFields]);
   });
 
+  const systemVarName = {};
+  const systems = Systems.filter((system) => {
+    systemVarName[system.name] = `system_${system.name}`;
+    return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name]);
+  });
+
   return [
     `const entities = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];`,
 
@@ -137,6 +153,15 @@ export const assembleECSSetup = (project) => {
 
     `const components = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
 
-    `const systems = [];\n`,
+    ...systems.map((system) => {
+      return `
+        const ${systemVarName[system.name]} = new ${system.name}System();
+        ${system.requiredComponents.map((component) => {
+          return `${systemVarName[system.name]}.${component.name} = ${componentVarName[component.name]};\n`
+        }).join("")}
+      `;
+    }),
+
+    `const systems = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`,
   ].join("\n");
 }
