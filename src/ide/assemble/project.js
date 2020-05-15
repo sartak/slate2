@@ -4,6 +4,8 @@ import { Systems } from '../project/systems';
 const newContext = (project) => {
   return {
     imports: [],
+    init: [],
+    update: [],
     entitiesVar: '__allEntities',
     componentsVar: '__allComponents',
     systemsVar: '__allSystems',
@@ -26,11 +28,19 @@ export const assembleImports = (project, ctx = newContext(project)) => {
 };
 
 export const assembleGameInit = (project, ctx = newContext(project)) => {
-  return '() => {}';
+  return [
+    '() => {',
+    ...ctx.init,
+    '}',
+  ].join("\n");
 };
 
 export const assembleGameUpdate = (project, ctx = newContext(project)) => {
-  return '(dt, time) => {}';
+  return [
+    '(dt, time) => {',
+    ...ctx.update,
+    '}',
+  ].join("\n");
 };
 
 export const assembleGame = (project, ctx = newContext(project)) => {
@@ -157,10 +167,23 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
 
     ...systems.map((system) => {
+      const systemVar = systemVarName[system.name];
+      const loopVar = `${systemVar}_loop`;
+
+      // @Performance: let system provide inline code
+      ctx.init.push([
+        `${loopVar} = ${systemVar}.loop_update();`,
+      ]);
+
+      ctx.update.push([
+        `${loopVar}([], dt);`,
+      ]);
+
       return `
-        const ${systemVarName[system.name]} = new __${system.name}System();
+        const ${systemVar} = new __${system.name}System();
+        let ${loopVar} = null;
         ${system.requiredComponents.map((component) => {
-          return `${systemVarName[system.name]}.${component.name} = ${componentVarName[component.name]};\n`
+          return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
         }).join("")}
       `;
     }),

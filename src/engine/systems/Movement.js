@@ -8,7 +8,7 @@ export class MovementSystem {
   Transform = null;
   Motion = null;
 
-  loop() {
+  loop_update() {
     const { Transform, Motion } = this;
 
     return (entities, dt) => {
