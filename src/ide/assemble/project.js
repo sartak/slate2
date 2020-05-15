@@ -1,15 +1,18 @@
 import { ComponentByName } from '../project/components';
 import { Systems } from '../project/systems';
 
-export const assembleProject = (project) => {
-  return `
-    ${assembleImports(project)}
-    ${assembleECSSetup(project)}
-    ${assembleGame(project)}
-  `;
+const newContext = (project) => {
+  return {};
 };
 
-export const assembleImports = (project) => {
+export const assembleProject = (project, ctx = newContext(project)) => {
+  const ecs = assembleECSSetup(project, ctx);
+  const game = assembleGame(project, ctx);
+  const imports = assembleImports(project, ctx);
+  return [imports, ecs, game].join("\n");
+};
+
+export const assembleImports = (project, ctx = newContext(project)) => {
   return `
     import Game from '@slate2/game';
     import Renderer from '@slate2/renderer/${project.renderer}';
@@ -17,20 +20,20 @@ export const assembleImports = (project) => {
   `;
 };
 
-export const assembleGameInit = (project) => {
+export const assembleGameInit = (project, ctx = newContext(project)) => {
   return '() => {}';
 };
 
-export const assembleGameUpdate = (project) => {
+export const assembleGameUpdate = (project, ctx = newContext(project)) => {
   return '(dt, time) => {}';
 };
 
-export const assembleGame = (project) => {
+export const assembleGame = (project, ctx = newContext(project)) => {
   return `
     export default new Game({
       renderer: Renderer,
-      init: ${assembleGameInit(project)},
-      update: ${assembleGameUpdate(project)},
+      init: ${assembleGameInit(project, ctx)},
+      update: ${assembleGameUpdate(project, ctx)},
       entities,
       components,
       systems,
@@ -38,7 +41,7 @@ export const assembleGame = (project) => {
   `;
 }
 
-export const assembleECSImports = (project) => {
+export const assembleECSImports = (project, ctx = newContext(project)) => {
   const componentNames = {};
 
   project.entities.forEach(({ components }) => {
@@ -61,7 +64,7 @@ export const assembleECSImports = (project) => {
   ].join("");
 };
 
-export const assembleECSSetup = (project) => {
+export const assembleECSSetup = (project, ctx = newContext(project)) => {
   const entityComponentsForComponent = {};
   const indexForEntity = {};
 
