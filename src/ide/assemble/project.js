@@ -170,6 +170,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     ...systems.map((system) => {
       const systemVar = systemVarName[system.name];
       const loopVar = `${systemVar}_loop`;
+      const entitiesVar = `${systemVar}_entities`;
 
       // @Performance: let system provide inline code
       ctx.init.push([
@@ -177,12 +178,17 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       ]);
 
       ctx.update.push([
-        `${loopVar}([], dt);`,
+        `${loopVar}(${entitiesVar}, dt);`,
       ]);
+
+      const entitiesWithRequiredComponents = project.entities.filter(({ __id }) => {
+        return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
+      });
 
       return `
         const ${systemVar} = new __${system.name}System();
         let ${loopVar} = null;
+        let ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];
         ${system.requiredComponents.map((component) => {
           return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
         }).join("")}
