@@ -24,9 +24,9 @@ const newContext = (project) => {
   };
 };
 
-export const assembleProject = (project, ctx = newContext(project)) => {
+export const assembleGame = (project, ctx = newContext(project)) => {
   const ecs = assembleECSSetup(project, ctx);
-  const game = assembleGame(project, ctx);
+  const game = assembleInstantiateGame(project, ctx);
   const imports = assembleImports(project, ctx);
   return [imports, ecs, game].join("\n");
 };
@@ -61,7 +61,7 @@ export const assembleGameRender = (project, ctx = newContext(project)) => {
   ].join("\n");
 };
 
-export const assembleGame = (project, ctx = newContext(project)) => {
+export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
   ctx.imports.push([ctx.gameClass, 'game', true]);
   ctx.imports.push([ctx.rendererClass, `renderer/${project.renderer}`, true]);
 

@@ -8,12 +8,12 @@ const { exec } = require('child_process');
 
 const SLATE2_HOME = "/Users/shawn/devel/slate2"; // @Fix: app.getAppPath()
 
-ipc.on('build-project', (event, project) => {
+ipc.on('build-project', (event, assembly) => {
   const {sender} = event;
 
   makeTempDir('src').then((tmpDir) => {
     const buildWithWebpack = buildWithExternalWebpack;
-    buildWithWebpack(project, tmpDir).then((directory, warnings) => {
+    buildWithWebpack(assembly, tmpDir).then((directory, warnings) => {
       if (shell.openItem(directory)) {
         event.reply('build-project-success', directory, warnings);
       } else {
@@ -40,14 +40,14 @@ const additionalBuildEnvironment = (isExternal) => {
   }
 };
 
-const buildWithLiveWebpack = (project, tmpDir) => {
+const buildWithLiveWebpack = (assembly, tmpDir) => {
   const srcDir = path.join(tmpDir, 'src');
   const distDir = path.join(tmpDir, 'dist');
 
   return Promise.all([
-    [tmpDir, 'webpack.config.js', project.webpackConfig],
-    [srcDir, 'game.js', project.assembly],
-    [srcDir, 'index.html', project.indexHtml],
+    [tmpDir, 'webpack.config.js', assembly.webpackConfig],
+    [srcDir, 'game.js', assembly.game],
+    [srcDir, 'index.html', assembly.indexHtml],
   ].map((args) => saveFile(...args))).then(() => {
     process.chdir(tmpDir);
 
@@ -56,7 +56,7 @@ const buildWithLiveWebpack = (project, tmpDir) => {
     });
 
     return new Promise((resolve, reject) => {
-      const config = requireFromString(project.webpackConfig, 'webpack.config.js', {
+      const config = requireFromString(assembly.webpackConfig, 'webpack.config.js', {
         appendPaths: [path.resolve(SLATE2_HOME, 'node_modules')],
       });
 
@@ -76,14 +76,14 @@ const buildWithLiveWebpack = (project, tmpDir) => {
   });
 };
 
-const buildWithExternalWebpack = (project, tmpDir) => {
+const buildWithExternalWebpack = (assembly, tmpDir) => {
   const srcDir = path.join(tmpDir, 'src');
   const distDir = path.join(tmpDir, 'dist');
 
   return Promise.all([
-    [tmpDir, 'webpack.config.js', project.webpackConfig],
-    [srcDir, 'game.js', project.assembly],
-    [srcDir, 'index.html', project.indexHtml],
+    [tmpDir, 'webpack.config.js', assembly.webpackConfig],
+    [srcDir, 'game.js', assembly.game],
+    [srcDir, 'index.html', assembly.indexHtml],
   ].map((args) => saveFile(...args))).then(() => {
     return new Promise((resolve, reject) => {
       exec(path.resolve(SLATE2_HOME, 'node_modules', '.bin', 'webpack'), {
