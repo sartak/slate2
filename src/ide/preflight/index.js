@@ -1,11 +1,14 @@
 import { createContext } from 'react';
 import { evaluateGameForPreflight } from '../assemble/preflight';
+import Loop from '../../engine/loop';
 
 export class Preflight {
   renderer = null;
   project = null;
   isDirty = true;
   assembly = null;
+  isRunning = false;
+  loop = null;
 
   constructor(projectStore) {
     this.project = projectStore.getState();
@@ -19,6 +22,14 @@ export class Preflight {
   }
 
   didUpdateProject(prev, next) {
+    if (next.preflightRunning) {
+      if (!this.isRunning) {
+        this._start();
+      }
+
+      return;
+    }
+
     // @Performance: directly update changed entity-component fields
     if (prev?.entities !== next?.entities) {
       this.isDirty = true;
@@ -26,8 +37,8 @@ export class Preflight {
   }
 
   regeneratePreflight() {
-    const { project, renderer } = this;
-    if (!renderer) {
+    const { project, renderer, isRunning } = this;
+    if (!renderer || isRunning) {
       return;
     }
 
@@ -51,6 +62,17 @@ export class Preflight {
     if (render) {
       render(0, 0);
     }
+  }
+
+  _start() {
+    if (this.isDirty) {
+      this.regeneratePreflight();
+    }
+
+    this.isRunning = true;
+    this.isDirty = true;
+    this.loop = new Loop(this.assembly.step);
+    this.loop.run();
   }
 }
 
