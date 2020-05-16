@@ -23,6 +23,8 @@ export class Preflight {
   }
 
   didUpdateProject(prev, next) {
+    this.debuggers.forEach((debug) => debug.didUpdateProject && debug.didUpdateProject(prev, next));
+
     if (next.preflightRunning) {
       if (!this.isRunning) {
         this._start();
@@ -55,6 +57,9 @@ export class Preflight {
       debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
     });
     const assembly = this.assembly = assembler(renderer, this.debuggers);
+
+    this.debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
+
     assembly.init();
 
     this.isDirty = false;
