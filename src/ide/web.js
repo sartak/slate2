@@ -4,7 +4,7 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import App from './App';
 import { projectReducer } from './project';
-import { Preflight, PreflightContext } from './preflight';
+import { Preflight, PreflightProvider } from './preflight';
 
 const renderProject = (container, project) => {
   const projectStore = createStore(
@@ -16,9 +16,9 @@ const renderProject = (container, project) => {
 
   ReactDOM.render(
     <Provider store={projectStore}>
-      <PreflightContext.Provider value={preflight}>
+      <PreflightProvider preflight={preflight}>
         <App />
-      </PreflightContext.Provider>
+      </PreflightProvider>
     </Provider>,
     container,
   );

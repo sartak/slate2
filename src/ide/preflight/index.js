@@ -1,7 +1,8 @@
-import { createContext } from 'react';
 import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
 import InspectorDebugger from './inspector';
+
+export { PreflightContext, PreflightProvider } from './context';
 
 export class Preflight {
   renderer = null;
@@ -122,6 +123,3 @@ export class Preflight {
     this.debuggers.forEach((debug) => debug.detachInspector && debug.detachInspector(inspector));
   }
 }
-
-const PreflightContext = createContext(null);
-export { PreflightContext };
