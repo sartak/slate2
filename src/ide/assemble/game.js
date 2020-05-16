@@ -21,6 +21,7 @@ const newContext = (project) => {
     gameClass: '__Game',
     rendererClass: '__Renderer',
     rendererVar: '__renderer',
+    loopClass: '__Loop',
   };
 };
 
@@ -45,18 +46,12 @@ export const assembleGameInit = (project, ctx = newContext(project)) => {
   ].join("\n");
 };
 
-export const assembleGameUpdate = (project, ctx = newContext(project)) => {
+export const assembleGameStep = (project, ctx = newContext(project)) => {
   return [
     '(dt, time) => {',
-    ...ctx.update,
-    '}',
-  ].join("\n");
-};
-
-export const assembleGameRender = (project, ctx = newContext(project)) => {
-  return [
-    `(dt, time) => {`,
-    ...ctx.render,
+      ...ctx.update,
+      `${ctx.rendererVar}.beginRender();`,
+      ...ctx.render,
     '}',
   ].join("\n");
 };
@@ -64,18 +59,22 @@ export const assembleGameRender = (project, ctx = newContext(project)) => {
 export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
   ctx.imports.push([ctx.gameClass, 'game', true]);
   ctx.imports.push([ctx.rendererClass, `renderer/${project.renderer}`, true]);
+  ctx.imports.push([ctx.loopClass, `loop`, true]);
 
   return `
     const ${ctx.rendererVar} = new ${ctx.rendererClass}();
 
     export default new ${ctx.gameClass}({
-      renderer: ${ctx.rendererVar},
       init: ${assembleGameInit(project, ctx)},
-      update: ${assembleGameUpdate(project, ctx)},
-      render: ${assembleGameRender(project, ctx)},
+
       entities: ${ctx.entitiesVar},
       components: ${ctx.componentsVar},
       systems: ${ctx.systemsVar},
+
+      renderer: ${ctx.rendererVar},
+      loop: new ${ctx.loopClass}(
+        ${assembleGameStep(project, ctx)},
+      ),
     });
   `;
 }

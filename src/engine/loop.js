@@ -1,19 +1,18 @@
 export default class Loop {
-  options = null;
+  step = null;
   raf = null;
 
-  constructor(options) {
-    this.options = options;
+  constructor(step) {
+    this.step = step;
   }
 
   run() {
-    let {init, update, render, renderer} = this.options;
+    const {step} = this;
 
-    init();
     let prev = 0;
     let time = 0;
 
-    const step = () => {
+    const frame = () => {
       const now = window.performance.now();
 
       let dt;
@@ -25,16 +24,14 @@ export default class Loop {
       }
       time += dt;
 
-      update(dt, time);
-      renderer.beginRender();
-      render(dt, time);
+      step(dt, time);
 
       prev = now;
 
-      this.raf = window.requestAnimationFrame(step);
+      this.raf = window.requestAnimationFrame(frame);
     };
 
-    this.raf = window.requestAnimationFrame(step);
+    this.raf = window.requestAnimationFrame(frame);
   }
 
   pause() {

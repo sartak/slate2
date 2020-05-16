@@ -1,16 +1,11 @@
-import Loop from './loop';
-
 export default class Game {
   container = null;
   options = null;
   preloaded = false;
   activated = false;
-  loop = null;
 
   constructor(options) {
     this.options = options;
-
-    this.loop = new Loop(options);
   }
 
   attach(container) {
@@ -49,6 +44,7 @@ export default class Game {
       return;
     }
 
-    this.loop.run();
+    this.options.init();
+    this.options.loop.run();
   }
 }
