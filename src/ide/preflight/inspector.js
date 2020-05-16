@@ -4,6 +4,8 @@ export default class InspectorDebugger {
   entity = null;
   indexForEntity = null;
   components = null;
+  inspector = null;
+  fieldCache = null;
 
   didUpdateProject(prev, next) {
     const { indexForEntity } = this;
@@ -34,6 +36,28 @@ export default class InspectorDebugger {
     } else {
       this.entity = null;
     }
+  }
+
+  attachInspector(inspector) {
+    this.inspector = inspector;
+    const fieldCache = this.fieldCache = {};
+
+    inspector.querySelectorAll('div.InspectEntityComponent').forEach((componentContainer) => {
+      const {componentName} = componentContainer.dataset;
+      const componentCache = fieldCache[componentName] = {};
+      componentContainer.querySelectorAll(`li.field`).forEach((fieldContainer) => {
+        const {fieldName} = fieldContainer.dataset;
+        const input = fieldContainer.querySelector('input');
+        if (input) {
+          componentCache[fieldName] = input;
+        }
+      });
+    });
+  }
+
+  detachInspector() {
+    this.inspector = null;
+    this.fieldCache = null;
   }
 
   updateEnd() {

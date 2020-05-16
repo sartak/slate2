@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
 import { Components, ComponentByName, newEntityComponent } from './project/ecs';
@@ -47,7 +47,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
   const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component.name) : entityComponent.fields;
 
   return (
-    <div className="InspectEntityComponent">
+    <div className="InspectEntityComponent" data-component-name={component.name}>
       <div className="componentName">{component.name}</div>
       <ul>
         {component.fields.map((field) => {
@@ -65,7 +65,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
           const value = entityValues[fieldName];
 
           return (
-            <li key={fieldName}>
+            <li key={fieldName} className="field" data-field-name={fieldName}>
               <span className="name">{fieldName}</span>
               {FieldComponent[type](value, onChange, fieldName, defaultValue, preflightRunning)}
             </li>
@@ -150,9 +150,13 @@ const InspectEntity = ({ entityIndex }) => {
 export const Inspector = () => {
   const entityIndex = useSelector(project => project.selectedEntityIndex);
   const dispatch = useDispatch();
+  const preflight = useContext(PreflightContext);
+  const ref = useCallback((container) => {
+    container ? preflight.attachInspector(container) : preflight.detachInspector();
+  });
 
   return (
-    <div className="Inspector">
+    <div ref={ref} className="Inspector">
       {entityIndex !== -1 && <InspectEntity entityIndex={entityIndex} />}
     </div>
   );

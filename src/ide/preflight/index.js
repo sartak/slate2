@@ -109,6 +109,14 @@ export class Preflight {
   entityComponentValuesForInspector(...args) {
     return this.inspectorDebugger.entityComponentValuesForInspector(...args);
   }
+
+  attachInspector(inspector) {
+    this.debuggers.forEach((debug) => debug.attachInspector && debug.attachInspector(inspector));
+  }
+
+  detachInspector(inspector) {
+    this.debuggers.forEach((debug) => debug.detachInspector && debug.detachInspector(inspector));
+  }
 }
 
 const PreflightContext = createContext(null);
