@@ -17,6 +17,42 @@
       #game.awaiting-activation {
         cursor: pointer;
       }
+
+      {{#if debug}}
+      #debug {
+        position: relative;
+        background: black;
+        color: white;
+      }
+
+      #debug .chart {
+        display: inline-block;
+        margin: 4px;
+        position: relative;
+        background: #AAAAAA;
+      }
+
+      #debug .chart .bar, #debug .chart .target {
+        position: absolute;
+      }
+
+      #debug .chart .target {
+        background-color: red;
+        z-index: 1;
+      }
+
+      #debug .chart .bar.update {
+        background-color: green;
+      }
+
+      #debug .chart .bar.render {
+        background-color: blue;
+      }
+
+      #debug .chart .bar.leftover {
+        background-color: yellow;
+      }
+      {{/if}}
     </style>
   </head>
   <body>
