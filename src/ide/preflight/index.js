@@ -13,11 +13,12 @@ export class Preflight {
   loop = null;
   inspectorDebugger = new InspectorDebugger();
   debuggers = [this.inspectorDebugger];
+  storeUnsubscribe = null;
 
   constructor(projectStore) {
     this.project = projectStore.getState();
 
-    projectStore.subscribe(() => {
+    this.storeUnsubscribe = projectStore.subscribe(() => {
       const { project: prevProject } = this;
       const project = projectStore.getState();
       this.project = project;

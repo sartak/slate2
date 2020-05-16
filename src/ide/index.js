@@ -41,4 +41,14 @@ if (module.hot) {
     const NextProject = require('./project');
     projectStore.replaceReducer(NextProject.projectReducer);
   });
+
+  module.hot.accept('./preflight', () => {
+    const { Preflight: nextPreflight } = require('./preflight');
+
+    const prev = preflight;
+    prev.storeUnsubscribe();
+
+    const next = new nextPreflight(projectStore);
+    prev._hotReplacer(next);
+  });
 }

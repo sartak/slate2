@@ -40,6 +40,11 @@ export const Surface = () => {
   }, []);
 
   useEffect(() => {
+    // @Cleanup: When hot-loading preflight we get a null value here
+    if (!preflight) {
+      return;
+    }
+
     const rendererClass = rendererForType(rendererType);
 
     const renderer = new rendererClass(preflight, surfaceOpts, (opts) => {

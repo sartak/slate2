@@ -151,6 +151,11 @@ export const Inspector = () => {
   const dispatch = useDispatch();
   const preflight = useContext(PreflightContext);
   const ref = useCallback((container) => {
+    // @Cleanup: When hot-loading preflight we get a null value here
+    if (!preflight) {
+      return;
+    }
+
     container ? preflight.attachInspector(container) : preflight.detachInspector();
   });
 
