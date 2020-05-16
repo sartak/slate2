@@ -19,7 +19,10 @@ export class Preflight {
   }
 
   didUpdateProject(prev, next) {
-    this.isDirty = true;
+    // @Performance: directly update changed entity-component fields
+    if (prev?.entities !== next?.entities) {
+      this.isDirty = true;
+    }
   }
 
   regeneratePreflight() {
