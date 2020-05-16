@@ -1,3 +1,5 @@
+import { canonicalizeFieldValue } from '../project/types';
+
 export default class InspectorDebugger {
   selectedEntity = null;
   selectedEntityIndex = null;
@@ -99,5 +101,26 @@ export default class InspectorDebugger {
     });
 
     return ret;
+  }
+
+  inspectorEntityComponentUpdate(entityIndex, componentName, fieldName, value) {
+    const { selectedEntityIndex, entity, components, fieldCache } = this;
+    if (entityIndex !== selectedEntityIndex) {
+      return;
+    }
+
+    components.forEach((component) => {
+      if (component.constructor.name === componentName) {
+        const componentCache = fieldCache[componentName];
+        component.constructor.fields.forEach((field) => {
+          if (field.name === fieldName) {
+            const input = componentCache[fieldName];
+            input.value = value;
+            value = canonicalizeFieldValue(field, value);
+            component[fieldName][entity] = value;
+          }
+        });
+      }
+    });
   }
 };

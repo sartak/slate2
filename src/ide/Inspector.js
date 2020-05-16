@@ -6,12 +6,11 @@ import { PreflightContext } from './preflight';
 import './Inspector.less';
 
 const FieldComponent = {
-  'float': (value, onChange, _, defaultValue, preflightRunning) => (
+  'float': (value, onChange, _, defaultValue) => (
     <input
       type="number"
       value={value}
       placeholder={defaultValue}
-      disabled={preflightRunning}
       onChange={onChange}
       onBlur={(e) => {
         if (e.target.value === "") {
@@ -21,8 +20,8 @@ const FieldComponent = {
       }}
     />
   ),
-  'color': (value, onChange, _, _2, preflightRunning) => (
-    <input type="color" value={value} onChange={onChange} disabled={preflightRunning} />
+  'color': (value, onChange) => (
+    <input type="color" value={value} onChange={onChange} />
   ),
   'entity': (value) => (
     <span>{value === null ? "(null)" : value}</span>
@@ -54,12 +53,12 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
           const { name: fieldName, type, default: defaultValue } = field;
 
           const onChange = (e) => {
-            if (preflightRunning) {
-              return;
-            }
-
             const value = e.target.value;
-            dispatch(changeEntityComponentValueAction(entityIndex, componentName, fieldName, value));
+            if (preflightRunning) {
+              preflight.inspectorEntityComponentUpdate(entityIndex, component.name, fieldName, value);
+            } else {
+              dispatch(changeEntityComponentValueAction(entityIndex, componentName, fieldName, value));
+            }
           };
 
           const value = entityValues[fieldName];
@@ -67,7 +66,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
           return (
             <li key={fieldName} className="field" data-field-name={fieldName}>
               <span className="name">{fieldName}</span>
-              {FieldComponent[type](value, onChange, fieldName, defaultValue, preflightRunning)}
+              {FieldComponent[type](value, onChange, fieldName, defaultValue)}
             </li>
           );
         })}

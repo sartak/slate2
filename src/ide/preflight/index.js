@@ -110,6 +110,10 @@ export class Preflight {
     return this.inspectorDebugger.entityComponentValuesForInspector(...args);
   }
 
+  inspectorEntityComponentUpdate(...args) {
+    return this.inspectorDebugger.inspectorEntityComponentUpdate(...args);
+  }
+
   attachInspector(inspector) {
     this.debuggers.forEach((debug) => debug.attachInspector && debug.attachInspector(inspector));
   }
