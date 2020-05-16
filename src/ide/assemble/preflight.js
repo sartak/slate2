@@ -16,7 +16,7 @@ const __assembleGameForPreflight = (project, overrides) => {
   const step = __assembleGameStep(project, context);
   
   return [
-    `(${context.rendererVar}) => {`,
+    `(${context.rendererVar}, [${context.debuggerVars}]) => {`,
       ecsSetup,
       `return {`,
         `entities: ${context.entitiesVar},`,

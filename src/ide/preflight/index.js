@@ -9,6 +9,7 @@ export class Preflight {
   assembly = null;
   isRunning = false;
   loop = null;
+  debuggers = [];
 
   constructor(projectStore) {
     this.project = projectStore.getState();
@@ -49,8 +50,11 @@ export class Preflight {
       return;
     }
 
-    const assembler = evaluateGameForPreflight(project);
-    const assembly = this.assembly = assembler(renderer);
+    const assembler = evaluateGameForPreflight({
+      ...project,
+      debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
+    });
+    const assembly = this.assembly = assembler(renderer, this.debuggers);
     assembly.init();
 
     this.isDirty = false;
