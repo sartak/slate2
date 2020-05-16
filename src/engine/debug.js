@@ -20,6 +20,7 @@ export default class Debugger {
   renderEndMs = null;
   frames = new Array(FramesPerRender);
   rects = new Array(FramesPerRender * RectsPerFrame);
+  fpsDisplay = null;
   frameIndex = 0;
 
   attach(container) {
@@ -107,16 +108,24 @@ export default class Debugger {
     chart.appendChild(target);
 
     container.appendChild(chart);
+
+    const fpsDisplay = this.fpsDisplay = document.createElement('div');
+    fpsDisplay.classList.add('fps');
+
+    container.appendChild(fpsDisplay);
   }
 
   render() {
-    const { container, frames, rects } = this;
+    const { container, frames, rects, fpsDisplay } = this;
+
+    let totalMs = 0;
 
     frames.forEach((frame, i) => {
       const [frameStart, updateStart, updateEnd, renderStart, renderEnd, frameEnd] = frame;
       const updateMs = updateEnd - updateStart;
       const renderMs = renderEnd - renderStart;
       const leftoverMs = frameEnd - frameStart - updateMs - renderMs;
+      totalMs += frameEnd - frameStart;
 
       const updateHeight = Math.ceil(HeightPerMs * updateMs);
       const renderHeight = Math.ceil(HeightPerMs * renderMs);
@@ -134,5 +143,12 @@ export default class Debugger {
       renderRect.style.top = `${ChartHeight - updateHeight - renderHeight}px`;
       leftoverRect.style.top = `${ChartHeight - updateHeight - renderHeight - leftoverHeight}px`;
     });
+
+    let imaginaryFps = (1000.0 / (totalMs / frames.length));
+
+    let realTotalMs = frames[frames.length - 1][5] - frames[0][0];
+    let realFps = (1000.0 / (realTotalMs / frames.length));
+
+    fpsDisplay.innerText = `FPS: ${realFps.toFixed(1)} (${imaginaryFps.toFixed(1)})`;
   }
 };
