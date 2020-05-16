@@ -1,28 +1,35 @@
 import { ComponentByName } from '../project/components';
 import { Systems } from '../project/systems';
 
-const renderVarsForRenderer = {
-  'canvas': '__ctx',
-  'webgl': '__ctx',
-  'webgpu': '__ctx',
-};
+export const newContext = (project, overrides = {}) => {
+  const prefix = 'prefix' in overrides ? overrides.prefix : '__';
 
-const newContext = (project) => {
+  const renderVarsForRenderer = {
+    'canvas': `${prefix}ctx`,
+    'webgl': `${prefix}ctx`,
+    'webgpu': `${prefix}ctx`,
+  };
+
   const renderVars = renderVarsForRenderer[project.renderer];
   return {
+    prefix,
     imports: [],
     init: [],
     update: [],
     render: [],
     renderVars,
-    debuggerVar: '__debugger',
-    entitiesVar: '__allEntities',
-    componentsVar: '__allComponents',
-    systemsVar: '__allSystems',
-    gameClass: '__Game',
-    rendererClass: '__Renderer',
-    rendererVar: '__renderer',
-    loopClass: '__Loop',
+    debuggerVar: `${prefix}debugger`,
+    entitiesVar: `${prefix}allEntities`,
+    componentsVar: `${prefix}allComponents`,
+    systemsVar: `${prefix}allSystems`,
+    gameClass: `${prefix}Game`,
+    rendererClass: `${prefix}Renderer`,
+    rendererVar: `${prefix}renderer`,
+    loopClass: `${prefix}Loop`,
+    componentClassPrefix: prefix,
+    systemClassPrefix: prefix,
+
+    ...overrides,
   };
 };
 
@@ -76,7 +83,7 @@ export const assembleGameStep = (project, ctx = newContext(project)) => {
 };
 
 export const assembleDebug = (project, ctx = newContext(project)) => {
-  const debugClass = '__Debug';
+  const debugClass = `${ctx.prefix}Debug`;
   ctx.imports.push([debugClass, 'debug', true]);
 
   return [
@@ -132,9 +139,9 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
 
-    ctx.imports.push([`${componentName}Component as __${componentName}Component`, `components/${componentName}`]);
+    ctx.imports.push([`${componentName}Component as ${ctx.componentClassPrefix}${componentName}Component`, `components/${componentName}`]);
 
-    componentVarName[componentName] = `__component_${componentName}`;
+    componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
 
     component.fields.forEach(({name: fieldName, type, default: defaultValue}) => {
       let zeroValue;
@@ -196,9 +203,9 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       return;
     }
 
-    systemVarName[system.name] = `__system_${system.name}`;
+    systemVarName[system.name] = `${ctx.prefix}system_${system.name}`;
     systems.push(system);
-    ctx.imports.push([`${system.name}System as __${system.name}System`, `systems/${system.name}`]);
+    ctx.imports.push([`${system.name}System as ${ctx.systemClassPrefix}${system.name}System`, `systems/${system.name}`]);
   });
 
   return [
@@ -206,7 +213,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     ...components.map(([componentName, fields]) => {
       return [
-        `const ${componentVarName[componentName]} = new __${componentName}Component();\n`,
+        `const ${componentVarName[componentName]} = new ${ctx.componentClassPrefix}${componentName}Component();\n`,
         ...fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
           return `${componentVarName[componentName]}.${fieldName} = ${JSON.stringify(values)};\n`;
@@ -270,7 +277,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       }
 
       return `
-        const ${systemVar} = new __${system.name}System();
+        const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();
         ${code.join("\n")}
         ${system.requiredComponents.map((component) => {
           return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
