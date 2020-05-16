@@ -173,11 +173,19 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         } else {
           switch (type) {
             case 'float': {
-              value = Number(value);
+              if (value === "") {
+                value = defaultValue;
+              } else {
+                value = Number(value);
+              }
               break;
             }
             case 'color': {
-              value = value.toLowerCase();
+              if (value === "") {
+                value = defaultValue;
+              } else {
+                value = value.toLowerCase();
+              }
               break;
             }
             default: {
