@@ -6,9 +6,9 @@ import App from './App';
 import { projectReducer } from './project';
 import { Preflight, PreflightContext } from './preflight';
 
-export default (container, options = {}) => {
+const renderProject = (container, project) => {
   const projectStore = createStore(
-    projectReducer, options.project || null,
+    projectReducer, project,
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
   );
 
@@ -22,4 +22,29 @@ export default (container, options = {}) => {
     </Provider>,
     container,
   );
+};
+
+const download = (url) => {
+  return fetch(url).then((res) => res.json()).catch((err) => {
+    alert(err);
+  });
+};
+
+export default (container, options = {}) => {
+  if (typeof options === 'string') {
+    return download(options).then((project) => {
+      renderProject(container, project);
+    });
+  }
+
+  const { project } = options;
+  if (typeof project === 'string') {
+    download(project).then((projectContent) => {
+      renderProject(container, projectContent);
+    });
+  } else if (project) {
+    renderProject(container, project);
+  } else {
+    renderProject(container, null);
+  }
 };
