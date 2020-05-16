@@ -22,10 +22,10 @@ const classes = {};
     constructor(opts, onCommitTransform) {
       super();
 
-      this.panX = opts.panX || 0;
-      this.panY = opts.panY || 0;
-      this.zoom = opts.zoom || 1;
-      this.prevZoom = opts.prevZoom || 0.5;
+      this.panX = Number(opts.panX) || 0;
+      this.panY = Number(opts.panY) || 0;
+      this.zoom = Number(opts.zoom) || 1;
+      this.prevZoom = Number(opts.prevZoom) || 0.5;
       this.onCommitTransform = onCommitTransform;
     }
 
@@ -36,14 +36,18 @@ const classes = {};
         return;
       }
 
-      if (this.panX === opts.panX && this.panY === opts.panY && this.zoom === opts.zoom) {
+      const panX = Number(opts.panX);
+      const panY = Number(opts.panY);
+      const zoom = Number(opts.zoom);
+
+      if (this.panX === panX && this.panY === panY && this.zoom === zoom) {
         return;
       }
 
-      this.panX = opts.panX;
-      this.panY = opts.panY;
-      this.zoom = opts.zoom;
-      this.prevZoom = opts.prevZoom;
+      this.panX = panX;
+      this.panY = panY;
+      this.zoom = zoom;
+      this.prevZoom = Number(opts.prevZoom);
 
       this.render();
     }
