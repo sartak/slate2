@@ -143,4 +143,11 @@ if (module.hot) {
     this._hotReplaceContext(next);
     preflights = preflights.filter((p) => p !== this);
   };
+
+  module.hot.accept('../assemble/preflight', () => {
+    preflights.forEach((preflight) => {
+      preflight.assemblyDirty = true;
+      preflight.regenerateAssembly();
+    });
+  });
 }
