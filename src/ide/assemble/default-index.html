@@ -22,11 +22,20 @@
   <body>
     <noscript>You need to enable JavaScript to play this game.</noscript>
     <div id="game"></div>
+    {{#if debug}}
+    <div id="debug"></div>
+    {{/if}}
     <script type="text/javascript">
       (function () {
         window.addEventListener("DOMContentLoaded", function () {
           var container = document.getElementById('game');
+
+          {{#if debug}}
+          var debug = document.getElementById('debug');
+          slate2_game.attach(container).attachDebug(debug).preload();
+          {{else}}
           slate2_game.attach(container).preload();
+          {{/if}}
         });
       }())
     </script>
