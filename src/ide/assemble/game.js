@@ -46,7 +46,7 @@ export const assembleImports = (project, ctx = newContext(project)) => {
   `;
 };
 
-const debugCall = (methodName, rest, project, ctx) => {
+export const debugCall = (methodName, rest, project, ctx) => {
   return (project.debuggers || []).filter(([classInstance]) => classInstance.prototype[methodName]).map((_, i) => {
     return `${ctx.debuggerVars[i]}.${methodName}${rest}`;
   }).join("\n");

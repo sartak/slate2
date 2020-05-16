@@ -1,4 +1,4 @@
-import { assembleECSSetup as __assembleECSSetup, assembleGameStep as __assembleGameStep, newContext as __newContext } from './game';
+import { assembleECSSetup as __assembleECSSetup, assembleGameStep as __assembleGameStep, newContext as __newContext, debugCall as __debugCall } from './game';
 import { ComponentByClassName as __ComponentClasses, SystemByClassName as __SystemClasses } from '../project/ecs';
 
 const __assembleGameForPreflight = (project, overrides) => {
@@ -14,6 +14,12 @@ const __assembleGameForPreflight = (project, overrides) => {
   );
 
   const step = __assembleGameStep(project, context);
+
+  const render = [
+    __debugCall('renderBegin', '();', project, context),
+    ...context.render,
+    __debugCall('renderEnd', '();', project, context),
+  ].join("\n");
   
   return [
     `(${context.rendererVar}, [${context.debuggerVars}]) => {`,
@@ -23,7 +29,7 @@ const __assembleGameForPreflight = (project, overrides) => {
         `components: ${context.componentsVar},`,
         `systems: ${context.systemsVar},`,
         `init: () => { ${context.init.join("\n")} },`,
-        `render: (dt, time) => { ${context.render.join("\n")} },`,
+        `render: (dt, time) => { ${render} },`,
         `step: ${step}`,
       `};`,
     `}`,
