@@ -158,7 +158,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
 
-    ctx.imports.push([`${componentName}Component as ${ctx.componentClassPrefix}${componentName}Component`, `components/${componentName}`]);
+    ctx.imports.push([`${componentName}Component as ${ctx.componentClassPrefix}${componentName}Component`, `../ide/components/${componentName}`]);
 
     componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
 
@@ -198,7 +198,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     systemVarName[system.name] = `${ctx.prefix}system_${system.name}`;
     systems.push(system);
-    ctx.imports.push([`${system.name}System as ${ctx.systemClassPrefix}${system.name}System`, `systems/${system.name}`]);
+    ctx.imports.push([`${system.name}System as ${ctx.systemClassPrefix}${system.name}System`, `../ide/systems/${system.name}`]);
   });
 
   return [

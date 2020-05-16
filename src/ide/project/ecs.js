@@ -1,10 +1,10 @@
-import { TransformComponent } from '../../engine/components/Transform';
-import { MotionComponent } from '../../engine/components/Motion';
-import { JoystickComponent } from '../../engine/components/Joystick';
-import { RenderRectangleComponent } from '../../engine/components/RenderRectangle';
+import { TransformComponent } from '../components/Transform';
+import { MotionComponent } from '../components/Motion';
+import { JoystickComponent } from '../components/Joystick';
+import { RenderRectangleComponent } from '../components/RenderRectangle';
 
-import { MovementSystem } from '../../engine/systems/Movement';
-import { RenderSystem } from '../../engine/systems/Render';
+import { MovementSystem } from '../systems/Movement';
+import { RenderSystem } from '../systems/Render';
 
 const Components = [
   TransformComponent,

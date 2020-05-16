@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } fr
 import { useDispatch, useSelector } from 'react-redux';
 import { commitSurfaceTransformAction } from './project';
 import { rendererForType } from './renderer';
-import { TransformComponent } from '../engine/components/Transform';
+import { TransformComponent } from './components/Transform';
 import { PreflightContext } from './preflight';
 
 const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex) => {
