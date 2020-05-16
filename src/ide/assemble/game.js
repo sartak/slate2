@@ -26,6 +26,7 @@ export const newContext = (project, overrides = {}) => {
     rendererClass: `${prefix}Renderer`,
     rendererVar: `${prefix}renderer`,
     loopClass: `${prefix}Loop`,
+    componentFieldVars: {},
     componentClassPrefix: prefix,
     systemClassPrefix: prefix,
 
@@ -162,6 +163,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     ctx.imports.push([`${componentName}Component as ${ctx.componentClassPrefix}${componentName}Component`, `../ide/components/${componentName}`]);
 
     componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
+    ctx.componentFieldVars[componentName] = {};
 
     component.fields.forEach((field) => {
       const zeroValue = fieldZeroValue(field);
@@ -185,6 +187,8 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       });
 
       componentFields.push([field.name, values]);
+
+      ctx.componentFieldVars[componentName][field.name] = `${componentVarName[componentName]}.${field.name}`;
     });
     components.push([componentName, componentFields]);
   });
@@ -210,7 +214,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         `const ${componentVarName[componentName]} = new ${ctx.componentClassPrefix}${componentName}Component();\n`,
         ...fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
-          return `${componentVarName[componentName]}.${fieldName} = ${JSON.stringify(values)};\n`;
+          return `${ctx.componentFieldVars[componentName][fieldName]} = ${JSON.stringify(values)};\n`;
         }),
       ].join("");
     }),
