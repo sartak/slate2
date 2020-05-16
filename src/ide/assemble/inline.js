@@ -30,6 +30,22 @@ const rewriteBodyToUseComponentVariables = (system, originalBody, components, ct
   return body;
 };
 
+const parameterizeBody = (originalBody, paramMap) => {
+  let body = originalBody;
+  const params = [];
+  const args = [];
+
+  paramMap.forEach(([param, arg]) => {
+    params.push(param);
+    args.push(arg);
+  });
+
+  const wrapPre = `(function (${params.join(', ')}) {`;
+  const wrapPost = `})(${args});`;
+
+  return [wrapPre, body, wrapPost].join("\n");
+};
+
 export const assembleInlineSystemCall = (system, method_name, args, project, ctx) => {
   const components = system.requiredComponents;
   const code = String(system.prototype[method_name]);
@@ -42,10 +58,8 @@ export const assembleInlineSystemCall = (system, method_name, args, project, ctx
   const [, params, body] = parse;
   const paramMap = params.map((p, i) => [p, args[i]]);
 
-  const wrapPre = `(function (${params}) {`;
-  const wrapPost = `})(${args});`;
-
   const componentizedBody = rewriteBodyToUseComponentVariables(system, body, components, ctx);
+  const parameterizedBody = parameterizeBody(componentizedBody, paramMap);
 
   return [
     `/*`,
@@ -53,8 +67,6 @@ export const assembleInlineSystemCall = (system, method_name, args, project, ctx
     ...paramMap.map(([param, arg]) => ` *   ${param} <= ${arg}`),
     ` * Components: ${components.map((c) => c.name).join(', ')}`,
     ` */`,
-    wrapPre,
-    componentizedBody,
-    wrapPost,
+    parameterizedBody,
   ].join("\n");
 };
