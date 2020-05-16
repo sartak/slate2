@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveProject, canSaveProject, downloadProject, canDownloadProject, buildProject, canBuildProject } from '@ide/bridge';
 import { startPreflightAction, stopPreflightAction } from './project';
+import { FloatingEditor } from './FloatingEditor';
+import { assembleGame } from './assemble/game';
 
 export const TopMenu = () => {
   const [error, setError] = useState(null);
@@ -12,6 +14,14 @@ export const TopMenu = () => {
   const dispatch = useDispatch();
   const project = useSelector(project => project);
   const preflightRunning = useSelector(project => project.preflightRunning);
+  const [isPreview, setPreview] = useState(false);
+  const [previewCode, setPreviewCode] = useState('');
+
+  useEffect(() => {
+    if (isPreview) {
+      setPreviewCode(assembleGame(project));
+    }
+  }, [project, isPreview, assembleGame]);
 
   const save = () => {
     setSaving(true);
@@ -55,7 +65,17 @@ export const TopMenu = () => {
       {canSaveProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={save}>Save Project</button>}
       {canDownloadProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={download}>Download Project</button>}
       {canBuildProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={build}>Build Project</button>}
+      <button disabled={isSaving || isBuilding || preflightRunning} onClick={() => setPreview(true)}>[Preview Build]</button>
       <button disabled={isSaving || isBuilding} onClick={preflightRunning ? stopPreflight : startPreflight}>{preflightRunning ? "Stop!" : "Run!"}</button>
+
+      {isPreview && (
+        <FloatingEditor
+          close={() => setPreview(false)}
+          language="javascript"
+          value={previewCode}
+          readOnly
+        />
+      )}
     </div>
   );
 };
