@@ -188,7 +188,8 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
       componentFields.push([field.name, values]);
 
-      ctx.componentFieldVars[componentName][field.name] = `${componentVarName[componentName]}.${field.name}`;
+      const fieldVar = `${componentVarName[componentName]}.${field.name}`;
+      ctx.componentFieldVars[componentName][field.name] = fieldVar;
     });
     components.push([componentName, componentFields]);
   });
@@ -276,16 +277,16 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
           return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
         });
 
-        code.push(`let ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];`);
+        code.push(`const ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];`);
       }
 
-      return `
-        const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();
-        ${code.join("\n")}
-        ${system.requiredComponents.map((component) => {
+      return [
+        `const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();`,
+        ...code,
+        ...system.requiredComponents.map((component) => {
           return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
-        }).join("")}
-      `;
+        }),
+      ].join("\n");
     }),
 
     `const ${ctx.systemsVar} = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`,
