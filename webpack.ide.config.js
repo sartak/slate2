@@ -21,6 +21,12 @@ module.exports = {
     },
   } : null),
 
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+
   resolve: {
     alias: {
       'react-dom': isBuildWebIDE ? 'react-dom' : '@hot-loader/react-dom',
