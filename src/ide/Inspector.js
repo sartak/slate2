@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
 import { Components, ComponentByName, newEntityComponent } from './project/ecs';
+import { PreflightContext } from './preflight';
 import './Inspector.less';
 
 const FieldComponent = {
@@ -31,6 +32,7 @@ const FieldComponent = {
 const InspectEntityComponent = ({ entityIndex, componentName }) => {
   const dispatch = useDispatch();
 
+  const preflight = useContext(PreflightContext);
   const component = ComponentByName[componentName];
   const entityComponent = useSelector(
     project => {
@@ -42,7 +44,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
 
   const preflightRunning = useSelector(project => project.preflightRunning);
 
-  const { fields: entityValues } = entityComponent;
+  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component.name) : entityComponent.fields;
 
   return (
     <div className="InspectEntityComponent">

@@ -49,4 +49,22 @@ export default class InspectorDebugger {
       });
     });
   }
+
+  entityComponentValuesForInspector(entityIndex, componentName) {
+    const { selectedEntityIndex, entity, components } = this;
+    if (entityIndex !== selectedEntityIndex) {
+      return null;
+    }
+
+    const ret = {};
+    components.forEach((component) => {
+      if (component.constructor.name === componentName) {
+        component.constructor.fields.forEach(({ name }) => {
+          ret[name] = component[name][entity];
+        });
+      }
+    });
+
+    return ret;
+  }
 };

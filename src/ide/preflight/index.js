@@ -105,6 +105,10 @@ export class Preflight {
     // @Feature: make this optional, for inspecting the end state
     this.runRenderSystems();
   }
+
+  entityComponentValuesForInspector(...args) {
+    return this.inspectorDebugger.entityComponentValuesForInspector(...args);
+  }
 }
 
 const PreflightContext = createContext(null);
