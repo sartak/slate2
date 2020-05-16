@@ -33,22 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 if (module.hot) {
   module.hot.accept('./App', () => {
-    const NextApp = require('./App').default;
     render();
   });
 
   module.hot.accept('./project', () => {
-    const NextProject = require('./project');
-    projectStore.replaceReducer(NextProject.projectReducer);
+    projectStore.replaceReducer(projectReducer);
   });
 
   module.hot.accept('./preflight', () => {
-    const { Preflight: nextPreflight } = require('./preflight');
-
     const prev = preflight;
     prev.storeUnsubscribe();
 
-    const next = new nextPreflight(projectStore);
+    const next = new Preflight(projectStore);
     prev._hotReplacer(next);
   });
 }
