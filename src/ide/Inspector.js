@@ -5,11 +5,12 @@ import { Components, ComponentByName, newEntityComponent } from './project/ecs';
 import './Inspector.less';
 
 const FieldComponent = {
-  'float': (value, onChange, _, defaultValue) => (
+  'float': (value, onChange, _, defaultValue, preflightRunning) => (
     <input
       type="number"
       value={value}
       placeholder={defaultValue}
+      disabled={preflightRunning}
       onChange={onChange}
       onBlur={(e) => {
         if (e.target.value === "") {
@@ -19,8 +20,8 @@ const FieldComponent = {
       }}
     />
   ),
-  'color': (value, onChange) => (
-    <input type="color" value={value} onChange={onChange} />
+  'color': (value, onChange, _, _2, preflightRunning) => (
+    <input type="color" value={value} onChange={onChange} disabled={preflightRunning} />
   ),
   'entity': (value) => (
     <span>{value === null ? "(null)" : value}</span>
@@ -38,6 +39,9 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
     },
     (prev, next) => shallowEqual(prev, next),
   );
+
+  const preflightRunning = useSelector(project => project.preflightRunning);
+
   const { fields: entityValues } = entityComponent;
 
   return (
@@ -48,6 +52,10 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
           const { name: fieldName, type, default: defaultValue } = field;
 
           const onChange = (e) => {
+            if (preflightRunning) {
+              return;
+            }
+
             const value = e.target.value;
             dispatch(changeEntityComponentValueAction(entityIndex, componentName, fieldName, value));
           };
@@ -57,7 +65,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
           return (
             <li key={fieldName}>
               <span className="name">{fieldName}</span>
-              {FieldComponent[type](value, onChange, fieldName, defaultValue)}
+              {FieldComponent[type](value, onChange, fieldName, defaultValue, preflightRunning)}
             </li>
           );
         })}
