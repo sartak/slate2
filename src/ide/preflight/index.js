@@ -60,17 +60,22 @@ export class Preflight {
       return;
     }
 
-    const [assembler, context] = evaluateGameForPreflight({
-      ...project,
-      debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
-    });
-    const assembly = this.assembly = assembler(renderer, this.debuggers);
+    try {
+      const [assembler, context] = evaluateGameForPreflight({
+        ...project,
+        debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
+      });
+      const assembly = assembler(renderer, this.debuggers);
 
-    this.debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
+      this.debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
 
-    assembly.init();
+      assembly.init();
 
-    this.assemblyDirty = false;
+      this.assembly = assembly;
+      this.assemblyDirty = false;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   setRenderer(renderer) {
