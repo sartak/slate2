@@ -5,9 +5,9 @@ export const newContext = (project, overrides = {}) => {
   const prefix = 'prefix' in overrides ? overrides.prefix : '__';
 
   const renderVarsForRenderer = {
-    'canvas': `${prefix}ctx`,
-    'webgl': `${prefix}ctx`,
-    'webgpu': `${prefix}ctx`,
+    'canvas': [`${prefix}ctx`],
+    'webgl': [`${prefix}ctx`],
+    'webgpu': [`${prefix}ctx`],
   };
 
   const renderVars = renderVarsForRenderer[project.renderer];
@@ -118,6 +118,7 @@ export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
 
   return `
     const ${ctx.rendererVar} = new ${ctx.rendererClass}();
+    let [${ctx.renderVars.join(', ')}] = [];
 
     export default new ${ctx.gameClass}({
       init: ${assembleGameInit(project, ctx)},
@@ -248,7 +249,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
           ctx.preparedRenderer = true;
 
           ctx.init.push(
-            `const [${ctx.renderVars}] = ${ctx.rendererVar}.prepareRenderer();`,
+            `[${ctx.renderVars.join(', ')}] = ${ctx.rendererVar}.prepareRenderer();`,
           );
 
           ctx.render.unshift([

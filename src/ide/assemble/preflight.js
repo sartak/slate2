@@ -24,6 +24,7 @@ const __assembleGameForPreflight = (project, ctx = __newContext(project)) => {
   
   return [
     `(${ctx.rendererVar}, [${ctx.debuggerVars}]) => {`,
+      `let [${ctx.renderVars.join(', ')}] = [];`,
       ecsSetup,
       `return {`,
         `entities: ${ctx.entitiesVar},`,
