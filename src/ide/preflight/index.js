@@ -1,9 +1,11 @@
 import { createContext } from 'react';
+import { evaluateGameForPreflight } from '../assemble/preflight';
 
 export class Preflight {
   renderer = null;
   project = null;
   isDirty = true;
+  assembly = null;
 
   constructor(projectStore) {
     this.project = projectStore.getState();
@@ -21,10 +23,14 @@ export class Preflight {
   }
 
   regeneratePreflight() {
-    const { renderer } = this;
+    const { project, renderer } = this;
     if (!renderer) {
       return;
     }
+
+    const assembler = evaluateGameForPreflight(project);
+    const assembly = this.assembly = assembler(renderer);
+    assembly.init();
 
     this.isDirty = false;
   }
@@ -37,6 +43,10 @@ export class Preflight {
   runRenderSystems() {
     if (this.isDirty) {
       this.regeneratePreflight();
+    }
+    const render = this.assembly?.render;
+    if (render) {
+      render(0, 0);
     }
   }
 }
