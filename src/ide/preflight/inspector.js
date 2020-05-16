@@ -61,15 +61,24 @@ export default class InspectorDebugger {
   }
 
   updateEnd() {
-    const { entity, components } = this;
+    const { entity, fieldCache, components } = this;
 
-    if (!entity) {
+    if (!entity || !fieldCache) {
       return;
     }
 
     components.forEach((component) => {
+      const componentCache = fieldCache[component.constructor.name];
+      if (!componentCache) {
+        return;
+      }
+
       component.constructor.fields.forEach(({ name }) => {
-        const value = component[name][entity];
+        const input = componentCache[name];
+        if (input) {
+          const value = component[name][entity];
+          input.value = value;
+        }
       });
     });
   }
