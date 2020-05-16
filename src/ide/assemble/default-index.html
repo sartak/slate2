@@ -7,11 +7,15 @@
     <style>
       #game {
         background: rgb(0, 0, 0);
-        border-radius: 16px;
         box-shadow: 0 13px 27px -5px rgba(50, 50, 93, 0.9), 0 8px 16px -8px rgba(0, 0, 0, 0.95), 0 -6px 16px -6px rgba(0, 0, 0, 0.5);
         margin-left: auto;
         margin-right: auto;
         margin-top: 32px;
+      }
+
+      #game, #game canvas {
+        border-radius: 16px;
+        overflow: hidden;
       }
 
       #game.awaiting-activation {
@@ -21,13 +25,14 @@
       {{#if debug}}
       #debug {
         position: relative;
+        margin-top: 2em;
         background: black;
         color: white;
       }
 
       #debug .chart {
         display: inline-block;
-        margin: 4px;
+        margin: 8px;
         position: relative;
         background: #AAAAAA;
       }
