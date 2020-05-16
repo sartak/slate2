@@ -15,6 +15,12 @@ const __assembleGameForPreflight = (project, overrides) => {
 
   const step = __assembleGameStep(project, context);
 
+  const init = [
+    __debugCall('initBegin', '();', project, context),
+    ...context.init,
+    __debugCall('initEnd', '();', project, context),
+  ].join("\n");
+
   const render = [
     __debugCall('renderBegin', '();', project, context),
     ...context.render,
@@ -28,7 +34,7 @@ const __assembleGameForPreflight = (project, overrides) => {
         `entities: ${context.entitiesVar},`,
         `components: ${context.componentsVar},`,
         `systems: ${context.systemsVar},`,
-        `init: () => { ${context.init.join("\n")} },`,
+        `init: () => { ${init} },`,
         `render: (dt, time) => { ${render} },`,
         `step: ${step}`,
       `};`,

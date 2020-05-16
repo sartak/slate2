@@ -55,7 +55,9 @@ export const debugCall = (methodName, rest, project, ctx) => {
 export const assembleGameInit = (project, ctx = newContext(project)) => {
   return [
     '() => {',
-    ...ctx.init,
+      debugCall('initBegin', '();', project, ctx),
+        ...ctx.init,
+      debugCall('initBegin', '();', project, ctx),
     '}',
   ].join("\n");
 };
