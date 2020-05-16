@@ -241,14 +241,14 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         const loopVar = `${systemVar}_loop_update`;
         code.push(`let ${loopVar} = null;`);
 
-        ctx.init.push([
+        ctx.init.push(
           `${loopVar} = ${systemVar}.loop_update();`,
-        ]);
+        );
 
         needEntities = true;
-        ctx.update.push([
+        ctx.update.push(
           `${loopVar}(${entitiesVar}, dt);`,
-        ]);
+        );
       }
 
       const {renderer} = project;
@@ -260,23 +260,23 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         if (!ctx.preparedRenderer) {
           ctx.preparedRenderer = true;
 
-          ctx.init.push([
+          ctx.init.push(
             `const [${ctx.renderVars}] = ${ctx.rendererVar}.prepareRenderer();`,
-          ]);
+          );
 
           ctx.render.unshift([
             `${ctx.rendererVar}.beginRender();`,
           ]);
         }
 
-        ctx.init.push([
+        ctx.init.push(
           `${loopVar} = ${systemVar}.${renderMethod}(${ctx.renderVars});`,
-        ]);
+        );
 
         needEntities = true;
-        ctx.render.push([
+        ctx.render.push(
           `${loopVar}(${entitiesVar}, dt);`,
-        ]);
+        );
       }
 
       if (needEntities) {
