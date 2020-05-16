@@ -135,7 +135,7 @@ export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
 
 export const assembleECSSetup = (project, ctx = newContext(project)) => {
   const entityComponentsForComponent = {};
-  const indexForEntity = {};
+  const indexForEntity = ctx.indexForEntity = {};
 
   project.entities.forEach((entity, i) => {
     indexForEntity[entity.__id] = 1 + i;
