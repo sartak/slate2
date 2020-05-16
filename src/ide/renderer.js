@@ -18,9 +18,13 @@ const classes = {};
     onCommitTransform = null;
     wheelTimeout = null;
     isTransforming = false;
+    preflight = null;
 
-    constructor(opts, onCommitTransform) {
+    constructor(preflight, opts, onCommitTransform) {
       super();
+
+      this.preflight = preflight;
+      this.preflight.setRenderer(this);
 
       this.panX = Number(opts.panX) || 0;
       this.panY = Number(opts.panY) || 0;
@@ -201,9 +205,7 @@ const classes = {};
     }
 
     render() {
-      this.beginRender();
-
-      // @Todo: implement IDE rendering
+      this.preflight.runRenderSystems();
 
       this.drawGrid();
     }

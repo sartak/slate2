@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 
 export class Preflight {
+  renderer = null;
   project = null;
   isDirty = true;
 
@@ -20,7 +21,17 @@ export class Preflight {
   }
 
   regeneratePreflight() {
+    const { renderer } = this;
+    if (!renderer) {
+      return;
+    }
+
     this.isDirty = false;
+  }
+
+  setRenderer(renderer) {
+    this.renderer = renderer;
+    this.isDirty = true;
   }
 
   runRenderSystems() {

@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { commitSurfaceTransformAction } from './project';
 import { rendererForType } from './renderer';
 import { TransformComponent } from '../engine/components/Transform';
+import { PreflightContext } from './preflight';
 
 const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex) => {
   const prev = useRef(null);
@@ -25,6 +26,7 @@ export const Surface = () => {
   const surfaceRef = useRef(null);
   const entities = useSelector(project => project.entities);
   const selectedEntityIndex = useSelector(project => project.selectedEntityIndex);
+  const preflight = useContext(PreflightContext);
 
   const surfaceCallback = useCallback((surface) => {
     surfaceRef.current = surface;
@@ -40,7 +42,7 @@ export const Surface = () => {
   useEffect(() => {
     const rendererClass = rendererForType(rendererType);
 
-    const renderer = new rendererClass(surfaceOpts, (opts) => {
+    const renderer = new rendererClass(preflight, surfaceOpts, (opts) => {
       dispatch(commitSurfaceTransformAction(opts));
     });
 
