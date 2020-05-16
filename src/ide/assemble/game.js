@@ -123,11 +123,6 @@ export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
 
     export default new ${ctx.gameClass}({
       init: ${assembleGameInit(project, ctx)},
-
-      entities: ${ctx.entitiesVar},
-      components: ${ctx.componentsVar},
-      systems: ${ctx.systemsVar},
-
       renderer: ${ctx.rendererVar},
       loop: new ${ctx.loopClass}(
         ${assembleGameStep(project, ctx)},
