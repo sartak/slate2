@@ -4,6 +4,7 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import App from './App';
 import { projectReducer } from './project';
+import { Preflight, PreflightContext } from './preflight';
 
 export default (container, options = {}) => {
   const projectStore = createStore(
@@ -11,9 +12,13 @@ export default (container, options = {}) => {
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
   );
 
+  const preflight = new Preflight(projectStore);
+
   ReactDOM.render(
     <Provider store={projectStore}>
-      <App />
+      <PreflightContext.Provider value={preflight}>
+        <App />
+      </PreflightContext.Provider>
     </Provider>,
     container,
   );
