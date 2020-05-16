@@ -36,10 +36,33 @@ const parameterizeBody = (originalBody, paramMap) => {
   const args = [];
 
   paramMap.forEach(([param, arg]) => {
-    params.push(param);
-    args.push(arg);
+    let safe = true;
+
+    // If we already used a variable with the parameter name
+    if (param !== arg && body.match(new RegExp(`\\b${arg}\\b`))) {
+      safe = false;
+    }
+    // If we reassign the argument, we want a standalone copy of it.
+    else if (body.match(new RegExp(`\\b${param}\\s*(\\+|-|\\*\\*?|/|%)?=[^=]`))) {
+      safe = false;
+    }
+    // @Consider: When would else it be unsafe to rewrite?
+
+    if (safe) {
+      // param === arg happens for variables like `dt` and `time`
+      if (param !== arg) {
+        body = body.replace(new RegExp(`\\b${param}\\b`, 'g'), arg);
+      }
+    } else {
+      params.push(param);
+      args.push(arg);
+    }
   });
 
+  // We always wrap in a function to get the safety of not having to worry
+  // about `var` scope, other variable name reuse, and so on. However, the
+  // terser minifier will replace immediately-invoked function expressions when
+  // they're simple enough, like when they have no parameters.
   const wrapPre = `(function (${params.join(', ')}) {`;
   const wrapPost = `})(${args});`;
 
