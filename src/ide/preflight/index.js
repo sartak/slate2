@@ -50,7 +50,7 @@ export class Preflight {
       return;
     }
 
-    const assembler = evaluateGameForPreflight({
+    const [assembler, context] = evaluateGameForPreflight({
       ...project,
       debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
     });

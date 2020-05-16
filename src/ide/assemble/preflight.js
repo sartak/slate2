@@ -1,39 +1,34 @@
 import { assembleECSSetup as __assembleECSSetup, assembleGameStep as __assembleGameStep, newContext as __newContext, debugCall as __debugCall } from './game';
 import { ComponentByClassName as __ComponentClasses, SystemByClassName as __SystemClasses } from '../project/ecs';
 
-const __assembleGameForPreflight = (project, overrides) => {
-  const context = __newContext(project, {
-    prefix: '__',
-    componentClassPrefix: '__componentClasses.',
-    systemClassPrefix: '__systemClasses.',
-  });
-  const ecsSetup = __assembleECSSetup(project, context);
+const __assembleGameForPreflight = (project, ctx = __newContext(project)) => {
+  const ecsSetup = __assembleECSSetup(project, ctx);
 
-  context.render.push(
-    `${context.rendererVar}.finishRender();`,
+  ctx.render.push(
+    `${ctx.rendererVar}.finishRender();`,
   );
 
-  const step = __assembleGameStep(project, context);
+  const step = __assembleGameStep(project, ctx);
 
   const init = [
-    __debugCall('initBegin', '();', project, context),
-    ...context.init,
-    __debugCall('initEnd', '();', project, context),
+    __debugCall('initBegin', '();', project, ctx),
+    ...ctx.init,
+    __debugCall('initEnd', '();', project, ctx),
   ].join("\n");
 
   const render = [
-    __debugCall('renderBegin', '();', project, context),
-    ...context.render,
-    __debugCall('renderEnd', '();', project, context),
+    __debugCall('renderBegin', '();', project, ctx),
+    ...ctx.render,
+    __debugCall('renderEnd', '();', project, ctx),
   ].join("\n");
   
   return [
-    `(${context.rendererVar}, [${context.debuggerVars}]) => {`,
+    `(${ctx.rendererVar}, [${ctx.debuggerVars}]) => {`,
       ecsSetup,
       `return {`,
-        `entities: ${context.entitiesVar},`,
-        `components: ${context.componentsVar},`,
-        `systems: ${context.systemsVar},`,
+        `entities: ${ctx.entitiesVar},`,
+        `components: ${ctx.componentsVar},`,
+        `systems: ${ctx.systemsVar},`,
         `init: () => { ${init} },`,
         `render: (dt, time) => { ${render} },`,
         `step: ${step}`,
@@ -42,10 +37,16 @@ const __assembleGameForPreflight = (project, overrides) => {
   ].join("\n");
 };
 
-const __evaluateGameForPreflight = (__project, __overrides) => {
+const __evaluateGameForPreflight = (__project) => {
+  const __context = __newContext(__project, {
+    prefix: '__',
+    componentClassPrefix: '__componentClasses.',
+    systemClassPrefix: '__systemClasses.',
+  });
+
   const __componentClasses = __ComponentClasses;
   const __systemClasses = __SystemClasses;
-  return eval(__assembleGameForPreflight(__project, __overrides));
+  return [eval(__assembleGameForPreflight(__project, __context)), __context];
 };
 
 export { __evaluateGameForPreflight as evaluateGameForPreflight, __assembleGameForPreflight as assembleGameForPreflight };
