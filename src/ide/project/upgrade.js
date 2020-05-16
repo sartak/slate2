@@ -10,6 +10,7 @@ export const newProject = () => {
     entities: [],
     nextEntityId: 1,
     selectedEntityIndex: -1,
+    preflightRunning: false,
 
     surface: {
       panX: 0,
