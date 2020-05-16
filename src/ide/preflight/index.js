@@ -1,6 +1,7 @@
 import { createContext } from 'react';
 import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
+import InspectorDebugger from './inspector';
 
 export class Preflight {
   renderer = null;
@@ -9,7 +10,8 @@ export class Preflight {
   assembly = null;
   isRunning = false;
   loop = null;
-  debuggers = [];
+  inspectorDebugger = new InspectorDebugger();
+  debuggers = [this.inspectorDebugger];
 
   constructor(projectStore) {
     this.project = projectStore.getState();
