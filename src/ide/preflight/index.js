@@ -124,3 +124,10 @@ export class Preflight {
     this.debuggers.forEach((debug) => debug.detachInspector && debug.detachInspector(inspector));
   }
 }
+
+if (module.hot) {
+  Preflight.prototype._hotReplace = function (next) {
+    this.storeUnsubscribe();
+    this._hotReplaceContext(next);
+  };
+}

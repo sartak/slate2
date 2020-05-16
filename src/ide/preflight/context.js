@@ -6,7 +6,7 @@ export { PreflightContext };
 export const PreflightProvider = ({ preflight: initialPreflight, children }) => {
   const [preflight, setPreflight] = useState(initialPreflight);
 
-  preflight._hotReplacer = setPreflight;
+  preflight._hotReplaceContext = setPreflight;
 
   return (
     <PreflightContext.Provider value={preflight}>

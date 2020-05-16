@@ -42,9 +42,7 @@ if (module.hot) {
 
   module.hot.accept('./preflight', () => {
     const prev = preflight;
-    prev.storeUnsubscribe();
-
     const next = new Preflight(projectStore);
-    prev._hotReplacer(next);
+    prev._hotReplace(next);
   });
 }
