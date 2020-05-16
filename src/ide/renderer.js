@@ -213,7 +213,10 @@ const classes = {};
     }
 
     finishRender() {
-      this.drawGrid();
+      // @Feature: make this an option
+      if (!this.preflight.isRunning) {
+        this.drawGrid();
+      }
     }
 
     drawGrid() {
