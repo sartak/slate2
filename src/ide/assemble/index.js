@@ -17,10 +17,11 @@ export const assembleWebpackConfig = (project) => {
 
 export const assembleProject = (baseProject, buildSettings = {}) => {
   const project = {
-    debug: false,
+    debuggers: [],
     ...baseProject,
     ...buildSettings,
   };
+  project.debug = project.debuggers.length > 0;
 
   return {
     indexHtml: assembleIndexHtml(project),

@@ -10,7 +10,7 @@ const MsPerFrame = Math.floor(1000.0 / TargetFPS);
 const ChartWidth = RectGap + FramesPerRender * (RectGap + RectWidth);
 const ChartHeight = Math.ceil(HeightPerMs * MsPerFrame * Overage);
 
-export default class Debugger {
+export default class PerformanceDebugger {
   container = null;
   chart = null;
   frameStartMs = null;

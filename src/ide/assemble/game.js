@@ -17,7 +17,7 @@ export const newContext = (project, overrides = {}) => {
     update: [],
     render: [],
     renderVars,
-    debuggerVar: `${prefix}debugger`,
+    debuggerVars: (project.debuggers || []).map((_, i) => `${prefix}debugger${i}`),
     entitiesVar: `${prefix}allEntities`,
     componentsVar: `${prefix}allComponents`,
     systemsVar: `${prefix}allSystems`,
@@ -34,7 +34,7 @@ export const newContext = (project, overrides = {}) => {
 
 export const assembleGame = (project, ctx = newContext(project)) => {
   const ecs = assembleECSSetup(project, ctx);
-  const debug = project.debug ? assembleDebug(project, ctx) : "";
+  const debug = (project.debuggers || []).length ? assembleDebuggers(project, ctx) : "";
   const game = assembleInstantiateGame(project, ctx);
   const imports = assembleImports(project, ctx);
   return [imports, ecs, debug, game].join("\n");
@@ -46,12 +46,10 @@ export const assembleImports = (project, ctx = newContext(project)) => {
   `;
 };
 
-const debugCall = (method, project, ctx) => {
-  if (!project.debug) {
-    return "";
-  }
-
-  return `${ctx.debuggerVar}${method}`;
+const debugCall = (methodName, rest, project, ctx) => {
+  return (project.debuggers || []).filter(([classInstance]) => classInstance.prototype[methodName]).map((_, i) => {
+    return `${ctx.debuggerVars[i]}.${methodName}${rest}`;
+  }).join("\n");
 };
 
 export const assembleGameInit = (project, ctx = newContext(project)) => {
@@ -65,28 +63,48 @@ export const assembleGameInit = (project, ctx = newContext(project)) => {
 export const assembleGameStep = (project, ctx = newContext(project)) => {
   return [
     '(dt, time) => {',
-    debugCall('.frameBegin();', project, ctx),
+    debugCall('frameBegin', '();', project, ctx),
 
-      debugCall('.updateBegin();', project, ctx),
+      debugCall('updateBegin', '();', project, ctx),
         ...ctx.update,
-      debugCall('.updateEnd();', project, ctx),
+      debugCall('updateEnd', '();', project, ctx),
 
-      debugCall('.renderBegin();', project, ctx),
+      debugCall('renderBegin', '();', project, ctx),
         ...ctx.render,
-      debugCall('.renderEnd();', project, ctx),
+      debugCall('renderEnd', '();', project, ctx),
 
-    debugCall('.frameEnd();', project, ctx),
+    debugCall('frameEnd', '();', project, ctx),
     '}',
   ].join("\n");
 };
 
-export const assembleDebug = (project, ctx = newContext(project)) => {
-  const debugClass = `${ctx.prefix}Debug`;
-  ctx.imports.push([debugClass, 'debug', true]);
+export const assembleDebuggers = (project, ctx = newContext(project)) => {
+  const instantiate = [];
+  const attach = [];
+
+  project.debuggers.forEach(([classInstance, path], i) => {
+    const debugClass = `${ctx.prefix}Debug${i}`;
+    const debugVar = ctx.debuggerVars[i];
+
+    ctx.imports.push([debugClass, path, true]);
+    instantiate.push(`const ${debugVar} = new ${debugClass}();`);
+
+    if (classInstance.prototype.attach) {
+      if (!attach.length) {
+        attach.push(`${ctx.gameClass}.prototype.attachDebug = function(container) {`);
+      }
+      attach.push(`${debugVar}.attach(container);`);
+    }
+  });
+
+  if (attach.length) {
+    attach.push('return this;');
+    attach.push('};');
+  }
 
   return [
-    `const ${ctx.debuggerVar} = new ${debugClass}();`,
-    `${ctx.gameClass}.prototype.attachDebug = function(container) { ${ctx.debuggerVar}.attach(container); return this; };`,
+    ...instantiate,
+    ...attach,
   ].join("\n");
 };
 
