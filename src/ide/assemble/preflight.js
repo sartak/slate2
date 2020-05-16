@@ -8,6 +8,10 @@ const __assembleGameForPreflight = (project) => {
     systemClassPrefix: '__systemClasses.',
   });
   const ecsSetup = __assembleECSSetup(project, context);
+
+  context.render.push(
+    `${context.rendererVar}.finishRender();`,
+  );
   
   return [
     `(${context.rendererVar}) => {`,

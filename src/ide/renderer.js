@@ -206,7 +206,9 @@ const classes = {};
 
     render() {
       this.preflight.runRenderSystems();
+    }
 
+    finishRender() {
       this.drawGrid();
     }
 
