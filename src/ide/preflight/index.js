@@ -71,6 +71,12 @@ export class Preflight {
 
       assembly.init();
 
+      // @Cleanup: test a render to make sure we don't crash the whole UI
+      // if it breaks
+      if (this.renderer && assembly.render) {
+        assembly.render(0, 0);
+      }
+
       this.assembly = assembly;
       this.assemblyDirty = false;
     } catch (e) {
