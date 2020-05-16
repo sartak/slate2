@@ -1,4 +1,4 @@
-import { assembleECSSetup as __assembleECSSetup, newContext as __newContext } from './game';
+import { assembleECSSetup as __assembleECSSetup, assembleGameStep as __assembleGameStep, newContext as __newContext } from './game';
 import { ComponentByClassName as __ComponentClasses, SystemByClassName as __SystemClasses } from '../project/ecs';
 
 const __assembleGameForPreflight = (project) => {
@@ -12,6 +12,8 @@ const __assembleGameForPreflight = (project) => {
   context.render.push(
     `${context.rendererVar}.finishRender();`,
   );
+
+  const step = __assembleGameStep(project, context);
   
   return [
     `(${context.rendererVar}) => {`,
@@ -21,8 +23,8 @@ const __assembleGameForPreflight = (project) => {
         `components: ${context.componentsVar},`,
         `systems: ${context.systemsVar},`,
         `init: () => { ${context.init.join("\n")} },`,
-        `update: (dt, time) => { ${context.update.join("\n")} },`,
         `render: (dt, time) => { ${context.render.join("\n")} },`,
+        `step: ${step}`,
       `};`,
     `}`,
   ].join("\n");
