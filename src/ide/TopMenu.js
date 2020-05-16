@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveProject, canSaveProject, downloadProject, canDownloadProject, buildProject, canBuildProject } from '@ide/bridge';
+import { startPreflightAction, stopPreflightAction } from './project';
 
 export const TopMenu = () => {
   const [error, setError] = useState(null);
@@ -10,6 +11,7 @@ export const TopMenu = () => {
 
   const dispatch = useDispatch();
   const project = useSelector(project => project);
+  const preflightRunning = useSelector(project => project.preflightRunning);
 
   const save = () => {
     setSaving(true);
@@ -39,12 +41,21 @@ export const TopMenu = () => {
     downloadProject(project);
   };
 
+  const startPreflight = () => {
+    dispatch(startPreflightAction());
+  };
+
+  const stopPreflight = () => {
+    dispatch(stopPreflightAction());
+  };
+
   return (
     <div className="TopMenu">
       {error && <div className="error-banner">{error.toString()}</div>}
-      {canSaveProject && <button disabled={isSaving || isBuilding} onClick={save}>Save Project</button>}
-      {canDownloadProject && <button disabled={isSaving || isBuilding} onClick={download}>Download Project</button>}
-      {canBuildProject && <button disabled={isSaving || isBuilding} onClick={build}>Build Project</button>}
+      {canSaveProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={save}>Save Project</button>}
+      {canDownloadProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={download}>Download Project</button>}
+      {canBuildProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={build}>Build Project</button>}
+      <button disabled={isSaving || isBuilding} onClick={preflightRunning ? stopPreflight : startPreflight}>{preflightRunning ? "Stop!" : "Run!"}</button>
     </div>
   );
 };

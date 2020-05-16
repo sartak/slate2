@@ -48,6 +48,26 @@ export const addComponentToEntityAction = (entityIndex, entityComponent) => {
   return { 'type': ADD_COMPONENT_TO_ENTITY, entityIndex, entityComponent };
 };
 
+const START_PREFLIGHT = 'start-preflight';
+
+export const startPreflightActionStatic = {
+  'type': START_PREFLIGHT,
+};
+
+export const startPreflightAction = () => {
+  return startPreflightActionStatic;
+};
+
+const STOP_PREFLIGHT = 'stop-preflight';
+
+export const stopPreflightActionStatic = {
+  'type': STOP_PREFLIGHT,
+};
+
+export const stopPreflightAction = () => {
+  return stopPreflightActionStatic;
+};
+
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
@@ -117,6 +137,12 @@ export const projectReducer = (state = null, action) => {
           };
         }),
       };
+    }
+    case START_PREFLIGHT: {
+      return {...state, preflightRunning: true};
+    }
+    case STOP_PREFLIGHT: {
+      return {...state, preflightRunning: false};
     }
     default: {
       return state;
