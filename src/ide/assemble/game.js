@@ -1,5 +1,6 @@
 import { ComponentByName, Systems } from '../project/ecs';
 import { canonicalizeFieldValue, fieldZeroValue } from '../project/types';
+import { assembleInlineSystemCall } from './inline';
 
 export const newContext = (project, overrides = {}) => {
   const prefix = 'prefix' in overrides ? overrides.prefix : '__';
@@ -226,25 +227,15 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       // @Performance: let system provide inline code
 
       if (system.prototype.loop_update) {
-        const loopVar = `${systemVar}_loop_update`;
-        code.push(`let ${loopVar} = null;`);
-
-        ctx.init.push(
-          `${loopVar} = ${systemVar}.loop_update();`,
-        );
-
         needEntities = true;
         ctx.update.push(
-          `${loopVar}(${entitiesVar}, dt);`,
+          assembleInlineSystemCall(system, 'loop_update', [entitiesVar, 'dt', 'time'], project, ctx),
         );
       }
 
       const {renderer} = project;
       const renderMethod = `loop_render_${renderer}`;
       if (system.prototype[renderMethod]) {
-        const loopVar = `${systemVar}_loop_render_${renderer}`;
-        code.push(`let ${loopVar} = null;`);
-
         if (!ctx.preparedRenderer) {
           ctx.preparedRenderer = true;
 
@@ -257,13 +248,9 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
           ]);
         }
 
-        ctx.init.push(
-          `${loopVar} = ${systemVar}.${renderMethod}(${ctx.renderVars});`,
-        );
-
         needEntities = true;
         ctx.render.push(
-          `${loopVar}(${entitiesVar}, dt);`,
+          assembleInlineSystemCall(system, renderMethod, [...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx),
         );
       }
 
