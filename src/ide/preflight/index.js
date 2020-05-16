@@ -62,6 +62,11 @@ export class Preflight {
   }
 
   runRenderSystems() {
+    if (this.isRunning) {
+      console.warn("runRenderSystems called while running");
+      return;
+    }
+
     if (this.isDirty) {
       this.regeneratePreflight();
     }

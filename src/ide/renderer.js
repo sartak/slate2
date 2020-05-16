@@ -205,6 +205,10 @@ const classes = {};
     }
 
     render() {
+      if (this.preflight.isRunning) {
+        return;
+      }
+
       this.preflight.runRenderSystems();
     }
 
