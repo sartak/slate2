@@ -9,19 +9,12 @@ export default class Loop {
   run() {
     const {step} = this;
 
-    let prev = 0;
+    let prev = window.performance.now();
     let time = 0;
 
     const frame = () => {
       const now = window.performance.now();
-
-      let dt;
-      if (!prev) {
-        dt = 0;
-      }
-      else {
-        dt = now - prev;
-      }
+      const dt = now - prev;
       time += dt;
 
       step(dt, time);
