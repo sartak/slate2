@@ -63,6 +63,8 @@ export class Preflight {
     try {
       const [assembler, context] = evaluateGameForPreflight({
         ...project,
+        generateComponentVars: true,
+        generateSystemVars: true,
         debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
       });
       const assembly = assembler(renderer, this.debuggers);

@@ -156,8 +156,6 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
     const component = ComponentByName[componentName];
     const componentFields = [];
 
-    ctx.imports.push([`${componentName}Component as ${ctx.componentClassPrefix}${componentName}Component`, `../ide/components/${componentName}`]);
-
     componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
     ctx.componentFieldVars[componentName] = {};
 
@@ -184,7 +182,7 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
       componentFields.push([field.name, values]);
 
-      const fieldVar = `${componentVarName[componentName]}.${field.name}`;
+      const fieldVar = project.generateComponentVars ? `${componentVarName[componentName]}.${field.name}` : `${componentVarName[componentName]}_${field.name}`;
       ctx.componentFieldVars[componentName][field.name] = fieldVar;
     });
     components.push([componentName, componentFields]);
@@ -200,7 +198,6 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     systemVarName[system.name] = `${ctx.prefix}system_${system.name}`;
     systems.push(system);
-    ctx.imports.push([`${system.name}System as ${ctx.systemClassPrefix}${system.name}System`, `../ide/systems/${system.name}`]);
   });
 
   return [
@@ -208,15 +205,22 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     ...components.map(([componentName, fields]) => {
       return [
-        `const ${componentVarName[componentName]} = new ${ctx.componentClassPrefix}${componentName}Component();\n`,
+        (project.generateComponentVars && `const ${componentVarName[componentName]} = new ${ctx.componentClassPrefix}${componentName}Component();\n`),
         ...fields.map(([fieldName, values]) => {
           // @Performance: use ArrayBuffer?
-          return `${ctx.componentFieldVars[componentName][fieldName]} = ${JSON.stringify(values)};\n`;
+          const field = ctx.componentFieldVars[componentName][fieldName];
+          const value = JSON.stringify(values);
+
+          if (project.generateComponentVars) {
+            return `${field} = ${value};\n`;
+          } else {
+            return `const ${field} = ${value};\n`;
+          }
         }),
       ].join("");
     }),
 
-    `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`,
+    (project.generateComponentVars && `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`),
 
     ...systems.map((system) => {
       const systemVar = systemVarName[system.name];
@@ -263,14 +267,14 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
       }
 
       return [
-        `const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();`,
+        (project.generateSystemVars && `const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();`),
         ...code,
-        ...system.requiredComponents.map((component) => {
+        ...(project.generateSystemVars && project.generateComponentVars ? system.requiredComponents.map((component) => {
           return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
-        }),
+        }) : []),
       ].join("\n");
     }),
 
-    `const ${ctx.systemsVar} = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`,
+    (project.generateSystemVars && `const ${ctx.systemsVar} = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`),
   ].join("\n");
 }
