@@ -3,6 +3,21 @@ import { MotionComponent } from '../../engine/components/Motion';
 import { JoystickComponent } from '../../engine/components/Joystick';
 import { RenderRectangleComponent } from '../../engine/components/RenderRectangle';
 
+import { MovementSystem } from '../../engine/systems/Movement';
+import { RenderSystem } from '../../engine/systems/Render';
+
+const Components = [
+  TransformComponent,
+  MotionComponent,
+  JoystickComponent,
+  RenderRectangleComponent,
+];
+
+const Systems = [
+  MovementSystem,
+  RenderSystem,
+];
+
 export const defaultsForComponent = (component) => {
   const defaults = {};
 
@@ -32,13 +47,6 @@ export const newEntity = (x, y) => {
   };
 };
 
-const Components = [
-  TransformComponent,
-  MotionComponent,
-  JoystickComponent,
-  RenderRectangleComponent,
-];
-
 const ComponentByName = {};
 
 Components.forEach((classInstance) => {
@@ -46,3 +54,12 @@ Components.forEach((classInstance) => {
 });
 
 export { Components, ComponentByName };
+
+const SystemByName = {};
+
+Systems.forEach((classInstance) => {
+  SystemByName[classInstance.name] = classInstance;
+});
+
+export { Systems, SystemByName };
+

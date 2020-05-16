@@ -1,5 +1,5 @@
 import { newProject } from './upgrade';
-import { newEntity } from './components';
+import { newEntity } from './ecs';
 
 export { newEntity };
 

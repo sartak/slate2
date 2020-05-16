@@ -1,5 +1,4 @@
-import { ComponentByName } from '../project/components';
-import { Systems } from '../project/systems';
+import { ComponentByName, Systems } from '../project/ecs';
 
 export const newContext = (project, overrides = {}) => {
   const prefix = 'prefix' in overrides ? overrides.prefix : '__';

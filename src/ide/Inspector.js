@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
-import { Components, ComponentByName, newEntityComponent } from './project/components';
+import { Components, ComponentByName, newEntityComponent } from './project/ecs';
 import './Inspector.less';
 
 const FieldComponent = {
