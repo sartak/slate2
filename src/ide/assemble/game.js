@@ -1,4 +1,5 @@
 import { ComponentByName, Systems } from '../project/ecs';
+import { canonicalizeFieldValue, fieldZeroValue } from '../project/types';
 
 export const newContext = (project, overrides = {}) => {
   const prefix = 'prefix' in overrides ? overrides.prefix : '__';
@@ -161,21 +162,8 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
     componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
 
-    component.fields.forEach(({name: fieldName, type, default: defaultValue}) => {
-      let zeroValue;
-
-      switch (type) {
-        case 'entity':
-        case 'float':
-          zeroValue = 0;
-          break;
-        case 'color':
-          zeroValue = '#000000';
-          break;
-        default:
-          throw new Error(`Unhandled type ${type} for zero value`);
-      }
-
+    component.fields.forEach((field) => {
+      const zeroValue = fieldZeroValue(field);
       const values = [zeroValue];
 
       project.entities.forEach(({__id}, i) => {
@@ -184,39 +172,18 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
           return;
         }
 
-        let value = entities[__id].fields[fieldName];
+        let value = entities[__id].fields[field.name];
 
-        if (type === 'entity') {
+        if (field.type === 'entity') {
           value = value ? indexForEntity[value] : 0;
-        } else if (value === undefined || value === null) {
-          value = defaultValue;
         } else {
-          switch (type) {
-            case 'float': {
-              if (value === "") {
-                value = defaultValue;
-              } else {
-                value = Number(value);
-              }
-              break;
-            }
-            case 'color': {
-              if (value === "") {
-                value = defaultValue;
-              } else {
-                value = value.toLowerCase();
-              }
-              break;
-            }
-            default: {
-              throw new Error(`Unhandled type ${type} for entity-component values`);
-            }
-          }
+          value = canonicalizeFieldValue(field, value);
         }
+
         values.push(value);
       });
 
-      componentFields.push([fieldName, values]);
+      componentFields.push([field.name, values]);
     });
     components.push([componentName, componentFields]);
   });
