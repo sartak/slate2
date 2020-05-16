@@ -1,7 +1,7 @@
 import { assembleECSSetup as __assembleECSSetup, assembleGameStep as __assembleGameStep, newContext as __newContext } from './game';
 import { ComponentByClassName as __ComponentClasses, SystemByClassName as __SystemClasses } from '../project/ecs';
 
-const __assembleGameForPreflight = (project) => {
+const __assembleGameForPreflight = (project, overrides) => {
   const context = __newContext(project, {
     prefix: '__',
     componentClassPrefix: '__componentClasses.',
@@ -30,10 +30,10 @@ const __assembleGameForPreflight = (project) => {
   ].join("\n");
 };
 
-const __evaluateGameForPreflight = (__project) => {
+const __evaluateGameForPreflight = (__project, __overrides) => {
   const __componentClasses = __ComponentClasses;
   const __systemClasses = __SystemClasses;
-  return eval(__assembleGameForPreflight(__project));
+  return eval(__assembleGameForPreflight(__project, __overrides));
 };
 
 export { __evaluateGameForPreflight as evaluateGameForPreflight, __assembleGameForPreflight as assembleGameForPreflight };
