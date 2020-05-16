@@ -73,7 +73,6 @@ export const assembleGameStep = (project, ctx = newContext(project)) => {
       debugCall('.updateEnd();', project, ctx),
 
       debugCall('.renderBegin();', project, ctx),
-        `${ctx.rendererVar}.beginRender();`,
         ...ctx.render,
       debugCall('.renderEnd();', project, ctx),
 
@@ -253,8 +252,13 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
 
         if (!ctx.preparedRenderer) {
           ctx.preparedRenderer = true;
+
           ctx.init.push([
             `const [${ctx.renderVars}] = ${ctx.rendererVar}.prepareRenderer();`,
+          ]);
+
+          ctx.render.unshift([
+            `${ctx.rendererVar}.beginRender();`,
           ]);
         }
 
