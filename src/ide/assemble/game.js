@@ -15,6 +15,7 @@ const newContext = (project) => {
     update: [],
     render: [],
     renderVars,
+    debuggerVar: '__debugger',
     entitiesVar: '__allEntities',
     componentsVar: '__allComponents',
     systemsVar: '__allSystems',
@@ -27,15 +28,24 @@ const newContext = (project) => {
 
 export const assembleGame = (project, ctx = newContext(project)) => {
   const ecs = assembleECSSetup(project, ctx);
+  const debug = project.debug ? assembleDebug(project, ctx) : "";
   const game = assembleInstantiateGame(project, ctx);
   const imports = assembleImports(project, ctx);
-  return [imports, ecs, game].join("\n");
+  return [imports, ecs, debug, game].join("\n");
 };
 
 export const assembleImports = (project, ctx = newContext(project)) => {
   return `
     ${ctx.imports.map(([symbol, path, isDefault]) => `import ${isDefault ? symbol : `{ ${symbol} }`} from '@slate2/${path}';\n`).join("")}
   `;
+};
+
+const debugCall = (method, project, ctx) => {
+  if (!project.debug) {
+    return "";
+  }
+
+  return `${ctx.debuggerVar}${method}`;
 };
 
 export const assembleGameInit = (project, ctx = newContext(project)) => {
@@ -49,11 +59,27 @@ export const assembleGameInit = (project, ctx = newContext(project)) => {
 export const assembleGameStep = (project, ctx = newContext(project)) => {
   return [
     '(dt, time) => {',
-      ...ctx.update,
-      `${ctx.rendererVar}.beginRender();`,
-      ...ctx.render,
+    debugCall('.frameBegin();', project, ctx),
+
+      debugCall('.updateBegin();', project, ctx),
+        ...ctx.update,
+      debugCall('.updateEnd();', project, ctx),
+
+      debugCall('.renderBegin();', project, ctx),
+        `${ctx.rendererVar}.beginRender();`,
+        ...ctx.render,
+      debugCall('.renderEnd();', project, ctx),
+
+    debugCall('.frameEnd();', project, ctx),
     '}',
   ].join("\n");
+};
+
+export const assembleDebug = (project, ctx = newContext(project)) => {
+  const debugClass = '__Debug';
+  ctx.imports.push([debugClass, 'debug', true]);
+
+  return `const ${ctx.debuggerVar} = new ${debugClass}();`;
 };
 
 export const assembleInstantiateGame = (project, ctx = newContext(project)) => {

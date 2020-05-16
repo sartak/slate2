@@ -17,6 +17,7 @@ export const assembleWebpackConfig = (project) => {
 
 export const assembleProject = (baseProject, buildSettings = {}) => {
   const project = {
+    debug: false,
     ...baseProject,
     ...buildSettings,
   };
