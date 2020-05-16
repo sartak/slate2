@@ -7,7 +7,7 @@ export { PreflightContext, PreflightProvider } from './context';
 export class Preflight {
   renderer = null;
   project = null;
-  isDirty = true;
+  assemblyDirty = true;
   assembly = null;
   isRunning = false;
   loop = null;
@@ -46,11 +46,11 @@ export class Preflight {
 
     // @Performance: directly update changed entity-component fields
     if (prev?.entities !== next?.entities) {
-      this.isDirty = true;
+      this.assemblyDirty = true;
     }
   }
 
-  regeneratePreflight() {
+  regenerateAssembly() {
     const { project, renderer, isRunning } = this;
     if (!renderer || isRunning) {
       return;
@@ -66,12 +66,12 @@ export class Preflight {
 
     assembly.init();
 
-    this.isDirty = false;
+    this.assemblyDirty = false;
   }
 
   setRenderer(renderer) {
     this.renderer = renderer;
-    this.isDirty = true;
+    this.assemblyDirty = true;
   }
 
   runRenderSystems() {
@@ -80,8 +80,8 @@ export class Preflight {
       return;
     }
 
-    if (this.isDirty) {
-      this.regeneratePreflight();
+    if (this.assemblyDirty) {
+      this.regenerateAssembly();
     }
     const render = this.assembly?.render;
     if (render) {
@@ -90,12 +90,12 @@ export class Preflight {
   }
 
   _start() {
-    if (this.isDirty) {
-      this.regeneratePreflight();
+    if (this.assemblyDirty) {
+      this.regenerateAssembly();
     }
 
     this.isRunning = true;
-    this.isDirty = true;
+    this.assemblyDirty = true;
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
   }
