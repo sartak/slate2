@@ -16,6 +16,10 @@ export class Preflight {
   storeUnsubscribe = null;
 
   constructor(projectStore) {
+    this.initialize(projectStore);
+  }
+
+  initialize(projectStore) {
     this.project = projectStore.getState();
 
     this.storeUnsubscribe = projectStore.subscribe(() => {
@@ -126,8 +130,17 @@ export class Preflight {
 }
 
 if (module.hot) {
+  let preflights = [];
+
+  const oldInitialize = Preflight.prototype.initialize;
+  Preflight.prototype.initialize = function (...args) {
+    preflights.push(this);
+    oldInitialize.apply(this, args);
+  };
+
   Preflight.prototype._hotReplace = function (next) {
     this.storeUnsubscribe();
     this._hotReplaceContext(next);
+    preflights = preflights.filter((p) => p !== this);
   };
 }
