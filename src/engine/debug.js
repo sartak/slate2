@@ -1,4 +1,10 @@
 export default class Debugger {
+  container = null;
+
+  attach(container) {
+    this.container = container;
+  }
+
   frameBegin() {
   }
 

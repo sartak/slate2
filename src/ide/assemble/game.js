@@ -79,7 +79,10 @@ export const assembleDebug = (project, ctx = newContext(project)) => {
   const debugClass = '__Debug';
   ctx.imports.push([debugClass, 'debug', true]);
 
-  return `const ${ctx.debuggerVar} = new ${debugClass}();`;
+  return [
+    `const ${ctx.debuggerVar} = new ${debugClass}();`,
+    `${ctx.gameClass}.prototype.attachDebug = function(container) { ${ctx.debuggerVar}.attach(container); return this; };`,
+  ].join("\n");
 };
 
 export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
