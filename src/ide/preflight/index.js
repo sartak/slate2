@@ -30,6 +30,13 @@ export class Preflight {
       return;
     }
 
+    if (!next.preflightRunning) {
+      if (this.isRunning) {
+        this._stop();
+        return;
+      }
+    }
+
     // @Performance: directly update changed entity-component fields
     if (prev?.entities !== next?.entities) {
       this.isDirty = true;
@@ -73,6 +80,14 @@ export class Preflight {
     this.isDirty = true;
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
+  }
+
+  _stop() {
+    this.isRunning = false;
+    this.loop.pause();
+
+    // @Feature: make this optional, for inspecting the end state
+    this.runRenderSystems();
   }
 }
 
