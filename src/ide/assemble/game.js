@@ -172,6 +172,7 @@ export const prepareComponentSetup = (project, ctx = newContext(project)) => {
     });
 
     component.fields.forEach((field) => {
+      const fieldId = field.id;
       const zeroValue = fieldZeroValue(field);
       const values = [zeroValue];
 
@@ -183,7 +184,7 @@ export const prepareComponentSetup = (project, ctx = newContext(project)) => {
           return;
         }
 
-        let value = entity.componentConfig[componentId].values[field.id];
+        let value = entity.componentConfig[componentId].values[fieldId];
 
         if (field.type === 'entity') {
           value = value ? entityMap[value].index : 0;
@@ -196,10 +197,10 @@ export const prepareComponentSetup = (project, ctx = newContext(project)) => {
 
       fields.push([field, values]);
 
-      const fieldLabel = field.label ?? field.id;
+      const fieldLabel = field.label ?? fieldId;
 
-      const fieldVarName = generateComponentVars ? `${componentVarName}.${fieldLabel}` : `${componentVarName}_${fieldLabel}`;
-      fieldVarNames[field.id] = fieldVarName;
+      const fieldVarName = generateComponentVars ? `${componentVarName}.${fieldId}` : `${componentVarName}_${fieldLabel}`;
+      fieldVarNames[fieldId] = fieldVarName;
       fieldVarNamesByLabel[fieldLabel] = fieldVarName;
     });
 
@@ -310,7 +311,7 @@ export const assembleComponentSetup = (project, ctx = newContext(project)) => {
 
     ...(generateComponentVars ? [
       `const ${ctx.componentsVar} = {`,
-        ...componentObjects.map((component) => `"${component.label}": ${componentMap[component.id].varName},`),
+        ...componentObjects.map((component) => `"${component.id}": ${componentMap[component.id].varName},`),
       `}`,
     ] : []),
   ].join("\n");
@@ -346,7 +347,7 @@ export const assembleSystemSetup = (project, ctx = newContext(project)) => {
       }
 
       return [
-        (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.label}();`),
+        (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
         (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({__id}) => entityMap[__id].index)}];`),
         ...(generateSystemVars && generateComponentVars ?
           componentObjects.map((component) => {
@@ -358,7 +359,7 @@ export const assembleSystemSetup = (project, ctx = newContext(project)) => {
 
     ...(generateSystemVars ? [
       `const ${ctx.systemsVar} = {`,
-        ...systemObjects.map((system) => `"${system.label}": ${systemMap[system.id].varName},`),
+        ...systemObjects.map((system) => `"${system.id}": ${systemMap[system.id].varName},`),
       `}`,
     ] : []),
   ].join("\n");

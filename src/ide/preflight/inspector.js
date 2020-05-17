@@ -3,24 +3,24 @@ import { canonicalizeFieldValue } from '../project/types';
 export default class InspectorDebugger {
   selectedEntity = null;
   selectedEntityIndex = null;
-  entity = null;
-  indexForEntity = null;
+  entityIndex = null;
+  entityMap = null;
   components = null;
   inspector = null;
   fieldCache = null;
 
   didUpdateProject(prev, next) {
-    const { indexForEntity } = this;
+    const { entityMap } = this;
 
     const prevEntityIndex = prev?.selectedEntityIndex ?? -1;
     const nextEntityIndex = next?.selectedEntityIndex ?? -1;
     if (nextEntityIndex !== prevEntityIndex) {
       this.selectedEntityIndex = nextEntityIndex;
       this.selectedEntity = next.entities[nextEntityIndex];
-      if (this.selectedEntity === -1 || !indexForEntity) {
-        this.entity = null;
+      if (this.selectedEntity && entityMap && entityMap[this.selectedEntity.__id]) {
+        this.entity = entityMap[this.selectedEntity.__id].index;
       } else {
-        this.entity = this.indexForEntity[this.selectedEntity.__id];
+        this.entity = null;
       }
       return;
     }
@@ -30,11 +30,11 @@ export default class InspectorDebugger {
     }
   }
 
-  didUpdateAssembly(project, { components }, { indexForEntity }) {
-    this.components = components;
-    this.indexForEntity = indexForEntity;
-    if (this.selectedEntity) {
-      this.entity = indexForEntity[this.selectedEntity.__id];
+  didUpdateAssembly(project, assembly, context) {
+    this.components = assembly.components;
+    this.entityMap = context.entityMap;
+    if (this.selectedEntity && this.entityMap && this.entityMap[this.selectedEntity.__id]) {
+      this.entity = this.entityMap[this.selectedEntity.__id].index;
     } else {
       this.entity = null;
     }
@@ -45,13 +45,13 @@ export default class InspectorDebugger {
     const fieldCache = this.fieldCache = {};
 
     inspector.querySelectorAll('div.InspectEntityComponent').forEach((componentContainer) => {
-      const {componentName} = componentContainer.dataset;
-      const componentCache = fieldCache[componentName] = {};
+      const {componentId} = componentContainer.dataset;
+      const componentCache = fieldCache[componentId] = {};
       componentContainer.querySelectorAll(`li.field`).forEach((fieldContainer) => {
-        const {fieldName} = fieldContainer.dataset;
+        const {fieldId} = fieldContainer.dataset;
         const input = fieldContainer.querySelector('input');
         if (input) {
-          componentCache[fieldName] = input;
+          componentCache[fieldId] = input;
         }
       });
     });
@@ -69,58 +69,42 @@ export default class InspectorDebugger {
       return;
     }
 
-    components.forEach((component) => {
-      const componentCache = fieldCache[component.constructor.name];
+    Object.entries(components).forEach(([componentId, fields]) => {
+      const componentCache = fieldCache[componentId];
       if (!componentCache) {
         return;
       }
 
-      component.constructor.fields.forEach(({ name }) => {
-        const input = componentCache[name];
+      Object.entries(fields).forEach(([fieldId, values]) => {
+        const input = componentCache[fieldId];
         if (input) {
-          const value = component[name][entity];
-          input.value = value;
+          input.value = values[entity];
         }
       });
     });
   }
 
-  entityComponentValuesForInspector(entityIndex, componentName) {
+  entityComponentValuesForInspector(entityIndex, component) {
     const { selectedEntityIndex, entity, components } = this;
     if (entityIndex !== selectedEntityIndex) {
       return null;
     }
 
     const ret = {};
-    components.forEach((component) => {
-      if (component.constructor.name === componentName) {
-        component.constructor.fields.forEach(({ name }) => {
-          ret[name] = component[name][entity];
-        });
-      }
+    Object.entries(components).forEach(([fieldId, values]) => {
+      ret[fieldId] = values[entity];
     });
 
     return ret;
   }
 
-  inspectorEntityComponentUpdate(entityIndex, componentName, fieldName, value) {
+  inspectorEntityComponentUpdate(entityIndex, component, field, input, value) {
     const { selectedEntityIndex, entity, components, fieldCache } = this;
     if (entityIndex !== selectedEntityIndex) {
       return;
     }
 
-    components.forEach((component) => {
-      if (component.constructor.name === componentName) {
-        const componentCache = fieldCache[componentName];
-        component.constructor.fields.forEach((field) => {
-          if (field.name === fieldName) {
-            const input = componentCache[fieldName];
-            input.value = value;
-            value = canonicalizeFieldValue(field, value);
-            component[fieldName][entity] = value;
-          }
-        });
-      }
-    });
+    input.value = value;
+    components[component.id][field.id][entity] = canonicalizeFieldValue(field, value);
   }
 };

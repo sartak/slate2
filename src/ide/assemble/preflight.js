@@ -47,7 +47,7 @@ const __evaluateGameForPreflight = (__project) => {
   const __systemClasses = {};
 
   __selectEnabledSystems(__project).forEach((__system) => {
-    __systemClasses[__system.label] = __system.constructor;
+    __systemClasses[__system.id] = __system.constructor;
   });
 
   return [eval(__assembleGameForPreflight(__project, __context)), __context];

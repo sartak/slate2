@@ -46,10 +46,10 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
         {component.fields.map((field) => {
           const { id: fieldId, label: fieldLabel, type, defaultValue } = field;
 
-          const onChange = (e) => {
-            const value = e.target.value;
+          const onChange = ({ target }) => {
+            const { value } = target;
             if (preflightRunning) {
-              preflight.inspectorEntityComponentUpdate(entityIndex, component, fieldId, value);
+              preflight.inspectorEntityComponentUpdate(entityIndex, component, field, target, value);
             } else {
               dispatch(changeEntityComponentValueAction(entityIndex, component.id, fieldId, value));
             }
