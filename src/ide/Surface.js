@@ -87,7 +87,7 @@ export const Surface = () => {
       return;
     }
 
-    let {x, y} = transformComponent.fields;
+    let {x, y} = transformComponent.values;
     if (rendererRef.current) {
       const {width, height} = rendererRef.current;
       x -= width / 2;

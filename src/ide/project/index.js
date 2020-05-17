@@ -125,8 +125,8 @@ export const projectReducer = (state = null, action) => {
               ...entity.componentConfig,
               [componentId]: {
                 ...entity.componentConfig[componentId],
-                fields: {
-                  ...entity.componentConfig[componentId].fields,
+                values: {
+                  ...entity.componentConfig[componentId].values,
                   [fieldName]: value,
                 },
               },

@@ -109,7 +109,7 @@ export const upgradeProject = (project) => {
         const { name, fields } = component;
         const id = `${name}Component`;
         componentIds.push(id);
-        componentConfig[id] = { fields };
+        componentConfig[id] = { values: fields };
       });
 
       entity.componentIds = componentIds;
