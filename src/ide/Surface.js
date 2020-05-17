@@ -91,8 +91,8 @@ export const Surface = () => {
 
     dispatch(commitSurfaceTransformAction({
       ...surfaceOpts,
-      panX: x,
-      panY: y,
+      panX: -x,
+      panY: -y,
       zoom: 1,
     }));
   }, entities, selectedEntityIndex);
