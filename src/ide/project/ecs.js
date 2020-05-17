@@ -20,6 +20,8 @@ const Systems = [
 
 export const newEntity = (x, y) => {
   return {
+    __id: null, // to be filled in by caller
+
     components: [
       TransformComponent.makeEntityComponent({x, y}),
       RenderRectangleComponent.makeEntityComponent(),
