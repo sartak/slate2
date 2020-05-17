@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
-import { Components, ComponentByName, newEntityComponent } from './project/ecs';
+import { Components, ComponentByName } from './project/ecs';
 import { PreflightContext } from './preflight';
 import './Inspector.less';
 
@@ -90,7 +90,7 @@ const AddComponentToEntity = ({ entityIndex, entity }) => {
   }
 
   const addComponent = (component) => {
-    dispatch(addComponentToEntityAction(entityIndex, newEntityComponent(component)));
+    dispatch(addComponentToEntityAction(entityIndex, component.makeEntityComponent()));
     setAdding(false);
   };
 
