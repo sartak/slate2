@@ -17,6 +17,7 @@ export const newContext = (project, overrides = {}) => {
     init: [],
     update: [],
     render: [],
+    preparedLoop: false,
 
     gameClass: `${prefix}Game`,
     loopClass: `${prefix}Loop`,
@@ -24,6 +25,7 @@ export const newContext = (project, overrides = {}) => {
     rendererClass: `${prefix}Renderer`,
     rendererVar: `${prefix}renderer`,
     renderVars,
+    preparedRenderer: false,
 
     debuggersVar: `${prefix}allDebuggers`,
     debuggerVars: [],

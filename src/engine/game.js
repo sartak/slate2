@@ -22,7 +22,7 @@ export default class Game {
 
     container.addEventListener('click', clickHandler);
 
-    this.options.renderer.attach(container);
+    this.options.renderer?.attach(container);
 
     return this;
   }
@@ -38,11 +38,17 @@ export default class Game {
   }
 
   run() {
+    const { init, loop } = this.options;
     if (!this.preloaded || !this.activated) {
       return;
     }
 
-    this.options.init();
-    this.options.loop.run();
+    if (init) {
+      init();
+    }
+
+    if (loop) {
+      loop.run();
+    }
   }
 }

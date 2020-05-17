@@ -23,11 +23,19 @@ const __assembleGameForPreflight = (originalProject) => {
 
   const ecs = __assembleECS(project, ctx);
   const debug = __assembleDebuggers(project, ctx);
-  const step = __assembleGameStep(project, ctx);
+
+  if (!ctx.render.length) {
+    ctx.render.push(
+      `${ctx.rendererVar}.beginRender();`,
+    );
+  }
 
   ctx.render.push(
     `${ctx.rendererVar}.finishRender();`,
   );
+
+  const step = __assembleGameStep(project, ctx);
+  ctx.preparedLoop = true;
 
   const init = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
