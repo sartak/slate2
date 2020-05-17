@@ -7,7 +7,9 @@ export const MovementSystemId = 'MovementSystem';
 export class MovementSystem extends BaseSystem {
   static name = 'Movement';
   static id = MovementSystemId;
+  id = MovementSystemId;
   static label = 'Movement';
+  label = 'Movement';
   static requiredComponents = [TransformComponent, MotionComponent];
 
   loop_update(entities, dt, time) {

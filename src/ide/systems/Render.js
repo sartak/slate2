@@ -7,7 +7,9 @@ export const RenderSystemId = 'RenderSystemId';
 export class RenderSystem extends BaseSystem {
   static name = 'RenderSystem';
   static id = RenderSystemId;
+  id = RenderSystemId;
   static label = 'Render';
+  label = 'Render';
   static requiredComponents = [TransformComponent, RenderRectangleComponent];
 
   loop_render_canvas(ctx, entities, dt, time) {

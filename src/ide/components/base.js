@@ -4,6 +4,9 @@ export class BaseComponent {
   static label = null;
   static fields = [];
 
+  id = null;
+  label = null;
+
   static makeEntityComponent(overrides) {
     const defaults = {};
 

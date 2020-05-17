@@ -5,7 +5,9 @@ export const TransformComponentId = 'TransformComponent';
 export class TransformComponent extends BaseComponent {
   static name = 'Transform';
   static id = TransformComponentId;
+  id = TransformComponentId;
   static label = 'Transform';
+  label = 'Transform';
   static fields = [
     { name: 'parent', type: 'entity', default: null },
     { name: 'x', type: 'float', default: 0 },
