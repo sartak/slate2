@@ -1,5 +1,6 @@
 export class BaseComponent {
   static name = null;
+  static label = null;
   static fields = [];
 
   static makeEntityComponent(overrides) {

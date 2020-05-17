@@ -47,7 +47,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
 
   return (
     <div className="InspectEntityComponent" data-component-name={component.name}>
-      <div className="componentName">{component.name}</div>
+      <div className="componentLabel">{component.label}</div>
       <ul>
         {component.fields.map((field) => {
           const { name: fieldName, type, default: defaultValue } = field;

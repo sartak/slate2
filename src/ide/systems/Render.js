@@ -4,6 +4,7 @@ import { RenderRectangleComponent } from '../components/RenderRectangle';
 
 export class RenderSystem extends BaseSystem {
   static name = 'RenderSystem';
+  static label = 'Render';
   static requiredComponents = [TransformComponent, RenderRectangleComponent];
 
   loop_render_canvas(ctx, entities, dt, time) {

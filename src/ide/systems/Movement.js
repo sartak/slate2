@@ -4,6 +4,7 @@ import { MotionComponent } from '../components/Motion';
 
 export class MovementSystem extends BaseSystem {
   static name = 'Movement';
+  static label = 'Movement';
   static requiredComponents = [TransformComponent, MotionComponent];
 
   loop_update(entities, dt, time) {

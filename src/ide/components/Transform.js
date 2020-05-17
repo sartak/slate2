@@ -2,6 +2,7 @@ import { BaseComponent } from './base';
 
 export class TransformComponent extends BaseComponent {
   static name = 'Transform';
+  static label = 'Transform';
   static fields = [
     { name: 'parent', type: 'entity', default: null },
     { name: 'x', type: 'float', default: 0 },

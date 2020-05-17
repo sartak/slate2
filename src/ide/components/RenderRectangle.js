@@ -2,6 +2,7 @@ import { BaseComponent } from './base';
 
 export class RenderRectangleComponent extends BaseComponent {
   static name = 'RenderRectangle';
+  static label = 'RenderRectangle';
   static fields = [
     { name: 'w', type: 'float', default: 100 },
     { name: 'h', type: 'float', default: 100 },
