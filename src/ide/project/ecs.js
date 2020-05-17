@@ -37,13 +37,17 @@ export const newEntity = (x, y) => {
 
 const ComponentByName = {};
 const ComponentByClassName = {};
+const ComponentIdToName = {};
 
 Components.forEach((classInstance) => {
   ComponentByName[classInstance.name] = classInstance;
+  ComponentIdToName[classInstance.id] = classInstance.name;
   ComponentByClassName[`${classInstance.name}Component`] = classInstance;
 });
 
 export { Components, ComponentByName, ComponentByClassName };
+
+export { ComponentIdToName };
 
 const SystemByName = {};
 const SystemByClassName = {};

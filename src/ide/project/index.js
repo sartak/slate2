@@ -1,5 +1,5 @@
 import { newProject } from './upgrade';
-import { newEntity } from './ecs';
+import { newEntity, ComponentIdToName } from './ecs';
 
 export { newEntity };
 
@@ -39,8 +39,8 @@ export const commitSurfaceTransformAction = (surface) => {
 };
 
 const CHANGE_ENTITY_COMPONENT_VALUE = 'change-entity-component-value';
-export const changeEntityComponentValueAction = (entityIndex, componentName, fieldName, value) => {
-  return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentName, fieldName, value };
+export const changeEntityComponentValueAction = (entityIndex, componentId, fieldName, value) => {
+  return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentId, fieldName, value };
 };
 
 const ADD_COMPONENT_TO_ENTITY = 'add-component-to-entity';
@@ -97,7 +97,9 @@ export const projectReducer = (state = null, action) => {
       return {...state, surface: action.surface};
     }
     case CHANGE_ENTITY_COMPONENT_VALUE: {
-      const {entityIndex, componentName, fieldName, value} = action;
+      const {entityIndex, componentId, fieldName, value} = action;
+      const componentName = ComponentIdToName[componentId];
+
       return {
         ...state,
         entities: state.entities.map((entity, i) => {
@@ -119,6 +121,16 @@ export const projectReducer = (state = null, action) => {
                 },
               };
             }),
+            componentConfig: {
+              ...entity.componentConfig,
+              [componentId]: {
+                ...entity.componentConfig[componentId],
+                fields: {
+                  ...entity.componentConfig[componentId].fields,
+                  [fieldName]: value,
+                },
+              },
+            },
           };
         }),
       };

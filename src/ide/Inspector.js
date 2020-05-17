@@ -57,7 +57,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
             if (preflightRunning) {
               preflight.inspectorEntityComponentUpdate(entityIndex, component.name, fieldName, value);
             } else {
-              dispatch(changeEntityComponentValueAction(entityIndex, componentName, fieldName, value));
+              dispatch(changeEntityComponentValueAction(entityIndex, component.id, fieldName, value));
             }
           };
 
