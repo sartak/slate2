@@ -1,7 +1,10 @@
 import { BaseComponent } from './base';
 
+export const TransformComponentId = 'TransformComponent';
+
 export class TransformComponent extends BaseComponent {
   static name = 'Transform';
+  static id = TransformComponentId;
   static label = 'Transform';
   static fields = [
     { name: 'parent', type: 'entity', default: null },

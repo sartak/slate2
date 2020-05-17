@@ -2,8 +2,11 @@ import { BaseSystem } from './base';
 import { TransformComponent } from '../components/Transform';
 import { RenderRectangleComponent } from '../components/RenderRectangle';
 
+export const RenderSystemId = 'RenderSystemId';
+
 export class RenderSystem extends BaseSystem {
   static name = 'RenderSystem';
+  static id = RenderSystemId;
   static label = 'Render';
   static requiredComponents = [TransformComponent, RenderRectangleComponent];
 

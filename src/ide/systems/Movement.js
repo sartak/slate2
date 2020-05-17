@@ -2,8 +2,11 @@ import { BaseSystem } from './base';
 import { TransformComponent } from '../components/Transform';
 import { MotionComponent } from '../components/Motion';
 
+export const MovementSystemId = 'MovementSystem';
+
 export class MovementSystem extends BaseSystem {
   static name = 'Movement';
+  static id = MovementSystemId;
   static label = 'Movement';
   static requiredComponents = [TransformComponent, MotionComponent];
 
