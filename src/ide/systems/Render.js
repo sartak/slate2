@@ -1,8 +1,9 @@
+import { BaseSystem } from './base';
 import { TransformComponent } from '../components/Transform';
 import { RenderRectangleComponent } from '../components/RenderRectangle';
 
-export class RenderSystem {
-  static name = 'Render';
+export class RenderSystem extends BaseSystem {
+  static name = 'RenderSystem';
   static requiredComponents = [TransformComponent, RenderRectangleComponent];
 
   loop_render_canvas(ctx, entities, dt, time) {

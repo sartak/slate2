@@ -1,4 +1,6 @@
-export class TransformComponent {
+import { BaseComponent } from './base';
+
+export class TransformComponent extends BaseComponent {
   static name = 'Transform';
   static fields = [
     { name: 'parent', type: 'entity', default: null },
@@ -9,12 +11,4 @@ export class TransformComponent {
     { name: 'scale_x', type: 'float', default: 1 },
     { name: 'scale_y', type: 'float', default: 1 },
   ];
-
-  parent = null;
-  x = null;
-  y = null;
-  z = null;
-  rotation = null;
-  scale_x = null;
-  scale_y = null;
 }

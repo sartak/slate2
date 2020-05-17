@@ -1,4 +1,6 @@
-export class MotionComponent {
+import { BaseComponent } from './base';
+
+export class MotionComponent extends BaseComponent {
   static name = 'Motion';
   static fields = [
     { name: 'velocity_x', type: 'float', default: 0 },
@@ -6,9 +8,4 @@ export class MotionComponent {
     { name: 'acceleration_x', type: 'float', default: 0 },
     { name: 'acceleration_y', type: 'float', default: 0 },
   ];
-
-  velocity_x = null;
-  velocity_y = null;
-  acceleration_x = null;
-  acceleration_y = null;
 }

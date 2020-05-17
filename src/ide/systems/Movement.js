@@ -1,7 +1,8 @@
+import { BaseSystem } from './base';
 import { TransformComponent } from '../components/Transform';
 import { MotionComponent } from '../components/Motion';
 
-export class MovementSystem {
+export class MovementSystem extends BaseSystem {
   static name = 'Movement';
   static requiredComponents = [TransformComponent, MotionComponent];
 
