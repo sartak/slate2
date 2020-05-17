@@ -26,6 +26,12 @@ export const newEntity = (x, y) => {
       TransformComponent.makeEntityComponent({x, y}),
       RenderRectangleComponent.makeEntityComponent(),
     ],
+
+    componentIds: [TransformComponent.id, RenderRectangleComponent.id],
+    componentConfig: {
+      [TransformComponent.id]: TransformComponent.makeEntityComponent({x, y}),
+      [RenderRectangleComponent.id]: RenderRectangleComponent.makeEntityComponent(),
+    },
   };
 };
 

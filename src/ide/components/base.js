@@ -13,6 +13,7 @@ export class BaseComponent {
 
     return {
       name: this.name,
+      id: this.id,
       fields: {
         ...defaults,
         ...overrides,
