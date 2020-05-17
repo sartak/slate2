@@ -98,7 +98,6 @@ export const projectReducer = (state = null, action) => {
     }
     case CHANGE_ENTITY_COMPONENT_VALUE: {
       const {entityIndex, componentId, fieldId, value} = action;
-      const componentName = ComponentIdToName[componentId];
 
       return {
         ...state,
@@ -108,19 +107,6 @@ export const projectReducer = (state = null, action) => {
           }
           return {
             ...entity,
-            components: entity.components.map((component) => {
-              if (component.name !== componentName) {
-                return component;
-              }
-
-              return {
-                ...component,
-                fields: {
-                  ...component.fields,
-                  [fieldId]: value,
-                },
-              };
-            }),
             componentConfig: {
               ...entity.componentConfig,
               [componentId]: {

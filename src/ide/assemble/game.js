@@ -346,7 +346,7 @@ export const assembleSystemSetup = (project, ctx = newContext(project)) => {
       }
 
       return [
-        (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
+        (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.label}();`),
         (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({__id}) => entityMap[__id].index)}];`),
         ...(generateSystemVars && generateComponentVars ?
           componentObjects.map((component) => {

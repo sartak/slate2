@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project';
-import { Components, ComponentByName } from '../project/ecs';
 import { PreflightContext } from '../preflight';
 import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityComponent, selectPreflightRunning } from '../project/selectors';
 

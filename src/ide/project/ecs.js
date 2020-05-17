@@ -6,17 +6,21 @@ import { RenderRectangleComponent } from '../components/RenderRectangle';
 import { MovementSystem } from '../systems/Movement';
 import { RenderSystem } from '../systems/Render';
 
-const Components = [
-  TransformComponent,
-  MotionComponent,
-  JoystickComponent,
-  RenderRectangleComponent,
+const BuiltinComponents = [
+  new TransformComponent,
+  new MotionComponent,
+  new JoystickComponent,
+  new RenderRectangleComponent,
 ];
 
-const Systems = [
-  MovementSystem,
-  RenderSystem,
+export { BuiltinComponents };
+
+const BuiltinSystems = [
+  new MovementSystem,
+  new RenderSystem,
 ];
+
+export { BuiltinSystems };
 
 export const newEntity = (x, y) => {
   return {
@@ -34,44 +38,4 @@ export const newEntity = (x, y) => {
     },
   };
 };
-
-const ComponentByName = {};
-const ComponentByClassName = {};
-const ComponentIdToName = {};
-
-Components.forEach((classInstance) => {
-  ComponentByName[classInstance.name] = classInstance;
-  ComponentIdToName[classInstance.id] = classInstance.name;
-  ComponentByClassName[`${classInstance.name}Component`] = classInstance;
-});
-
-export { Components, ComponentByName, ComponentByClassName };
-
-export { ComponentIdToName };
-
-const SystemByName = {};
-const SystemByClassName = {};
-
-Systems.forEach((classInstance) => {
-  SystemByName[classInstance.name] = classInstance;
-  SystemByClassName[`${classInstance.name}System`] = classInstance;
-});
-
-export { Systems, SystemByName, SystemByClassName };
-
-const BuiltinComponents = [
-  new TransformComponent,
-  new MotionComponent,
-  new JoystickComponent,
-  new RenderRectangleComponent,
-];
-
-export { BuiltinComponents };
-
-const BuiltinSystems = [
-  new MovementSystem,
-  new RenderSystem,
-];
-
-export { BuiltinSystems };
 

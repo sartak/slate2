@@ -114,6 +114,7 @@ export const upgradeProject = (project) => {
 
       entity.componentIds = componentIds;
       entity.componentConfig = componentConfig;
+      delete entity.components;
     });
   }
 

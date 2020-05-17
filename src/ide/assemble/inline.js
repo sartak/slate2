@@ -16,7 +16,7 @@ const rewriteBodyToUseComponentVariables = (system, originalBody, components, ct
   let body = originalBody;
 
   // @Bugfix: This optimistically assumes that any pattern of
-  // word1.componentName.word2 is a lookup of component field word2 for entity
+  // word1.componentLabel.word2 is a lookup of component field word2 for entity
   // word1. I don't really see this hitting as a false negative, but the fix
   // would involve manipulating the AST instead of the raw string code.
   components.forEach((component) => {
