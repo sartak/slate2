@@ -10,7 +10,10 @@ export class RenderSystem extends BaseSystem {
   requiredComponents = [TransformComponentId, RenderRectangleComponentId];
 
   render_canvas(ctx, entities, dt, time) {
-    entities.slice().sort((a, b) => b.Transform.z - a.Transform.z).forEach((entity) => {
+    const sortedEntities = entities.slice().sort((a, b) => b.Transform.z - a.Transform.z);
+    for (let i = 0, len = sortedEntities.length; i < len; ++i) {
+      const entity = sortedEntities[i];
+
       ctx.save();
 
       const sx = entity.Transform.scale_x;
@@ -30,6 +33,6 @@ export class RenderSystem extends BaseSystem {
       ctx.fillRect(px, py, width, height);
 
       ctx.restore();
-    });
+    }
   }
 }

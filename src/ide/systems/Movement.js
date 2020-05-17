@@ -10,12 +10,14 @@ export class MovementSystem extends BaseSystem {
   requiredComponents = [TransformComponentId, MotionComponentId];
 
   update(entities, dt, time) {
-    entities.forEach((entity) => {
+    for (let i = 0, len = entities.length; i < len; ++i) {
+      const entity = entities[i];
+
       entity.Transform.x += entity.Motion.velocity_x * dt;
       entity.Transform.y += entity.Motion.velocity_y * dt;
 
       entity.Motion.velocity_x += entity.Motion.acceleration_x * dt;
       entity.Motion.velocity_y += entity.Motion.acceleration_y * dt;
-    });
+    }
   }
 }
