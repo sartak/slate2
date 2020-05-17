@@ -59,3 +59,19 @@ Systems.forEach((classInstance) => {
 
 export { Systems, SystemByName, SystemByClassName };
 
+const BuiltinComponents = [
+  new TransformComponent,
+  new MotionComponent,
+  new JoystickComponent,
+  new RenderRectangleComponent,
+];
+
+export { BuiltinComponents };
+
+const BuiltinSystems = [
+  new MovementSystem,
+  new RenderSystem,
+];
+
+export { BuiltinSystems };
+
