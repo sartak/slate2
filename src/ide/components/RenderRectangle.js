@@ -13,4 +13,9 @@ export class RenderRectangleComponent extends BaseComponent {
     { name: 'h', type: 'float', default: 100 },
     { name: 'color', type: 'color', default: '#FFFFFF' },
   ];
+  fields = [
+    { id: 'w', type: 'float', defaultValue: 100 },
+    { id: 'h', type: 'float', defaultValue: 100 },
+    { id: 'color', type: 'color', defaultValue: '#FFFFFF' },
+  ];
 }

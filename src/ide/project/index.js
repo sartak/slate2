@@ -39,8 +39,8 @@ export const commitSurfaceTransformAction = (surface) => {
 };
 
 const CHANGE_ENTITY_COMPONENT_VALUE = 'change-entity-component-value';
-export const changeEntityComponentValueAction = (entityIndex, componentId, fieldName, value) => {
-  return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentId, fieldName, value };
+export const changeEntityComponentValueAction = (entityIndex, componentId, fieldId, value) => {
+  return { 'type': CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentId, fieldId, value };
 };
 
 const ADD_COMPONENT_TO_ENTITY = 'add-component-to-entity';
@@ -97,7 +97,7 @@ export const projectReducer = (state = null, action) => {
       return {...state, surface: action.surface};
     }
     case CHANGE_ENTITY_COMPONENT_VALUE: {
-      const {entityIndex, componentId, fieldName, value} = action;
+      const {entityIndex, componentId, fieldId, value} = action;
       const componentName = ComponentIdToName[componentId];
 
       return {
@@ -117,7 +117,7 @@ export const projectReducer = (state = null, action) => {
                 ...component,
                 fields: {
                   ...component.fields,
-                  [fieldName]: value,
+                  [fieldId]: value,
                 },
               };
             }),
@@ -127,7 +127,7 @@ export const projectReducer = (state = null, action) => {
                 ...entity.componentConfig[componentId],
                 values: {
                   ...entity.componentConfig[componentId].values,
-                  [fieldName]: value,
+                  [fieldId]: value,
                 },
               },
             },

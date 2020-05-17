@@ -9,4 +9,5 @@ export class JoystickComponent extends BaseComponent {
   static label = 'Joystick';
   label = 'Joystick';
   static fields = [];
+  fields = [];
 }
