@@ -37,7 +37,6 @@ module.exports = {
             // babel has its own module loader
             // presets: ['@babel/preset-env'],
             presets: [path.resolve(slate2_path, '@babel', 'preset-env')],
-            plugins: [path.resolve(slate2_path, '@babel', 'plugin-proposal-class-properties')],
           },
         },
       },

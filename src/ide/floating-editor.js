@@ -1,6 +1,6 @@
 import React from 'react';
-import { CodeEditor } from './CodeEditor';
-import './FloatingEditor.less';
+import { CodeEditor } from './code-editor';
+import './floating-editor.less';
 
 export const FloatingEditor = ({ close, ...props }) => {
   return (

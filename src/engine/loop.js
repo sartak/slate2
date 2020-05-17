@@ -1,9 +1,7 @@
 export default class Loop {
-  step = null;
-  raf = null;
-
   constructor(step) {
     this.step = step;
+    this.raf = null;
   }
 
   run() {

@@ -1,7 +1,8 @@
 import BaseCanvasRenderer from '../engine/renderer/canvas';
 import BaseWebGLRenderer from '../engine/renderer/webgl';
 import BaseWebGPURenderer from '../engine/renderer/webgpu';
-import { isElectron } from './App';
+
+const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 
 const classes = {};
 
@@ -10,7 +11,7 @@ const classes = {};
   ['WebGLRenderer', BaseWebGLRenderer],
   ['WebGPURenderer', BaseWebGPURenderer],
 ].forEach(([name, baseClass]) => {
-  const dynamicClass = class extends baseClass {
+  const dynamicRendererSubclass = class extends baseClass {
     panX = 0;
     panY = 0;
     zoom = 1;
@@ -229,7 +230,10 @@ const classes = {};
 
       ctx.strokeStyle = '#333';
       ctx.resetTransform();
-      ctx.translate(0.5, 0.5); // crisper lines
+
+      // Using the half-pixel grid tells the canvas engine to use crisper
+      // lines (1 pixel rather than 1 point)
+      ctx.translate(0.5, 0.5);
 
       const x0 = Math.floor(panX % size - size);
       const x1 = Math.floor(x0 + width + 2 * size);
@@ -250,7 +254,7 @@ const classes = {};
     }
   };
 
-  classes[name] = dynamicClass;
+  classes[name] = dynamicRendererSubclass;
 });
 
 export let

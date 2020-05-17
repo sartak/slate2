@@ -1,5 +1,5 @@
 import React from 'react';
-import { EntityList } from './EntityList';
+import { EntityList } from './entity-list';
 
 export const PanelLeft = () => {
   return (

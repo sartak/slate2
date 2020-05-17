@@ -1,4 +1,4 @@
-import { canonicalizeFieldValue } from '../project/types';
+import { canonicalizeValue } from '../types';
 
 export default class InspectorDebugger {
   selectedEntity = null;
@@ -38,6 +38,10 @@ export default class InspectorDebugger {
     } else {
       this.entity = null;
     }
+  }
+
+  didCleanAssemblyScope(assembly) {
+    this.components = assembly.components;
   }
 
   attachInspector(inspector) {
@@ -91,7 +95,7 @@ export default class InspectorDebugger {
     }
 
     const ret = {};
-    Object.entries(components).forEach(([fieldId, values]) => {
+    Object.entries(components[component.id]).forEach(([fieldId, values]) => {
       ret[fieldId] = values[entity];
     });
 
@@ -99,12 +103,14 @@ export default class InspectorDebugger {
   }
 
   inspectorEntityComponentUpdate(entityIndex, component, field, input, value) {
-    const { selectedEntityIndex, entity, components, fieldCache } = this;
+    const { selectedEntityIndex, entity, components } = this;
     if (entityIndex !== selectedEntityIndex) {
       return;
     }
 
+    const { id: fieldId, type, defaultValue } = field;
+
     input.value = value;
-    components[component.id][field.id][entity] = canonicalizeFieldValue(field, value);
+    components[component.id][fieldId][entity] = canonicalizeValue(type, value, defaultValue);
   }
 };

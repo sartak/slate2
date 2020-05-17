@@ -1,6 +1,6 @@
 import { BaseSystem } from './base';
-import { TransformComponentId } from '../components/Transform';
-import { RenderRectangleComponentId } from '../components/RenderRectangle';
+import { TransformComponentId } from '../components/transform';
+import { RenderRectangleComponentId } from '../components/render-rectangle';
 
 export const RenderSystemId = 'RenderSystem';
 

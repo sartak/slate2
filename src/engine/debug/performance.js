@@ -11,17 +11,20 @@ const ChartWidth = RectGap + FramesPerRender * (RectGap + RectWidth);
 const ChartHeight = Math.ceil(HeightPerMs * MsPerFrame * Overage);
 
 export default class PerformanceDebugger {
-  container = null;
-  chart = null;
-  frameStartMs = null;
-  updateStartMs = null;
-  updateEndMs = null;
-  renderStartMs = null;
-  renderEndMs = null;
-  frames = new Array(FramesPerRender);
-  rects = new Array(FramesPerRender * RectsPerFrame);
-  fpsDisplay = null;
-  frameIndex = 0;
+  constructor() {
+    this.path = 'debug/performance';
+    this.container = null;
+    this.chart = null;
+    this.frameStartMs = null;
+    this.updateStartMs = null;
+    this.updateEndMs = null;
+    this.renderStartMs = null;
+    this.renderEndMs = null;
+    this.frames = new Array(FramesPerRender);
+    this.rects = new Array(FramesPerRender * RectsPerFrame);
+    this.fpsDisplay = null;
+    this.frameIndex = 0;
+  }
 
   attach(container) {
     this.container = container;
@@ -120,7 +123,8 @@ export default class PerformanceDebugger {
 
     let totalMs = 0;
 
-    frames.forEach((frame, i) => {
+    for (let i = 0; i < FramesPerRender; ++i) {
+      const frame = frames[i];
       const [frameStart, updateStart, updateEnd, renderStart, renderEnd, frameEnd] = frame;
       const updateMs = updateEnd - updateStart;
       const renderMs = renderEnd - renderStart;
@@ -142,12 +146,12 @@ export default class PerformanceDebugger {
       updateRect.style.top = `${ChartHeight - updateHeight}px`;
       renderRect.style.top = `${ChartHeight - updateHeight - renderHeight}px`;
       leftoverRect.style.top = `${ChartHeight - updateHeight - renderHeight - leftoverHeight}px`;
-    });
+    }
 
-    let imaginaryFps = (1000.0 / (totalMs / frames.length));
+    const imaginaryFps = (1000.0 / (totalMs / frames.length));
 
-    let realTotalMs = frames[frames.length - 1][5] - frames[0][0];
-    let realFps = (1000.0 / (realTotalMs / frames.length));
+    const realTotalMs = frames[FramesPerRender - 1][0] - frames[0][0];
+    const realFps = (1000.0 / (realTotalMs / (FramesPerRender - 1)));
 
     fpsDisplay.innerText = `FPS: ${realFps.toFixed(1)} (${imaginaryFps.toFixed(1)})`;
   }

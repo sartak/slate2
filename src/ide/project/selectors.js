@@ -1,5 +1,15 @@
-import { BuiltinComponents } from './components';
-import { BuiltinSystems } from './systems';
+import { BuiltinComponents } from '../ecs/components';
+import { BuiltinSystems } from '../ecs/systems';
+
+export const selectProject = (state) => state;
+
+export const selectEntities = ({ entities }) => entities;
+
+export const selectSelectedEntityIndex = ({ selectedEntityIndex }) => selectedEntityIndex;
+
+export const makeSelectEntityByIndex = (index) => {
+  return ({ entities }) => entities[index];
+};
 
 export const selectEnabledComponents = (state) => {
   return BuiltinComponents;
@@ -46,3 +56,7 @@ export const makeSelectEntityComponent = (entityIndex, componentId) => {
 };
 
 export const selectPreflightRunning = ({ preflightRunning }) => preflightRunning;
+
+export const selectRenderer = ({ renderer }) => renderer;
+
+export const selectSurface = ({ surface }) => surface;

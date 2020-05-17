@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import App from './App';
-import { projectReducer } from './project';
+import App from './app';
+import { projectReducer } from './project/reducer';
 import { Preflight, PreflightProvider } from './preflight';
 
 const projectStore = createStore(
@@ -32,11 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 if (module.hot) {
-  module.hot.accept('./App', () => {
+  module.hot.accept('./app', () => {
     render();
   });
 
-  module.hot.accept('./project', () => {
+  module.hot.accept('./project/reducer', () => {
     projectStore.replaceReducer(projectReducer);
   });
 

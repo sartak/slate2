@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopMenu } from './TopMenu';
+import { TopMenu } from './top-menu';
 
 export const PanelTop = () => {
   return (

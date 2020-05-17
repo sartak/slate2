@@ -20,7 +20,7 @@ const rewriteBodyToUseComponentVariables = (system, originalBody, components, ct
   // word1. I don't really see this hitting as a false negative, but the fix
   // would involve manipulating the AST instead of the raw string code.
   components.forEach((component) => {
-    const componentLabel = component.label;
+    const { label: componentLabel } = component;
     const { fieldVarNamesByLabel } = componentMap[component.id];
 
     body = body.replace(new RegExp(`\\b([a-zA-Z0-9_]+)\.${componentLabel}\.([a-zA-Z0-9_]+)\\b`, 'g'), (_, entityVar, fieldLabel) => {
@@ -42,7 +42,7 @@ const parameterizeBody = (originalBody, paramMap) => {
   paramMap.forEach(([param, arg]) => {
     let safe = true;
 
-    // If we already used a variable with the parameter name
+    // We already used a variable with the parameter name.
     if (param !== arg && body.match(new RegExp(`\\b${arg}\\b`))) {
       safe = false;
     }
@@ -68,7 +68,7 @@ const parameterizeBody = (originalBody, paramMap) => {
   // terser minifier will replace immediately-invoked function expressions when
   // they're simple enough, like when they have no parameters.
   const wrapPre = `(function (${params.join(', ')}) {`;
-  const wrapPost = `})(${args});`;
+  const wrapPost = `})(${args.join(', ')});`;
 
   return [wrapPre, body, wrapPost].join("\n");
 };
@@ -84,7 +84,7 @@ export const assembleInlineSystemCall = (system, method_name, args, project, ctx
   }
 
   const [, params, body] = parse;
-  const paramMap = params.map((p, i) => [p, args[i]]);
+  const paramMap = params.map((param, i) => [param, args[i]]);
 
   const componentizedBody = rewriteBodyToUseComponentVariables(system, body, components, ctx);
   const parameterizedBody = parameterizeBody(componentizedBody, paramMap);
@@ -92,9 +92,15 @@ export const assembleInlineSystemCall = (system, method_name, args, project, ctx
   return [
     `/*`,
     ` * ${system.label} ${method_name}`,
-    ...paramMap.map(([param, arg]) => ` *   ${param} <= ${arg}`),
-    ` * Components: ${components.map((component) => component.label).join(', ')}`,
+    ...paramMap.map(([param, arg]) => ` *   ${param} <- ${arg}`),
+    ` * Components: ${components.map(({ label }) => label).join(', ')}`,
     ` */`,
     parameterizedBody,
   ].join("\n");
+};
+
+export const flattenList = (list) => {
+  return list.reduce((result, element) => (
+    result.concat(Array.isArray(element) ? flattenList(element) : element)
+  ), []).filter(Boolean);
 };

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import { initVimMode } from 'monaco-vim';
-import './CodeEditor.less';
+import './code-editor.less';
 
 export const CodeEditorBase = (props) => {
   return (
@@ -30,10 +30,8 @@ export const CodeEditorVim = (props) => {
   const vimRef = useRef(null);
 
   const statusBarRef = useCallback((statusBar) => {
-    if (vimRef.current) {
-      vimRef.current.dispose();
-      vimRef.current = null;
-    }
+    vimRef.current?.dispose();
+    vimRef.current = null;
 
     if (statusBar && editorRef.current) {
       vimRef.current = addVim(editorRef.current, statusBar);
@@ -42,10 +40,8 @@ export const CodeEditorVim = (props) => {
 
   useEffect(() => {
     return () => {
-      if (vimRef.current) {
-        vimRef.current.dispose();
-        vimRef.current = null;
-      }
+      vimRef.current?.dispose();
+      vimRef.current = null;
     };
   }, []);
 
@@ -53,10 +49,7 @@ export const CodeEditorVim = (props) => {
     editorRef.current = editor;
 
     if (statusBarRef.current) {
-      if (vimRef.current) {
-        vimRef.current.dispose();
-        vimRef.current = null;
-      }
+      vimRef.current?.dispose();
       vimRef.current = addVim(editor, statusBarRef.current);
     }
 

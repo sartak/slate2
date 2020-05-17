@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveProject, canSaveProject, downloadProject, canDownloadProject, buildProject, canBuildProject } from '@ide/bridge';
-import { startPreflightAction, stopPreflightAction } from './project';
-import { FloatingEditor } from './FloatingEditor';
+import { preflightRunningAction } from './project/actions';
+import { FloatingEditor } from './floating-editor';
 import { assembleGame } from './assemble/game';
+import { selectProject, selectPreflightRunning } from './project/selectors';
 
 export const TopMenu = () => {
   const [error, setError] = useState(null);
@@ -12,8 +13,8 @@ export const TopMenu = () => {
   const [isBuilding, setBuilding] = useState(false);
 
   const dispatch = useDispatch();
-  const project = useSelector(project => project);
-  const preflightRunning = useSelector(project => project.preflightRunning);
+  const project = useSelector(selectProject);
+  const preflightRunning = useSelector(selectPreflightRunning);
   const [isPreview, setPreview] = useState(false);
   const [previewCode, setPreviewCode] = useState('');
 
@@ -52,11 +53,11 @@ export const TopMenu = () => {
   };
 
   const startPreflight = () => {
-    dispatch(startPreflightAction());
+    dispatch(preflightRunningAction(true));
   };
 
   const stopPreflight = () => {
-    dispatch(stopPreflightAction());
+    dispatch(preflightRunningAction(false));
   };
 
   return (

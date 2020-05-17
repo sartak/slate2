@@ -2,10 +2,11 @@ import React, { useContext, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PreflightContext } from '../preflight';
 import { InspectEntity } from './entity';
+import { selectSelectedEntityIndex } from '../project/selectors';
 import './index.less';
 
 export const Inspector = () => {
-  const entityIndex = useSelector(project => project.selectedEntityIndex);
+  const entityIndex = useSelector(selectSelectedEntityIndex);
   const dispatch = useDispatch();
   const preflight = useContext(PreflightContext);
   const ref = useCallback((container) => {

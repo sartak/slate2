@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadProject } from '@ide/bridge';
-import { createProjectAction, loadProjectAction } from './project';
+import { createProjectAction, loadProjectAction } from './project/actions';
 import { upgradeProject } from './project/upgrade';
-import './OpenProject.less';
+import './open-project.less';
 
 export const OpenProject = () => {
   const [isLoading, setLoading] = useState(false);

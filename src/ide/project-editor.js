@@ -1,10 +1,10 @@
 import React from 'react';
-import './ProjectEditor.less';
-import { PanelCenter } from './PanelCenter';
-import { PanelTop } from './PanelTop';
-import { PanelLeft } from './PanelLeft';
-import { PanelBottom } from './PanelBottom';
-import { PanelRight } from './PanelRight';
+import './project-editor.less';
+import { PanelCenter } from './panel-center';
+import { PanelTop } from './panel-top';
+import { PanelLeft } from './panel-left';
+import { PanelBottom } from './panel-bottom';
+import { PanelRight } from './panel-right';
 
 export const ProjectEditor = () => {
   return (

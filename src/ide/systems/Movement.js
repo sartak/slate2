@@ -1,6 +1,6 @@
 import { BaseSystem } from './base';
-import { TransformComponentId } from '../components/Transform';
-import { MotionComponentId } from '../components/Motion';
+import { TransformComponentId } from '../components/transform';
+import { MotionComponentId } from '../components/motion';
 
 export const MovementSystemId = 'MovementSystem';
 

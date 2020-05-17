@@ -1,37 +1,16 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project';
+import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project/actions';
 import { PreflightContext } from '../preflight';
-import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityComponent, selectPreflightRunning } from '../project/selectors';
-
-const FieldComponent = {
-  'float': (value, onChange, _, defaultValue) => (
-    <input
-      type="number"
-      value={value}
-      placeholder={defaultValue}
-      onChange={onChange}
-      onBlur={(e) => {
-        if (e.target.value === "") {
-          e.target.value = defaultValue;
-          onChange(e);
-        }
-      }}
-    />
-  ),
-  'color': (value, onChange) => (
-    <input type="color" value={value} onChange={onChange} />
-  ),
-  'entity': (value) => (
-    <span>{value === null ? "(null)" : value}</span>
-  ),
-};
+import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityComponent, selectPreflightRunning, makeSelectEntityByIndex } from '../project/selectors';
+import { editorForType } from '../types';
 
 const InspectEntityComponent = ({ entityIndex, componentId }) => {
   const dispatch = useDispatch();
 
   const preflight = useContext(PreflightContext);
   const component = useSelector(makeSelectComponentWithId(componentId));
+  const { fields, label: componentLabel } = component;
 
   const entityComponent = useSelector(makeSelectEntityComponent(entityIndex, componentId));
 
@@ -40,18 +19,17 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
   const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component) : entityComponent.values;
 
   return (
-    <div className="InspectEntityComponent" data-component-id={component.id}>
-      <div className="componentLabel">{component.label}</div>
+    <div className="InspectEntityComponent" data-component-id={componentId}>
+      <div className="componentLabel">{componentLabel}</div>
       <ul>
-        {component.fields.map((field) => {
+        {fields.map((field) => {
           const { id: fieldId, label: fieldLabel, type, defaultValue } = field;
 
-          const onChange = ({ target }) => {
-            const { value } = target;
+          const onChange = (value, input) => {
             if (preflightRunning) {
-              preflight.inspectorEntityComponentUpdate(entityIndex, component, field, target, value);
+              preflight.inspectorEntityComponentUpdate(entityIndex, component, field, input, value);
             } else {
-              dispatch(changeEntityComponentValueAction(entityIndex, component.id, fieldId, value));
+              dispatch(changeEntityComponentValueAction(entityIndex, componentId, fieldId, value));
             }
           };
 
@@ -60,7 +38,7 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
           return (
             <li key={fieldId} className="field" data-field-id={fieldId}>
               <span className="label">{fieldLabel ?? fieldId}</span>
-              {FieldComponent[type](value, onChange, fieldId, defaultValue)}
+              {editorForType(type)(value, onChange, defaultValue)}
             </li>
           );
         })}
@@ -107,7 +85,7 @@ const AddComponentToEntity = ({ entityIndex, entity, enabledComponents }) => {
 
 export const InspectEntity = ({ entityIndex }) => {
   const entity = useSelector(
-    project => project.entities[entityIndex],
+    makeSelectEntityByIndex(entityIndex),
     (prev, next) => shallowEqual(
       Object.keys(prev.componentConfig),
       Object.keys(next.componentConfig),

@@ -1,18 +1,20 @@
 import React from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addEntityAction, selectEntityIndexAction, newEntity } from './project';
-import './EntityList.less';
+import { addEntityAction, selectEntityIndexAction } from './project/actions';
+import { newEntity } from './ecs/entities';
+import { selectEntities, selectSelectedEntityIndex } from './project/selectors';
+import './entity-list.less';
 
 export const EntityList = () => {
   const dispatch = useDispatch();
   const entities = useSelector(
-    project => project.entities,
+    selectEntities,
     (prev, next) => prev === next || shallowEqual(
       prev.map(({ id }) => id),
       next.map(({ id }) => id),
     ),
   );
-  const selectedEntityIndex = useSelector(project => project.selectedEntityIndex);
+  const selectedEntityIndex = useSelector(selectSelectedEntityIndex);
 
   return (
     <div className="EntityList">

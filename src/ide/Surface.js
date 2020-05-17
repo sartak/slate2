@@ -1,9 +1,10 @@
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { commitSurfaceTransformAction } from './project';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { commitSurfaceTransformAction } from './project/actions';
 import { rendererForType } from './renderer';
-import { TransformComponentId } from './components/Transform';
+import { TransformComponentId } from './components/transform';
 import { PreflightContext } from './preflight';
+import { selectRenderer, selectSurface, selectEntities, selectSelectedEntityIndex } from './project/selectors';
 
 const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex) => {
   const prev = useRef(null);
@@ -14,21 +15,26 @@ const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex
       return;
     }
 
-    callback(entities[selectedEntityIndex]);
+    const entity = entities[selectedEntityIndex];
+    if (entity) {
+      callback(entity);
+    }
   }, [selectedEntityIndex]);
 };
 
 export const Surface = () => {
   const dispatch = useDispatch();
-  const rendererType = useSelector(project => project.renderer);
-  const surfaceOpts = useSelector(project => project.surface);
+
+  const preflight = useContext(PreflightContext);
+  const rendererType = useSelector(selectRenderer);
+  const surfaceOpts = useSelector(selectSurface, shallowEqual);
+  const entities = useSelector(selectEntities, shallowEqual);
+  const selectedEntityIndex = useSelector(selectSelectedEntityIndex);
+
   const rendererRef = useRef(null);
   const surfaceRef = useRef(null);
-  const entities = useSelector(project => project.entities);
-  const selectedEntityIndex = useSelector(project => project.selectedEntityIndex);
-  const preflight = useContext(PreflightContext);
 
-  const surfaceCallback = useCallback((surface) => {
+  const setSurfaceRefCallback = useCallback((surface) => {
     surfaceRef.current = surface;
 
     const renderer = rendererRef.current;
@@ -63,9 +69,7 @@ export const Surface = () => {
   }, [rendererType]);
 
   const handleResize = useCallback(() => {
-    if (rendererRef.current) {
-      rendererRef.current.didResize();
-    }
+    rendererRef.current?.didResize();
   });
 
   useLayoutEffect(() => {
@@ -77,9 +81,7 @@ export const Surface = () => {
     };
   });
 
-  if (rendererRef.current) {
-    rendererRef.current.changeTransform(surfaceOpts);
-  }
+  rendererRef.current?.changeTransform(surfaceOpts);
 
   useSelectedEntityChangeCallback((entity) => {
     const transformComponent = entity.componentConfig[TransformComponentId];
@@ -88,8 +90,9 @@ export const Surface = () => {
     }
 
     let {x, y} = transformComponent.values;
-    if (rendererRef.current) {
-      const {width, height} = rendererRef.current;
+    const renderer = rendererRef.current;
+    if (renderer) {
+      const {width, height} = renderer;
       x -= width / 2;
       y -= height / 2;
     }
@@ -103,6 +106,6 @@ export const Surface = () => {
   }, entities, selectedEntityIndex);
 
   return (
-    <div className="Surface" ref={surfaceCallback} />
+    <div className="Surface" ref={setSurfaceRefCallback} />
   );
 };

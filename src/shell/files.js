@@ -3,6 +3,10 @@ const fs = require('fs');
 
 const currentProjectFileForWindow = new WeakMap();
 
+const projectFilters = [
+  { name: 'slate2 Project', extensions: ['s2p'] },
+];
+
 ipc.on('save-project', (event, project) => {
   const {sender} = event;
   const name = currentProjectFileForWindow.get(event.sender);
@@ -10,9 +14,7 @@ ipc.on('save-project', (event, project) => {
   if (name === undefined) {
     dialog.showSaveDialog({
       defaultPath: 'project.s2p',
-      filters: [
-        { name: 'slate2 Project', extensions: ['s2p'] },
-      ],
+      filters: projectFilters,
     }).then(({canceled, filePath}) => {
       if (canceled) {
         event.reply('save-project-cancel');
@@ -39,9 +41,7 @@ ipc.on('load-project', (event) => {
   const {sender} = event;
 
   dialog.showOpenDialog(sender, {
-    filters: [
-      { name: 'slate2 Project', extensions: ['s2p'] },
-    ],
+    filters: projectFilters,
     properties: {
       openFile: true,
       openDirectory: false,

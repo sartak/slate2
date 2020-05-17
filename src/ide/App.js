@@ -1,16 +1,15 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { hot } from 'react-hot-loader/root';
-import './App.less';
-import { OpenProject } from './OpenProject';
-import { ProjectEditor } from './ProjectEditor';
+import './app.less';
+import { OpenProject } from './open-project';
+import { ProjectEditor } from './project-editor';
 import { canLoadProject } from '@ide/bridge';
-import { createProjectAction } from './project';
-
-export const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+import { createProjectAction } from './project/actions';
+import { selectProject } from './project/selectors';
 
 const App = () => {
-  const project = useSelector(project => project, (prev, next) => prev?.id === next?.id);
+  const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
   if (project) {
     return <ProjectEditor />;
   }

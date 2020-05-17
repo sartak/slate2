@@ -1,9 +1,11 @@
 export default class WebGLRenderer {
-  container = null;
-  canvas = null;
-  ctx = null;
-  width = null;
-  height = null;
+  constructor() {
+    this.container = null;
+    this.canvas = null;
+    this.ctx = null;
+    this.width = null;
+    this.height = null;
+  }
 
   attach(container) {
     if (this.container) {
@@ -28,15 +30,10 @@ export default class WebGLRenderer {
     if (canvas) {
       this.canvas = null;
       this.ctx = null;
-      const parent = canvas.parentNode;
-      if (parent) {
-        parent.removeChild(canvas);
-      }
+      canvas.parentNode?.removeChild(canvas);
     }
 
-    if (container) {
-      this.container = null;
-    }
+    this.container = null;
   }
 
   prepareRenderer() {

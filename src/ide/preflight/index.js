@@ -8,12 +8,14 @@ export class Preflight {
   renderer = null;
   project = null;
   assemblyDirty = true;
+  scopeDirty = true;
   assembly = null;
   isRunning = false;
   loop = null;
   inspectorDebugger = new InspectorDebugger();
   debuggers = [this.inspectorDebugger];
   storeUnsubscribe = null;
+  assemblyScopeCleaner = null;
 
   constructor(projectStore) {
     this.initialize(projectStore);
@@ -28,12 +30,14 @@ export class Preflight {
       this.project = project;
       this.didUpdateProject(prevProject, project);
     });
+
+    this.didUpdateProject(null, this.project);
   }
 
   didUpdateProject(prev, next) {
     this.debuggers.forEach((debug) => debug.didUpdateProject && debug.didUpdateProject(prev, next));
 
-    if (next.preflightRunning) {
+    if (next?.preflightRunning) {
       if (!this.isRunning) {
         this._start();
       }
@@ -41,7 +45,7 @@ export class Preflight {
       return;
     }
 
-    if (!next.preflightRunning) {
+    if (!next?.preflightRunning) {
       if (this.isRunning) {
         this._stop();
         return;
@@ -55,7 +59,8 @@ export class Preflight {
   }
 
   regenerateAssembly() {
-    const { project, renderer, isRunning } = this;
+    const { project, renderer, isRunning, debuggers } = this;
+
     if (!renderer || isRunning) {
       return;
     }
@@ -63,27 +68,43 @@ export class Preflight {
     try {
       const [assembler, context] = evaluateGameForPreflight({
         ...project,
-        generateComponentVars: true,
-        generateSystemVars: true,
-        debuggers: this.debuggers.map((d) => [d.constructor, 'unused import path']),
+        debuggers,
       });
-      const assembly = assembler(renderer, this.debuggers);
 
-      this.debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
+      const assemblyScopeCleaner = () => {
+        const assembly = assembler(renderer, debuggers);
+        assembly.init();
+        return assembly;
+      };
 
-      assembly.init();
+      const assembly = assemblyScopeCleaner();
 
-      // @Cleanup: test a render to make sure we don't crash the whole UI
-      // if it breaks
-      if (this.renderer && assembly.render) {
+      // Test a render to make sure we don't crash the whole UI if it breaks.
+      if (assembly.render) {
         assembly.render(0, 0);
       }
 
+      debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
+
+      this.assemblyScopeCleaner = assemblyScopeCleaner;
       this.assembly = assembly;
       this.assemblyDirty = false;
+      this.scopeDirty = false;
     } catch (e) {
       console.error(e);
     }
+  }
+
+  cleanAssemblyScope() {
+    const { assemblyScopeCleaner, isRunning, debuggers } = this;
+    if (isRunning) {
+      return;
+    }
+
+    this.assembly = assemblyScopeCleaner();
+    this.scopeDirty = false;
+
+    debuggers.forEach((debug) => debug.didCleanAssemblyScope && debug.didCleanAssemblyScope(this.assembly));
   }
 
   setRenderer(renderer) {
@@ -99,7 +120,10 @@ export class Preflight {
 
     if (this.assemblyDirty) {
       this.regenerateAssembly();
+    } else if (this.scopeDirty) {
+      this.cleanAssemblyScope();
     }
+
     const render = this.assembly?.render;
     if (render) {
       render(0, 0);
@@ -109,10 +133,12 @@ export class Preflight {
   _start() {
     if (this.assemblyDirty) {
       this.regenerateAssembly();
+    } else if (this.scopeDirty) {
+      this.cleanAssemblyScope();
     }
 
     this.isRunning = true;
-    this.assemblyDirty = true;
+    this.scopeDirty = true;
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
   }
