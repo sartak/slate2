@@ -100,5 +100,22 @@ export const upgradeProject = (project) => {
     project.id = uuid();
   }
 
+  if (project.version < 10) {
+    project.entities.forEach((entity) => {
+      const componentIds = [];
+      const componentConfig = {};
+
+      entity.components.forEach((component) => {
+        const { name, fields } = component;
+        const id = `${name}Component`;
+        componentIds.push(id);
+        componentConfig[id] = { fields };
+      });
+
+      entity.componentIds = componentIds;
+      entity.componentConfig = componentConfig;
+    });
+  }
+
   project.version = currentVersion;
 };
