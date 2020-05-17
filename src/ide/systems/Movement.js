@@ -5,12 +5,8 @@ import { MotionComponentId } from '../components/Motion';
 export const MovementSystemId = 'MovementSystem';
 
 export class MovementSystem extends BaseSystem {
-  static name = 'Movement';
-  static id = MovementSystemId;
   id = MovementSystemId;
-  static label = 'Movement';
   label = 'Movement';
-  static requiredComponents = [TransformComponentId, MotionComponentId];
   requiredComponents = [TransformComponentId, MotionComponentId];
 
   update(entities, dt, time) {

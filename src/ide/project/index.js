@@ -1,7 +1,7 @@
 import { newProject } from './upgrade';
-import { newEntity, ComponentIdToName } from './ecs';
-
-export { newEntity };
+export { BuiltinComponents } from './components';
+export { BuiltinSystems } from './systems';
+export { newEntity } from './entities';
 
 const CREATE_PROJECT = 'create-project';
 
@@ -131,7 +131,11 @@ export const projectReducer = (state = null, action) => {
           }
           return {
             ...entity,
-            components: [...entity.components, entityComponent],
+            componentIds: [...entity.componentIds, entityComponent.id],
+            componentConfig: {
+              ...entity.componentConfig,
+              [entityComponent.id]: entityComponent,
+            },
           };
         }),
       };

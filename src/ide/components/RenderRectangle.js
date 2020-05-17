@@ -3,16 +3,8 @@ import { BaseComponent } from './base';
 export const RenderRectangleComponentId = 'RenderRectangleComponent';
 
 export class RenderRectangleComponent extends BaseComponent {
-  static name = 'RenderRectangle';
-  static id = RenderRectangleComponentId;
   id = RenderRectangleComponentId;
-  static label = 'RenderRectangle';
   label = 'RenderRectangle';
-  static fields = [
-    { name: 'w', type: 'float', default: 100 },
-    { name: 'h', type: 'float', default: 100 },
-    { name: 'color', type: 'color', default: '#FFFFFF' },
-  ];
   fields = [
     { id: 'w', type: 'float', defaultValue: 100 },
     { id: 'h', type: 'float', defaultValue: 100 },

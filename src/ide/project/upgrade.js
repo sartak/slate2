@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 9;
+export const currentVersion = 10;
 
 export const newProject = () => {
   return {

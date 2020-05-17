@@ -5,12 +5,8 @@ import { RenderRectangleComponentId } from '../components/RenderRectangle';
 export const RenderSystemId = 'RenderSystem';
 
 export class RenderSystem extends BaseSystem {
-  static name = 'Render';
-  static id = RenderSystemId;
   id = RenderSystemId;
-  static label = 'Render';
   label = 'Render';
-  static requiredComponents = [TransformComponentId, RenderRectangleComponentId];
   requiredComponents = [TransformComponentId, RenderRectangleComponentId];
 
   render_canvas(ctx, entities, dt, time) {
