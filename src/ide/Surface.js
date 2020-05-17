@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } fr
 import { useDispatch, useSelector } from 'react-redux';
 import { commitSurfaceTransformAction } from './project';
 import { rendererForType } from './renderer';
-import { TransformComponent } from './components/Transform';
+import { TransformComponentId } from './components/Transform';
 import { PreflightContext } from './preflight';
 
 const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex) => {
@@ -82,17 +82,19 @@ export const Surface = () => {
   }
 
   useSelectedEntityChangeCallback((entity) => {
-    entity.components.forEach((entityComponent) => {
-      if (entityComponent.name === TransformComponent.name) {
-        const {x, y} = entityComponent.fields;
-        dispatch(commitSurfaceTransformAction({
-          ...surfaceOpts,
-          panX: x,
-          panY: y,
-          zoom: 1,
-        }));
-      }
-    });
+    const transformComponent = entity.componentConfig[TransformComponentId];
+    if (!transformComponent) {
+      return;
+    }
+
+    const {x, y} = transformComponent.fields;
+
+    dispatch(commitSurfaceTransformAction({
+      ...surfaceOpts,
+      panX: x,
+      panY: y,
+      zoom: 1,
+    }));
   }, entities, selectedEntityIndex);
 
   return (
