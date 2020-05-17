@@ -7,7 +7,7 @@ export const newEntity = (x, y) => {
   const renderRectangle = lookupComponentWithId(null, RenderRectangleComponentId);
 
   return {
-    __id: null, // to be filled in by caller
+    id: null, // to be filled in by caller
 
     componentIds: [TransformComponentId, RenderRectangleComponentId],
     componentConfig: {

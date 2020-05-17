@@ -8,8 +8,8 @@ export const EntityList = () => {
   const entities = useSelector(
     project => project.entities,
     (prev, next) => prev === next || shallowEqual(
-      prev.map((entity) => entity.__id),
-      next.map((entity) => entity.__id),
+      prev.map(({ id }) => id),
+      next.map(({ id }) => id),
     ),
   );
   const selectedEntityIndex = useSelector(project => project.selectedEntityIndex);
@@ -20,10 +20,10 @@ export const EntityList = () => {
         {entities.map((entity, i) => {
           return (
             <li
-              key={entity.__id}
+              key={entity.id}
               className={selectedEntityIndex === i ? "active" : null}
               onClick={() => dispatch(selectEntityIndexAction(i))}
-            >Entity {entity.__id}</li>
+            >Entity {entity.id}</li>
           );
         })}
       </ul>

@@ -142,7 +142,7 @@ export const prepareEntitySetup = (project, ctx = newContext(project)) => {
 
   entities.forEach((entity, i) => {
     entityObjects.push(entity);
-    entityMap[entity.__id] = {
+    entityMap[entity.id] = {
       entity,
       index: 1 + i,
     };
@@ -168,7 +168,7 @@ export const prepareComponentSetup = (project, ctx = newContext(project)) => {
     const componentVarName = `${ctx.prefix}component_${component.label}`;
 
     entities.forEach((entity) => {
-      entityComponents[entity.__id] = entity.componentConfig[componentId];
+      entityComponents[entity.id] = entity.componentConfig[componentId];
     });
 
     component.fields.forEach((field) => {
@@ -177,9 +177,9 @@ export const prepareComponentSetup = (project, ctx = newContext(project)) => {
       const values = [zeroValue];
 
       entityObjects.forEach((entity) => {
-        const { __id } = entity;
+        const entityId = entity.id;
 
-        if (!entityComponents[__id]) {
+        if (!entityComponents[entityId]) {
           values.push(zeroValue);
           return;
         }
@@ -257,8 +257,8 @@ export const prepareSystemSetup = (project, ctx = newContext(project)) => {
     }
 
     if (needsEntities) {
-      systemEntities = entityObjects.filter(({ __id }) => {
-        return !componentMaps.find(({ entityComponents }) => !entityComponents[__id]);
+      systemEntities = entityObjects.filter(({ id }) => {
+        return !componentMaps.find(({ entityComponents }) => !entityComponents[id]);
       });
     }
 
@@ -280,7 +280,7 @@ export const prepareSystemSetup = (project, ctx = newContext(project)) => {
 
 export const assembleEntitySetup = (project, ctx = newContext(project)) => {
   const { entitiesVar, entityMap, entityObjects } = ctx;
-  const indexes = entityObjects.map(({ __id }) => entityMap[__id].index);
+  const indexes = entityObjects.map(({ id }) => entityMap[id].index);
   return `const ${entitiesVar} = [${indexes.join(', ')}];\n`;
 };
 
@@ -348,7 +348,7 @@ export const assembleSystemSetup = (project, ctx = newContext(project)) => {
 
       return [
         (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
-        (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({__id}) => entityMap[__id].index)}];`),
+        (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => entityMap[id].index)}];`),
         ...(generateSystemVars && generateComponentVars ?
           componentObjects.map((component) => {
             return `${varName}.${component.label} = ${componentMap[component.id].varName};`;

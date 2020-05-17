@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 10;
+export const currentVersion = 11;
 
 export const newProject = () => {
   return {
@@ -37,7 +37,7 @@ export const upgradeProject = (project) => {
   if (project.version < 3) {
     let nextId = 1;
     project.entities.forEach((entity) => {
-      entity.__id = nextId++;
+      entity.id = nextId++;
     });
     project.nextEntityId = nextId;
   }
@@ -115,6 +115,13 @@ export const upgradeProject = (project) => {
       entity.componentIds = componentIds;
       entity.componentConfig = componentConfig;
       delete entity.components;
+    });
+  }
+
+  if (project.version < 11) {
+    project.entities.forEach((entity) => {
+      entity.id = entity.__id;
+      delete entity.__id;
     });
   }
 

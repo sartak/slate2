@@ -17,8 +17,8 @@ export default class InspectorDebugger {
     if (nextEntityIndex !== prevEntityIndex) {
       this.selectedEntityIndex = nextEntityIndex;
       this.selectedEntity = next.entities[nextEntityIndex];
-      if (this.selectedEntity && entityMap && entityMap[this.selectedEntity.__id]) {
-        this.entity = entityMap[this.selectedEntity.__id].index;
+      if (this.selectedEntity && entityMap && entityMap[this.selectedEntity.id]) {
+        this.entity = entityMap[this.selectedEntity.id].index;
       } else {
         this.entity = null;
       }
@@ -33,8 +33,8 @@ export default class InspectorDebugger {
   didUpdateAssembly(project, assembly, context) {
     this.components = assembly.components;
     this.entityMap = context.entityMap;
-    if (this.selectedEntity && this.entityMap && this.entityMap[this.selectedEntity.__id]) {
-      this.entity = this.entityMap[this.selectedEntity.__id].index;
+    if (this.selectedEntity && this.entityMap && this.entityMap[this.selectedEntity.id]) {
+      this.entity = this.entityMap[this.selectedEntity.id].index;
     } else {
       this.entity = null;
     }
