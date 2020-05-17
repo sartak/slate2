@@ -1,11 +1,11 @@
 import { BuiltinComponents, BuiltinSystems } from './ecs';
 
 export const selectEnabledComponents = (state) => {
-  return [...BuiltinComponents];
+  return BuiltinComponents;
 };
 
 export const selectEnabledSystems = (state) => {
-  return [...BuiltinSystems];
+  return BuiltinSystems;
 };
 
 const _selectComponentWithIdMemo = {};
