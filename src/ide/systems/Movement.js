@@ -1,6 +1,6 @@
 import { BaseSystem } from './base';
-import { TransformComponent } from '../components/Transform';
-import { MotionComponent } from '../components/Motion';
+import { TransformComponentId } from '../components/Transform';
+import { MotionComponentId } from '../components/Motion';
 
 export const MovementSystemId = 'MovementSystem';
 
@@ -10,9 +10,10 @@ export class MovementSystem extends BaseSystem {
   id = MovementSystemId;
   static label = 'Movement';
   label = 'Movement';
-  static requiredComponents = [TransformComponent, MotionComponent];
+  static requiredComponents = [TransformComponentId, MotionComponentId];
+  requiredComponents = [TransformComponentId, MotionComponentId];
 
-  loop_update(entities, dt, time) {
+  update(entities, dt, time) {
     entities.forEach((entity) => {
       entity.Transform.x += entity.Motion.velocity_x * dt;
       entity.Transform.y += entity.Motion.velocity_y * dt;

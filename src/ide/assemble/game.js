@@ -1,4 +1,4 @@
-import { ComponentByName, Systems } from '../project/ecs';
+import { selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 import { canonicalizeFieldValue, fieldZeroValue } from '../project/types';
 import { assembleInlineSystemCall } from './inline';
 
@@ -21,14 +21,18 @@ export const newContext = (project, overrides = {}) => {
     renderVars,
     debuggerVars: (project.debuggers || []).map((_, i) => `${prefix}debugger${i}`),
     entitiesVar: `${prefix}allEntities`,
+    entityMap: {},
+    entityObjects: [],
     componentsVar: `${prefix}allComponents`,
+    componentMap: {},
+    componentObjects: [],
     systemsVar: `${prefix}allSystems`,
+    systemMap: {},
+    systemObjects: [],
     gameClass: `${prefix}Game`,
     rendererClass: `${prefix}Renderer`,
     rendererVar: `${prefix}renderer`,
     loopClass: `${prefix}Loop`,
-    componentFieldVars: {},
-    componentClassPrefix: prefix,
     systemClassPrefix: prefix,
 
     ...overrides,
@@ -132,47 +136,57 @@ export const assembleInstantiateGame = (project, ctx = newContext(project)) => {
   `;
 }
 
-export const assembleECSSetup = (project, ctx = newContext(project)) => {
-  const entityComponentsForComponent = {};
-  const indexForEntity = ctx.indexForEntity = {};
+export const prepareEntitySetup = (project, ctx = newContext(project)) => {
+  const { entityMap, entityObjects } = ctx;
+  const { entities } = project;
 
-  project.entities.forEach((entity, i) => {
-    indexForEntity[entity.__id] = 1 + i;
-
-    entity.components.forEach((entityComponent) => {
-      const { name } = entityComponent;
-      if (!entityComponentsForComponent[entityComponent.name]) {
-        entityComponentsForComponent[entityComponent.name] = {};
-      }
-
-      entityComponentsForComponent[entityComponent.name][entity.__id] = entityComponent;
-    });
+  entities.forEach((entity, i) => {
+    entityObjects.push(entity);
+    entityMap[entity.__id] = {
+      entity,
+      index: 1 + i,
+    };
   });
+};
 
-  const components = [];
-  const componentVarName = {};
+export const prepareComponentSetup = (project, ctx = newContext(project)) => {
+  const { componentMap, componentObjects, entityMap, entityObjects } = ctx;
+  const { generateComponentVars } = project;
 
-  Object.entries(entityComponentsForComponent).forEach(([componentName, entities]) => {
-    const component = ComponentByName[componentName];
-    const componentFields = [];
+  selectEnabledComponents(project).forEach((component) => {
+    const componentId = component.id;
 
-    componentVarName[componentName] = `${ctx.prefix}component_${componentName}`;
-    ctx.componentFieldVars[componentName] = {};
+    const entities = entityObjects.filter((entity) => entity.componentConfig[componentId]);
+    if (!entities.length) {
+      return;
+    }
+
+    const entityComponents = {};
+    const fields = [];
+    const fieldVarNames = {};
+    const fieldVarNamesByLabel = {};
+    const componentVarName = `${ctx.prefix}component_${component.label}`;
+
+    entities.forEach((entity) => {
+      entityComponents[entity.__id] = entity.componentConfig[componentId];
+    });
 
     component.fields.forEach((field) => {
       const zeroValue = fieldZeroValue(field);
       const values = [zeroValue];
 
-      project.entities.forEach(({__id}, i) => {
-        if (!entities[__id]) {
+      entityObjects.forEach((entity) => {
+        const { __id } = entity;
+
+        if (!entityComponents[__id]) {
           values.push(zeroValue);
           return;
         }
 
-        let value = entities[__id].fields[field.name];
+        let value = entity.componentConfig[componentId].values[field.id];
 
         if (field.type === 'entity') {
-          value = value ? indexForEntity[value] : 0;
+          value = value ? entityMap[value].index : 0;
         } else {
           value = canonicalizeFieldValue(field, value);
         }
@@ -180,101 +194,184 @@ export const assembleECSSetup = (project, ctx = newContext(project)) => {
         values.push(value);
       });
 
-      componentFields.push([field.name, values]);
+      fields.push([field, values]);
 
-      const fieldVar = project.generateComponentVars ? `${componentVarName[componentName]}.${field.name}` : `${componentVarName[componentName]}_${field.name}`;
-      ctx.componentFieldVars[componentName][field.name] = fieldVar;
+      const fieldLabel = field.label ?? field.id;
+
+      const fieldVarName = generateComponentVars ? `${componentVarName}.${fieldLabel}` : `${componentVarName}_${fieldLabel}`;
+      fieldVarNames[field.id] = fieldVarName;
+      fieldVarNamesByLabel[fieldLabel] = fieldVarName;
     });
-    components.push([componentName, componentFields]);
+
+    componentObjects.push(component);
+    componentMap[componentId] = {
+      component,
+      entityObjects: entities,
+      entityComponents,
+      varName: componentVarName,
+      fields,
+      fieldVarNames,
+      fieldVarNamesByLabel,
+    };
   });
+};
 
-  const systemVarName = {};
-  const systems = [];
+export const prepareSystemSetup = (project, ctx = newContext(project)) => {
+  const { componentMap, systemMap, systemObjects, entityObjects } = ctx;
+  const { renderer } = project;
 
-  Systems.forEach((system) => {
-    if (system.requiredComponents.find((component) => !entityComponentsForComponent[component.name])) {
-      return;
+  selectEnabledSystems(project).forEach((system) => {
+    const systemId = system.id;
+    const { requiredComponents } = system;
+
+    const componentMaps = [];
+    for (let i = 0, len = requiredComponents.length; i < len; ++i) {
+      const componentId = requiredComponents[i];
+      const map = componentMap[componentId];
+      if (!map) {
+        return;
+      } else {
+        componentMaps.push(map);
+      }
     }
 
-    systemVarName[system.name] = `${ctx.prefix}system_${system.name}`;
-    systems.push(system);
+    const varName = `${ctx.prefix}system_${system.label}`;
+    const entitiesVar = `${varName}_entities`;
+    const renderMethod = `render_${renderer}`;
+    let systemEntities = [];
+    let needsEntities = false;
+    let needsRenderer = false;
+    let updateCodeGenerator = null;
+    let renderCodeGenerator = null;
+
+    if (system.__proto__.update) {
+      needsEntities = true;
+      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', [entitiesVar, 'dt', 'time'], project, ctx);
+    }
+
+    if (system.__proto__[renderMethod]) {
+      needsEntities = true;
+      needsRenderer = true;
+      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethod, [...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
+    }
+
+    if (needsEntities) {
+      systemEntities = entityObjects.filter(({ __id }) => {
+        return !componentMaps.find(({ entityComponents }) => !entityComponents[__id]);
+      });
+    }
+
+    systemObjects.push(system);
+    systemMap[systemId] = {
+      system,
+      varName,
+      updateCodeGenerator,
+      renderCodeGenerator,
+      renderMethod,
+      needsRenderer,
+      needsEntities,
+      entitiesVar,
+      entityObjects: systemEntities,
+      componentObjects: componentMaps.map(({ component }) => component),
+    };
   });
+};
+
+export const assembleEntitySetup = (project, ctx = newContext(project)) => {
+  const { entitiesVar, entityMap, entityObjects } = ctx;
+  const indexes = entityObjects.map(({ __id }) => entityMap[__id].index);
+  return `const ${entitiesVar} = [${indexes.join(', ')}];\n`;
+};
+
+export const assembleComponentSetup = (project, ctx = newContext(project)) => {
+  const { componentMap, componentObjects } = ctx;
+  const { generateComponentVars } = project;
 
   return [
-    `const ${ctx.entitiesVar} = [${project.entities.map(({ __id }) => indexForEntity[__id]).join(', ')}];\n`,
-
-    ...components.map(([componentName, fields]) => {
+    ...componentObjects.map((component) => {
+      const { fields, varName: componentVarName, fieldVarNames } = componentMap[component.id];
       return [
-        (project.generateComponentVars && `const ${componentVarName[componentName]} = new ${ctx.componentClassPrefix}${componentName}Component();\n`),
-        ...fields.map(([fieldName, values]) => {
+        (generateComponentVars && `const ${componentVarName} = {};`),
+
+        ...fields.map(([field, values]) => {
+          const varName = fieldVarNames[field.id];
+
           // @Performance: use ArrayBuffer?
-          const field = ctx.componentFieldVars[componentName][fieldName];
           const value = JSON.stringify(values);
 
-          if (project.generateComponentVars) {
-            return `${field} = ${value};\n`;
+          if (generateComponentVars) {
+            return `${varName} = ${value};`;
           } else {
-            return `const ${field} = ${value};\n`;
+            return `const ${varName} = ${value};`;
           }
         }),
-      ].join("");
-    }),
-
-    (project.generateComponentVars && `const ${ctx.componentsVar} = [\n${components.map(([componentName]) => `${componentVarName[componentName]},\n`).join("")}];\n`),
-
-    ...systems.map((system) => {
-      const systemVar = systemVarName[system.name];
-      const entitiesVar = `${systemVar}_entities`;
-      let needEntities = false;
-      const code = [];
-
-      // @Performance: let system provide inline code
-
-      if (system.prototype.loop_update) {
-        needEntities = true;
-        ctx.update.push(
-          assembleInlineSystemCall(system, 'loop_update', [entitiesVar, 'dt', 'time'], project, ctx),
-        );
-      }
-
-      const {renderer} = project;
-      const renderMethod = `loop_render_${renderer}`;
-      if (system.prototype[renderMethod]) {
-        if (!ctx.preparedRenderer) {
-          ctx.preparedRenderer = true;
-
-          ctx.init.push(
-            `[${ctx.renderVars.join(', ')}] = ${ctx.rendererVar}.prepareRenderer();`,
-          );
-
-          ctx.render.unshift([
-            `${ctx.rendererVar}.beginRender();`,
-          ]);
-        }
-
-        needEntities = true;
-        ctx.render.push(
-          assembleInlineSystemCall(system, renderMethod, [...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx),
-        );
-      }
-
-      if (needEntities) {
-        const entitiesWithRequiredComponents = project.entities.filter(({ __id }) => {
-          return !system.requiredComponents.find((component) => !entityComponentsForComponent[component.name][__id]);
-        });
-
-        code.push(`const ${entitiesVar} = [${entitiesWithRequiredComponents.map(({ __id }) => indexForEntity[__id]).join(", ")}];`);
-      }
-
-      return [
-        (project.generateSystemVars && `const ${systemVar} = new ${ctx.systemClassPrefix}${system.name}System();`),
-        ...code,
-        ...(project.generateSystemVars && project.generateComponentVars ? system.requiredComponents.map((component) => {
-          return `${systemVar}.${component.name} = ${componentVarName[component.name]};\n`
-        }) : []),
       ].join("\n");
     }),
 
-    (project.generateSystemVars && `const ${ctx.systemsVar} = [\n${systems.map((system) => `${systemVarName[system.name]},\n`).join("")}];\n`),
+    ...(generateComponentVars ? [
+      `const ${ctx.componentsVar} = {`,
+        ...componentObjects.map((component) => `"${component.label}": ${componentMap[component.id].varName},`),
+      `}`,
+    ] : []),
+  ].join("\n");
+};
+
+export const assembleSystemSetup = (project, ctx = newContext(project)) => {
+  const { entityMap, componentMap, systemMap, systemObjects, systemClassPrefix } = ctx;
+  const { generateComponentVars, generateSystemVars } = project;
+
+  return [
+    ...systemObjects.map((system) => {
+      const systemId = system.id;
+      const { varName, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+
+      if (needsRenderer && !ctx.preparedRenderer) {
+        ctx.preparedRenderer = true;
+
+        ctx.init.push(
+          `[${ctx.renderVars.join(', ')}] = ${ctx.rendererVar}.prepareRenderer();`,
+        );
+
+        ctx.render.unshift([
+          `${ctx.rendererVar}.beginRender();`,
+        ]);
+      }
+
+      if (updateCodeGenerator) {
+        ctx.update.push(updateCodeGenerator());
+      }
+
+      if (renderCodeGenerator) {
+        ctx.render.push(renderCodeGenerator());
+      }
+
+      return [
+        (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
+        (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({__id}) => entityMap[__id].index)}];`),
+        ...(generateSystemVars && generateComponentVars ?
+          componentObjects.map((component) => {
+            return `${varName}.${component.label} = ${componentMap[component.id].varName};`;
+          })
+        : []),
+      ].join("\n");
+    }),
+
+    ...(generateSystemVars ? [
+      `const ${ctx.systemsVar} = {`,
+        ...systemObjects.map((system) => `"${system.label}": ${systemMap[system.id].varName},`),
+      `}`,
+    ] : []),
+  ].join("\n");
+};
+
+export const assembleECSSetup = (project, ctx = newContext(project)) => {
+  prepareEntitySetup(project, ctx);
+  prepareComponentSetup(project, ctx);
+  prepareSystemSetup(project, ctx);
+
+  return [
+    assembleEntitySetup(project, ctx),
+    assembleComponentSetup(project, ctx),
+    assembleSystemSetup(project, ctx),
   ].join("\n");
 }

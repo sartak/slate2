@@ -1,18 +1,19 @@
 import { BaseSystem } from './base';
-import { TransformComponent } from '../components/Transform';
-import { RenderRectangleComponent } from '../components/RenderRectangle';
+import { TransformComponentId } from '../components/Transform';
+import { RenderRectangleComponentId } from '../components/RenderRectangle';
 
-export const RenderSystemId = 'RenderSystemId';
+export const RenderSystemId = 'RenderSystem';
 
 export class RenderSystem extends BaseSystem {
-  static name = 'RenderSystem';
+  static name = 'Render';
   static id = RenderSystemId;
   id = RenderSystemId;
   static label = 'Render';
   label = 'Render';
-  static requiredComponents = [TransformComponent, RenderRectangleComponent];
+  static requiredComponents = [TransformComponentId, RenderRectangleComponentId];
+  requiredComponents = [TransformComponentId, RenderRectangleComponentId];
 
-  loop_render_canvas(ctx, entities, dt, time) {
+  render_canvas(ctx, entities, dt, time) {
     entities.slice().sort((a, b) => b.Transform.z - a.Transform.z).forEach((entity) => {
       ctx.save();
 
