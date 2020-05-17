@@ -87,7 +87,12 @@ export const Surface = () => {
       return;
     }
 
-    const {x, y} = transformComponent.fields;
+    let {x, y} = transformComponent.fields;
+    if (rendererRef.current) {
+      const {width, height} = rendererRef.current;
+      x -= width / 2;
+      y -= height / 2;
+    }
 
     dispatch(commitSurfaceTransformAction({
       ...surfaceOpts,
