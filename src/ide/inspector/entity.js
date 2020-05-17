@@ -3,6 +3,7 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project';
 import { Components, ComponentByName } from '../project/ecs';
 import { PreflightContext } from '../preflight';
+import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityComponent, selectPreflightRunning } from '../project/selectors';
 
 const FieldComponent = {
   'float': (value, onChange, _, defaultValue) => (
@@ -27,45 +28,40 @@ const FieldComponent = {
   ),
 };
 
-const InspectEntityComponent = ({ entityIndex, componentName }) => {
+const InspectEntityComponent = ({ entityIndex, componentId }) => {
   const dispatch = useDispatch();
 
   const preflight = useContext(PreflightContext);
-  const component = ComponentByName[componentName];
-  const entityComponent = useSelector(
-    project => {
-      const entity = project.entities[entityIndex];
-      return entity.components.find((c) => c.name === componentName);
-    },
-    (prev, next) => shallowEqual(prev, next),
-  );
+  const component = useSelector(makeSelectComponentWithId(componentId));
 
-  const preflightRunning = useSelector(project => project.preflightRunning);
+  const entityComponent = useSelector(makeSelectEntityComponent(entityIndex, componentId));
 
-  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component.name) : entityComponent.fields;
+  const preflightRunning = useSelector(selectPreflightRunning);
+
+  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component) : entityComponent.values;
 
   return (
-    <div className="InspectEntityComponent" data-component-name={component.name}>
+    <div className="InspectEntityComponent" data-component-id={component.id}>
       <div className="componentLabel">{component.label}</div>
       <ul>
         {component.fields.map((field) => {
-          const { name: fieldName, type, default: defaultValue } = field;
+          const { id: fieldId, label: fieldLabel, type, defaultValue } = field;
 
           const onChange = (e) => {
             const value = e.target.value;
             if (preflightRunning) {
-              preflight.inspectorEntityComponentUpdate(entityIndex, component.name, fieldName, value);
+              preflight.inspectorEntityComponentUpdate(entityIndex, component, fieldId, value);
             } else {
-              dispatch(changeEntityComponentValueAction(entityIndex, component.id, fieldName, value));
+              dispatch(changeEntityComponentValueAction(entityIndex, component.id, fieldId, value));
             }
           };
 
-          const value = entityValues[fieldName];
+          const value = entityValues[fieldId];
 
           return (
-            <li key={fieldName} className="field" data-field-name={fieldName}>
-              <span className="name">{fieldName}</span>
-              {FieldComponent[type](value, onChange, fieldName, defaultValue)}
+            <li key={fieldId} className="field" data-field-id={fieldId}>
+              <span className="label">{fieldLabel ?? fieldId}</span>
+              {FieldComponent[type](value, onChange, fieldId, defaultValue)}
             </li>
           );
         })}
@@ -74,7 +70,7 @@ const InspectEntityComponent = ({ entityIndex, componentName }) => {
   );
 };
 
-const AddComponentToEntity = ({ entityIndex, entity }) => {
+const AddComponentToEntity = ({ entityIndex, entity, enabledComponents }) => {
   const dispatch = useDispatch();
   const [isAdding, setAdding] = useState(false);
 
@@ -93,20 +89,16 @@ const AddComponentToEntity = ({ entityIndex, entity }) => {
     setAdding(false);
   };
 
-
-  const hasComponent = {};
-  entity.components.forEach((entityComponent) => {
-    hasComponent[entityComponent.name] = true;
-  });
-
-  const possibleComponents = Components.filter((component) => !hasComponent[component.name]);
-
   return (
     <ul>
-      {possibleComponents.map((component) => {
+      {enabledComponents.map((component) => {
+        if (entity.componentConfig[component.id]) {
+          return null;
+        }
+
         return (
-          <li key={component.name}>
-            <a href="#" onClick={() => addComponent(component)}>{component.name}</a>
+          <li key={component.id}>
+            <button onClick={() => addComponent(component)}>Add {component.label}</button>
           </li>
         );
       })}
@@ -117,20 +109,22 @@ const AddComponentToEntity = ({ entityIndex, entity }) => {
 export const InspectEntity = ({ entityIndex }) => {
   const entity = useSelector(
     project => project.entities[entityIndex],
-    (prev, next) => prev === next || shallowEqual(
-      prev.components.map(({ name }) => name),
-      next.components.map(({ name }) => name),
-    )
+    (prev, next) => shallowEqual(
+      Object.keys(prev.componentConfig),
+      Object.keys(next.componentConfig),
+    ),
   );
+
+  const enabledComponents = useSelector(selectEnabledComponents);
 
   return (
     <div className="InspectEntity">
       <ul className="components">
-        {entity.components.map(({ name }) => (
-          <li key={name}>
+        {entity.componentIds.map((id) => (
+          <li key={id}>
             <InspectEntityComponent
               entityIndex={entityIndex}
-              componentName={name}
+              componentId={id}
             />
           </li>
         ))}
@@ -139,6 +133,7 @@ export const InspectEntity = ({ entityIndex }) => {
         <AddComponentToEntity
           entityIndex={entityIndex}
           entity={entity}
+          enabledComponents={enabledComponents}
         />
       </div>
     </div>
