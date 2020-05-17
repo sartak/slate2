@@ -1,5 +1,5 @@
 import React from 'react';
-import { Inspector } from './Inspector';
+import { Inspector } from './inspector';
 
 export const PanelRight = () => {
   return (

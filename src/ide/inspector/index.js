@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { changeEntityComponentValueAction, addComponentToEntityAction } from './project';
-import { Components, ComponentByName } from './project/ecs';
-import { PreflightContext } from './preflight';
-import './Inspector.less';
+import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project';
+import { Components, ComponentByName } from '../project/ecs';
+import { PreflightContext } from '../preflight';
+import './index.less';
 
 const FieldComponent = {
   'float': (value, onChange, _, defaultValue) => (
