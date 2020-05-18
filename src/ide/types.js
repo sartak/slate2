@@ -1,44 +1,26 @@
 import React from 'react';
+import { FloatField } from './field/float';
+import { ColorField } from './field/color';
+import { EntityField } from './field/entity';
 
 export const BuiltinTypes = {
   entity: {
     zeroValue: 0,
-    editor: (value) => (
-      <span>{value === null ? "(null)" : value}</span>
-    ),
+    editor: EntityField,
   },
   float: {
     zeroValue: 0,
     canonicalize: (value, defaultValue) => (
       value === "" ? defaultValue : Number(value)
     ),
-    editor: (value, onChange, defaultValue) => (
-      <input
-        type="number"
-        value={value}
-        placeholder={defaultValue}
-        onChange={({ target }) => onChange(target.value, target)}
-        onBlur={({ target }) => {
-          if (target.value === "") {
-            target.value = defaultValue;
-            onChange(defaultValue, target);
-          }
-        }}
-      />
-    ),
+    editor: FloatField,
   },
   color: {
     zeroValue: '#000000',
     canonicalize: (value, defaultValue) => (
       value === "" ? defaultValue : value.toLowerCase()
     ),
-    editor: (value, onChange) => (
-      <input
-        type="color"
-        value={value}
-        onChange={({ target }) => onChange(target.value, target)}
-      />
-    ),
+    editor: ColorField,
   },
 };
 

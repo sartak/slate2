@@ -34,11 +34,12 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
           };
 
           const value = entityValues[fieldId];
+          const Editor = editorForType(type);
 
           return (
             <li key={fieldId} className="field" data-field-id={fieldId}>
               <span className="label">{fieldLabel ?? fieldId}</span>
-              {editorForType(type)(value, onChange, defaultValue)}
+              <Editor value={value} defaultValue={defaultValue} onChange={onChange} />
             </li>
           );
         })}

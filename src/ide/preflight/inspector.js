@@ -73,6 +73,8 @@ export default class InspectorDebugger {
       return;
     }
 
+    const { activeElement } = document;
+
     Object.entries(components).forEach(([componentId, fields]) => {
       const componentCache = fieldCache[componentId];
       if (!componentCache) {
@@ -81,7 +83,7 @@ export default class InspectorDebugger {
 
       Object.entries(fields).forEach(([fieldId, values]) => {
         const input = componentCache[fieldId];
-        if (input) {
+        if (input && input !== activeElement) {
           input.value = values[entity];
         }
       });
