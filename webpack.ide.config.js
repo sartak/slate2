@@ -19,7 +19,15 @@ module.exports = {
       libraryTarget: 'var',
       libraryExport: 'default',
     },
-  } : null),
+  } : {
+    output: {
+      // Work around a bug in Electron for packaging Monaco correctly in
+      // `npm run make`. If syntax highlighting works in the .app without
+      // this, it can be removed.
+      // https://github.com/electron-userland/electron-forge/issues/1675#issuecomment-629868800
+      publicPath: './../',
+    },
+  }),
 
   optimization: {
     splitChunks: {
