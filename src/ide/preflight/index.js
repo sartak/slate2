@@ -60,6 +60,7 @@ export class Preflight {
     // @Performance: directly update changed entity-component fields
     if (prev?.entities !== next?.entities) {
       this.assemblyDirty = true;
+      this.runRenderSystems();
     }
   }
 
