@@ -1,5 +1,12 @@
-import React, { memo, useRef } from 'react';
+import React, { forwardRef } from 'react';
+import { useSetValue } from './useSetValue';
 
-export const EntityField = memo(({ value }) => {
-  return <span>{!value ? "(null)" : value}</span>
+export const EntityField = forwardRef(({ defaultValue, onChange }, ref) => {
+  const spanRef = useSetValue(ref, (span, value) => {
+    span.innerText = !value ? "(null)" : value;
+  });
+
+  return (
+    <span ref={spanRef} />
+  );
 });

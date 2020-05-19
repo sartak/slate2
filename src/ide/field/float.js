@@ -1,26 +1,20 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { forwardRef } from 'react';
+import { useSetValue } from './useSetValue';
 
-export const FloatField = memo(({ value, defaultValue, onChange }) => {
-  const fieldRef = useRef(null);
-
-  useEffect(() => {
-    const { current } = fieldRef;
-    if (current) {
-      current.value = value;
-    }
-  }, [value]);
+export const FloatField = forwardRef(({ defaultValue, onChange }, ref) => {
+  const inputRef = useSetValue(ref);
 
   return (
     <input
       type="number"
-      ref={fieldRef}
-      defaultValue={value}
+      ref={inputRef}
+      defaultValue={defaultValue}
       placeholder={defaultValue}
-      onChange={({ target }) => onChange(target.value, target)}
+      onChange={({ target }) => onChange(target.value)}
       onBlur={({ target }) => {
         if (target.value === "") {
           target.value = defaultValue;
-          onChange(defaultValue, target);
+          onChange(target.value);
         }
       }}
     />
