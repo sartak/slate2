@@ -5,8 +5,11 @@ import { Provider } from 'react-redux';
 import App from './app';
 import { projectReducer } from './project/reducer';
 import { Preflight, PreflightProvider } from './preflight';
+import { upgradeProject } from './project/upgrade';
 
 const renderProject = (container, project) => {
+  upgradeProject(project);
+
   const projectStore = createStore(
     projectReducer, project,
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
