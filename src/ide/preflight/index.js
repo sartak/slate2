@@ -1,6 +1,5 @@
 import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
-import InspectorDebugger from './inspector';
 import LiveEntityValuesDebugger from './live-entity-values';
 
 export { PreflightContext, PreflightProvider } from './context';
@@ -13,9 +12,8 @@ export class Preflight {
   assembly = null;
   isRunning = false;
   loop = null;
-  inspectorDebugger = new InspectorDebugger();
   liveEntityValuesDebugger = new LiveEntityValuesDebugger();
-  debuggers = [this.inspectorDebugger, this.liveEntityValuesDebugger];
+  debuggers = [this.liveEntityValuesDebugger];
   storeUnsubscribe = null;
   assemblyScopeCleaner = null;
 
@@ -162,24 +160,16 @@ export class Preflight {
     this.runRenderSystems();
   }
 
-  entityComponentValuesForInspector(...args) {
-    return this.inspectorDebugger.entityComponentValuesForInspector(...args);
-  }
-
-  inspectorEntityComponentUpdate(...args) {
-    return this.inspectorDebugger.inspectorEntityComponentUpdate(...args);
-  }
-
-  attachInspector(inspector) {
-    this.debuggers.forEach((debug) => debug.attachInspector && debug.attachInspector(inspector));
-  }
-
-  detachInspector(inspector) {
-    this.debuggers.forEach((debug) => debug.detachInspector && debug.detachInspector(inspector));
+  subscribeToLiveEntityValue(...args) {
+    return this.liveEntityValuesDebugger.subscribeValue(...args);
   }
 
   subscribeToLiveEntityValues(...args) {
-    return this.liveEntityValuesDebugger.subscribe(...args);
+    return this.liveEntityValuesDebugger.subscribeComponents(...args);
+  }
+
+  changeEntityComponentValue(...args) {
+    this.debuggers.forEach((debug) => debug.changeEntityComponentValue && debug.changeEntityComponentValue(...args));
   }
 }
 

@@ -1,48 +1,50 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { changeEntityComponentValueAction, addComponentToEntityAction } from '../project/actions';
-import { PreflightContext } from '../preflight';
-import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityComponent, selectPreflightRunning, makeSelectEntityByIndex } from '../project/selectors';
+import { addComponentToEntityAction } from '../project/actions';
+import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityByIndex } from '../project/selectors';
 import { editorForType } from '../types';
+import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
+
+const InspectEntityComponentValue = ({ entityIndex, component, field }) => {
+  const fieldRef = useRef(null);
+
+  const { id: componentId } = component;
+  const { id: fieldId, label: fieldLabel, type, defaultValue } = field;
+
+  const setComponentValue = useLiveEntityComponentValue((mode, value) => {
+    fieldRef.current?.setValueUnlessFocused(value);
+  }, entityIndex, componentId, fieldId);
+
+  const Editor = editorForType(type);
+
+  return (
+    <li className="field">
+      <span className="label">{fieldLabel ?? fieldId}</span>
+      <Editor
+        ref={fieldRef}
+        defaultValue={defaultValue}
+        onChange={setComponentValue}
+      />
+    </li>
+  );
+};
 
 const InspectEntityComponent = ({ entityIndex, componentId }) => {
-  const dispatch = useDispatch();
-
-  const preflight = useContext(PreflightContext);
   const component = useSelector(makeSelectComponentWithId(componentId));
   const { fields, label: componentLabel } = component;
 
-  const entityComponent = useSelector(makeSelectEntityComponent(entityIndex, componentId));
-
-  const preflightRunning = useSelector(selectPreflightRunning);
-
-  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, componentId) : entityComponent.values;
-
   return (
-    <div className="InspectEntityComponent" data-component-id={componentId}>
+    <div className="InspectEntityComponent">
       <div className="componentLabel">{componentLabel}</div>
       <ul>
-        {fields.map((field) => {
-          const { id: fieldId, label: fieldLabel, type, defaultValue } = field;
-
-          const onChange = (value, input) => {
-            if (preflightRunning) {
-              preflight.inspectorEntityComponentUpdate(entityIndex, component, field, input, value);
-            } else {
-              dispatch(changeEntityComponentValueAction(entityIndex, componentId, fieldId, value));
-            }
-          };
-
-          const value = entityValues[fieldId];
-          const Editor = editorForType(type);
-
-          return (
-            <li key={fieldId} className="field" data-field-id={fieldId}>
-              <span className="label">{fieldLabel ?? fieldId}</span>
-              <Editor value={value} defaultValue={defaultValue} onChange={onChange} />
-            </li>
-          );
-        })}
+        {fields.map((field) => (
+          <InspectEntityComponentValue
+            key={field.id}
+            entityIndex={entityIndex}
+            component={component}
+            field={field}
+          />
+        ))}
       </ul>
     </div>
   );

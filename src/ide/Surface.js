@@ -5,7 +5,7 @@ import { rendererForType } from './renderer';
 import { TransformComponentId } from './components/transform';
 import { PreflightContext } from './preflight';
 import { selectRenderer, selectSurface, selectSelectedEntityIndex } from './project/selectors';
-import { useLiveEntityComponentValues } from './hooks/useLiveEntityComponentValues';
+import { useLiveEntityComponentValues } from './preflight/useLiveEntityComponentValues';
 import * as liveCallbackModes from './preflight/live-entity-values';
 
 export const Surface = () => {
