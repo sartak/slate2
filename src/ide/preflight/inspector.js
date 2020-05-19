@@ -90,14 +90,14 @@ export default class InspectorDebugger {
     });
   }
 
-  entityComponentValuesForInspector(entityIndex, component) {
+  entityComponentValuesForInspector(entityIndex, componentId) {
     const { selectedEntityIndex, entity, components } = this;
     if (entityIndex !== selectedEntityIndex) {
       return null;
     }
 
     const ret = {};
-    Object.entries(components[component.id]).forEach(([fieldId, values]) => {
+    Object.entries(components[componentId]).forEach(([fieldId, values]) => {
       ret[fieldId] = values[entity];
     });
 

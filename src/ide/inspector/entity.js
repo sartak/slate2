@@ -16,7 +16,7 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
 
   const preflightRunning = useSelector(selectPreflightRunning);
 
-  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, component) : entityComponent.values;
+  const entityValues = preflightRunning ? preflight.entityComponentValuesForInspector(entityIndex, componentId) : entityComponent.values;
 
   return (
     <div className="InspectEntityComponent" data-component-id={componentId}>
