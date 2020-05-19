@@ -55,6 +55,13 @@ export const makeSelectEntityComponent = (entityIndex, componentId) => {
   return ({ entities }) => entities[entityIndex].componentConfig[componentId];
 };
 
+export const makeSelectEntityComponents = (entityIndex, componentIds) => {
+  return ({ entities }) => {
+    const { componentConfig } = entities[entityIndex];
+    return componentIds.map((componentId) => componentConfig[componentId]);
+  };
+};
+
 export const selectPreflightRunning = ({ preflightRunning }) => preflightRunning;
 
 export const selectRenderer = ({ renderer }) => renderer;
