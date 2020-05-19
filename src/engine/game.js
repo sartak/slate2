@@ -7,9 +7,11 @@ export default class Game {
   }
 
   attach(container) {
+    const { width, height, renderer } = this.options;
+
     this.container = container;
-    container.style.width = "800px";
-    container.style.height = "600px";
+    container.style.width = `${width}px`;
+    container.style.height = `${height}px`;
     container.classList.add('awaiting-activation');
 
     const clickHandler = (e) => {
@@ -22,7 +24,7 @@ export default class Game {
 
     container.addEventListener('click', clickHandler);
 
-    this.options.renderer?.attach(container);
+    renderer?.attach(container);
 
     return this;
   }

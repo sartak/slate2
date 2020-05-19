@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 11;
+export const currentVersion = 12;
 
 export const newProject = () => {
   return {
@@ -11,6 +11,8 @@ export const newProject = () => {
     nextEntityId: 1,
     selectedEntityIndex: -1,
     preflightRunning: false,
+    width: 800,
+    height: 600,
 
     surface: {
       panX: 0,
@@ -123,6 +125,11 @@ export const upgradeProject = (project) => {
       entity.id = entity.__id;
       delete entity.__id;
     });
+  }
+
+  if (project.version < 12) {
+    project.width = 800;
+    project.height = 600;
   }
 
   project.version = currentVersion;

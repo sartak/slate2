@@ -96,6 +96,8 @@ export const assembleInstantiateGame = (project, ctx) => {
     ] : []),
 
     `export default new ${ctx.gameClass}({`,
+      `width: ${project.width},`,
+      `height: ${project.height},`,
       (init && `init: ${init},`),
       (ctx.preparedRenderer && `renderer: ${ctx.rendererVar},`),
       ...(step ? [
