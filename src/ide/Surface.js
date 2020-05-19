@@ -4,23 +4,8 @@ import { commitSurfaceTransformAction } from './project/actions';
 import { rendererForType } from './renderer';
 import { TransformComponentId } from './components/transform';
 import { PreflightContext } from './preflight';
-import { selectRenderer, selectSurface, selectEntities, selectSelectedEntityIndex } from './project/selectors';
-
-const useSelectedEntityChangeCallback = (callback, entities, selectedEntityIndex) => {
-  const prev = useRef(null);
-
-  useEffect(() => {
-    if (prev.current === null) {
-      prev.current = selectedEntityIndex;
-      return;
-    }
-
-    const entity = entities[selectedEntityIndex];
-    if (entity) {
-      callback(entity);
-    }
-  }, [selectedEntityIndex]);
-};
+import { selectRenderer, selectSurface, selectSelectedEntityIndex } from './project/selectors';
+import { useLiveEntityComponentValues } from './hooks/useLiveEntityComponentValues';
 
 export const Surface = () => {
   const dispatch = useDispatch();
@@ -28,7 +13,6 @@ export const Surface = () => {
   const preflight = useContext(PreflightContext);
   const rendererType = useSelector(selectRenderer);
   const surfaceOpts = useSelector(selectSurface, shallowEqual);
-  const entities = useSelector(selectEntities, shallowEqual);
   const selectedEntityIndex = useSelector(selectSelectedEntityIndex);
 
   const rendererRef = useRef(null);
@@ -83,13 +67,7 @@ export const Surface = () => {
 
   rendererRef.current?.changeTransform(surfaceOpts);
 
-  useSelectedEntityChangeCallback((entity) => {
-    const transformComponent = entity.componentConfig[TransformComponentId];
-    if (!transformComponent) {
-      return;
-    }
-
-    let {x, y} = transformComponent.values;
+  useLiveEntityComponentValues(({ x, y }) => {
     const renderer = rendererRef.current;
     if (renderer) {
       const {width, height} = renderer;
@@ -103,7 +81,7 @@ export const Surface = () => {
       panY: -y,
       zoom: 1,
     }));
-  }, entities, selectedEntityIndex);
+  }, selectedEntityIndex, TransformComponentId);
 
   return (
     <div className="Surface" ref={setSurfaceRefCallback} />
