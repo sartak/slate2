@@ -6,6 +6,7 @@ import { TransformComponentId } from './components/transform';
 import { PreflightContext } from './preflight';
 import { selectRenderer, selectSurface, selectSelectedEntityIndex } from './project/selectors';
 import { useLiveEntityComponentValues } from './hooks/useLiveEntityComponentValues';
+import * as liveCallbackModes from './preflight/live-entity-values';
 
 export const Surface = () => {
   const dispatch = useDispatch();
@@ -67,7 +68,7 @@ export const Surface = () => {
 
   rendererRef.current?.changeTransform(surfaceOpts);
 
-  useLiveEntityComponentValues(({ x, y }) => {
+  useLiveEntityComponentValues((mode, { x, y }) => {
     const renderer = rendererRef.current;
     if (renderer) {
       const {width, height} = renderer;
@@ -75,12 +76,27 @@ export const Surface = () => {
       y -= height / 2;
     }
 
-    dispatch(commitSurfaceTransformAction({
-      ...surfaceOpts,
-      panX: -x,
-      panY: -y,
-      zoom: 1,
-    }));
+    switch (mode) {
+      case liveCallbackModes.DESIGN_TIME: {
+        dispatch(commitSurfaceTransformAction({
+          ...surfaceOpts,
+          panX: -x,
+          panY: -y,
+          zoom: 1,
+        }));
+        break;
+      }
+
+      case liveCallbackModes.PREFLIGHT_STOPPED:
+      case liveCallbackModes.PREFLIGHT_RUNNING: {
+        rendererRef.current?.changeTransform({
+          ...surfaceOpts,
+          panX: -x,
+          panY: -y,
+          zoom: 1,
+        });
+      }
+    }
   }, selectedEntityIndex, TransformComponentId);
 
   return (

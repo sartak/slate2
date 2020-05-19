@@ -1,6 +1,7 @@
 import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
 import InspectorDebugger from './inspector';
+import LiveEntityValuesDebugger from './live-entity-values';
 
 export { PreflightContext, PreflightProvider } from './context';
 
@@ -13,7 +14,8 @@ export class Preflight {
   isRunning = false;
   loop = null;
   inspectorDebugger = new InspectorDebugger();
-  debuggers = [this.inspectorDebugger];
+  liveEntityValuesDebugger = new LiveEntityValuesDebugger();
+  debuggers = [this.inspectorDebugger, this.liveEntityValuesDebugger];
   storeUnsubscribe = null;
   assemblyScopeCleaner = null;
 
@@ -147,6 +149,8 @@ export class Preflight {
     this.isRunning = false;
     this.loop.pause();
 
+    this.debuggers.forEach((debug) => debug.preflightStopped && debug.preflightStopped());
+
     // @Feature: make this optional, for inspecting the end state
     this.runRenderSystems();
   }
@@ -165,6 +169,10 @@ export class Preflight {
 
   detachInspector(inspector) {
     this.debuggers.forEach((debug) => debug.detachInspector && debug.detachInspector(inspector));
+  }
+
+  subscribeToLiveEntityValues(...args) {
+    return this.liveEntityValuesDebugger.subscribe(...args);
   }
 }
 
