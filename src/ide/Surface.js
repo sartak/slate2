@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { commitSurfaceTransformAction } from './project/actions';
 import { rendererForType } from './renderer';
 import { TransformComponentId } from './components/transform';
-import { PreflightContext } from './preflight';
+import { usePreflight } from './preflight';
 import { selectRenderer, selectSurface, selectSelectedEntityIndex } from './project/selectors';
 import { useLiveEntityComponentValues } from './preflight/useLiveEntityComponentValues';
 import * as liveCallbackModes from './preflight/live-entity-values';
@@ -11,7 +11,7 @@ import * as liveCallbackModes from './preflight/live-entity-values';
 export const Surface = () => {
   const dispatch = useDispatch();
 
-  const preflight = useContext(PreflightContext);
+  const preflight = usePreflight();
   const rendererType = useSelector(selectRenderer);
   const surfaceOpts = useSelector(selectSurface, shallowEqual);
   const selectedEntityIndex = useSelector(selectSelectedEntityIndex);

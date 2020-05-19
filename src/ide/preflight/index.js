@@ -2,7 +2,7 @@ import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
 import LiveEntityValuesDebugger from './live-entity-values';
 
-export { PreflightContext, PreflightProvider } from './context';
+export { usePreflight, PreflightProvider } from './context';
 
 export class Preflight {
   renderer = null;
