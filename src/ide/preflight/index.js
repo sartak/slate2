@@ -34,6 +34,9 @@ export class Preflight {
     });
 
     this.didUpdateProject(null, this.project);
+
+    const dispatch = (action) => projectStore.dispatch(action);
+    this.debuggers.forEach((debug) => debug.registerDispatch && debug.registerDispatch(dispatch));
   }
 
   didUpdateProject(prev, next) {
@@ -141,6 +144,9 @@ export class Preflight {
 
     this.isRunning = true;
     this.scopeDirty = true;
+
+    this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart());
+
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
   }
@@ -149,7 +155,7 @@ export class Preflight {
     this.isRunning = false;
     this.loop.pause();
 
-    this.debuggers.forEach((debug) => debug.preflightStopped && debug.preflightStopped());
+    this.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
 
     // @Feature: make this optional, for inspecting the end state
     this.runRenderSystems();
