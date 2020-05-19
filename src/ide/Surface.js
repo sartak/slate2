@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { commitSurfaceTransformAction } from './project/actions';
 import { rendererForType } from './renderer';
@@ -53,18 +53,13 @@ export const Surface = () => {
     };
   }, [rendererType]);
 
-  const handleResize = useCallback(() => {
-    rendererRef.current?.didResize();
-  });
-
-  useLayoutEffect(() => {
-    handleResize();
-
+  useEffect(() => {
+    const handleResize = () => rendererRef.current?.didResize();
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  });
+  }, []);
 
   rendererRef.current?.changeTransform(surfaceOpts);
 

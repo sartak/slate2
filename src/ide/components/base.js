@@ -3,6 +3,10 @@ export class BaseComponent {
   label = null;
   fields = [];
 
+  fieldWithId(target) {
+    return this.fields.find(({ id }) => id === target);
+  }
+
   makeEntityComponent(overrides) {
     const defaults = {};
 
