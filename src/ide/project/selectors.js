@@ -51,6 +51,10 @@ export const makeSelectSystemWithId = (systemId) => {
   return (state) => lookupSystemWithId(state, systemId);
 };
 
+export const makeSelectEntityComponentValue = (entityIndex, componentId, fieldId) => {
+  return ({ entities }) => entities[entityIndex].componentConfig[componentId].values[fieldId];
+};
+
 export const makeSelectEntityComponent = (entityIndex, componentId) => {
   return ({ entities }) => entities[entityIndex].componentConfig[componentId];
 };
