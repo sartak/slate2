@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { addEntityAction, selectEntityIndexAction } from './project/actions';
 import { newEntity } from './ecs/entities';
-import { selectEntities, selectSelectedEntityIndex } from './project/selectors';
+import { selectEntities, selectActiveEntityIndex } from './project/selectors';
 import './entity-list.less';
 
 export const EntityList = () => {
@@ -14,7 +14,7 @@ export const EntityList = () => {
       next.map(({ id }) => id),
     ),
   );
-  const selectedEntityIndex = useSelector(selectSelectedEntityIndex);
+  const activeEntityIndex = useSelector(selectActiveEntityIndex);
 
   return (
     <div className="EntityList">
@@ -23,7 +23,7 @@ export const EntityList = () => {
           return (
             <li
               key={entity.id}
-              className={selectedEntityIndex === i ? "active" : null}
+              className={activeEntityIndex === i ? "active" : null}
               onClick={() => dispatch(selectEntityIndexAction(i))}
             >Entity {entity.id}</li>
           );

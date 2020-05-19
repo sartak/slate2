@@ -5,7 +5,7 @@ export const selectProject = (state) => state;
 
 export const selectEntities = ({ entities }) => entities;
 
-export const selectSelectedEntityIndex = ({ selectedEntityIndex }) => selectedEntityIndex;
+export const selectActiveEntityIndex = ({ activeEntityIndex }) => activeEntityIndex;
 
 export const makeSelectEntityByIndex = (index) => {
   return ({ entities }) => entities[index];

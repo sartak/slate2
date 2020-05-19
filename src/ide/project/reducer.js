@@ -28,7 +28,7 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         nextEntityId: 1 + state.nextEntityId,
-        selectedEntityIndex: state.entities.length,
+        activeEntityIndex: state.entities.length,
         entities: [
           ...state.entities,
           { ...action.entity, id: state.nextEntityId },
@@ -38,7 +38,7 @@ export const projectReducer = (state = null, action) => {
     case SELECT_ENTITY_INDEX: {
       return {
         ...state,
-        selectedEntityIndex: action.index,
+        activeEntityIndex: action.index,
       };
     }
     case COMMIT_SURFACE_TRANSFORM: {

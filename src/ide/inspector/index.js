@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { InspectEntity } from './entity';
-import { selectSelectedEntityIndex } from '../project/selectors';
+import { selectActiveEntityIndex } from '../project/selectors';
 import './index.less';
 
 export const Inspector = () => {
-  const entityIndex = useSelector(selectSelectedEntityIndex);
+  const entityIndex = useSelector(selectActiveEntityIndex);
 
   return (
     <div className="Inspector">
