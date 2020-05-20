@@ -11,11 +11,19 @@ export const useLiveEntityComponentValues = (originalCallback, entityIndex, ...c
   const preflight = usePreflight();
 
   useEffect(() => {
+    if (entityIndex === -1) {
+      return;
+    }
+
     const unsubscribe = preflight.subscribeToLiveEntityValues(callback, entityIndex, componentIds);
     return unsubscribe;
   }, [callback, entityIndex, ...componentIds]);
 
   useEffect(() => {
+    if (entityIndex === -1) {
+      return;
+    }
+
     callback(DESIGN_TIME, ...entityComponents.map(({ values }) => values));
   }, [callback, entityIndex, entityComponents]);
 };

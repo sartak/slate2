@@ -61,6 +61,10 @@ export const makeSelectEntityComponent = (entityIndex, componentId) => {
 
 export const makeSelectEntityComponents = (entityIndex, componentIds) => {
   return ({ entities }) => {
+    if (entityIndex === -1) {
+      return null;
+    }
+
     const { componentConfig } = entities[entityIndex];
     return componentIds.map((componentId) => componentConfig[componentId]);
   };
