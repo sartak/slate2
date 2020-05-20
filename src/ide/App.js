@@ -7,19 +7,27 @@ import { ProjectEditor } from './project-editor';
 import { canLoadProject } from '@ide/bridge';
 import { createProjectAction } from './project/actions';
 import { selectProject } from './project/selectors';
+import { AlertProvider } from './alert/context';
 
 const App = () => {
   const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
-  if (project) {
-    return <ProjectEditor />;
-  }
-  else if (canLoadProject) {
-    return <OpenProject />;
-  } else {
-    const dispatch = useDispatch();
-    dispatch(createProjectAction());
-    return null;
-  }
+
+  return (
+    <AlertProvider>
+      {(() => {
+        if (project) {
+          return <ProjectEditor />;
+        }
+        else if (canLoadProject) {
+          return <OpenProject />;
+        } else {
+          const dispatch = useDispatch();
+          dispatch(createProjectAction());
+          return null;
+        }
+      })()}
+    </AlertProvider>
+  );
 };
 
 export default hot(App);

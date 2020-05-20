@@ -1,0 +1,38 @@
+.alert-banners {
+  position: fixed;
+  font-size: .8em;
+  box-sizing: border-box;
+  top: 0.5vw;
+  left: 0.5vw;
+  width: calc(100vw - 2*0.5vw);
+  z-index: 9999;
+  text-align: center;
+  pointer-events: none;
+
+  .container {
+    transition: height 800ms cubic-bezier(.4, 0, 0, 1);
+    overflow: hidden;
+
+    .banner {
+      padding: 1em;
+      margin: 0.5em;
+      pointer-events: auto;
+      border-radius: 4px;
+
+      &.error {
+        color: #721c24;
+        background-color: #f8d7da;
+      }
+
+      &.success {
+        color: #155724;
+        background-color: #d4edda;
+      }
+
+      &.warning {
+        color: #856404;
+        background-color: #fff3cd;
+      }
+    }
+  }
+}

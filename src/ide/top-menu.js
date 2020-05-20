@@ -5,10 +5,10 @@ import { preflightRunningAction } from './project/actions';
 import { FloatingEditor } from './floating-editor';
 import { assembleGame } from './assemble/game';
 import { selectProject, selectPreflightRunning } from './project/selectors';
+import { useAlert } from './alert';
 
 export const TopMenu = () => {
-  const [error, setError] = useState(null);
-
+  const alert = useAlert();
   const [isSaving, setSaving] = useState(false);
   const [isBuilding, setBuilding] = useState(false);
 
@@ -26,25 +26,25 @@ export const TopMenu = () => {
 
   const save = () => {
     setSaving(true);
-    setError(null);
+    alert.dismissCategory('save-project');
 
     saveProject(project).then((saved) => {
       setSaving(false);
     }).catch((err) => {
       setSaving(false);
-      setError(err);
+      alert.error(err, { category: 'save-project' });
     });
   }
 
   const build = () => {
     setBuilding(true);
-    setError(null);
+    alert.dismissCategory('build-project');
 
     buildProject(project).then((directory) => {
       setBuilding(false);
     }).catch((err) => {
       setBuilding(false);
-      setError(err);
+      alert.error(err, { category: 'build-project' });
     });
   }
 
@@ -62,7 +62,6 @@ export const TopMenu = () => {
 
   return (
     <div className="TopMenu">
-      {error && <div className="error-banner">{error.toString()}</div>}
       {canSaveProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={save}>Save Project</button>}
       {canDownloadProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={download}>Download Project</button>}
       {canBuildProject && <button disabled={isSaving || isBuilding || preflightRunning} onClick={build}>Build Project</button>}
