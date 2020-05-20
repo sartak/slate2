@@ -79,7 +79,6 @@
     "@hot-loader/react-dom": "^16.13.0",
     "babel-loader": "^8.1.0",
     "css-loader": "^3.5.3",
-    "devtron": "^1.4.0",
     "electron": "8.2.5",
     "eval": "^0.1.4",
     "file-loader": "^6.0.0",
