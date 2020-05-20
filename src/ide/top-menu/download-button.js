@@ -1,13 +1,14 @@
 import React from 'react';
 import { canDownloadProject } from '@ide/bridge';
-import { useSelector } from 'react-redux';
+import { useSelectorLazy } from '../project/useSelectorLazy';
 import { selectProject } from '../project/selectors';
 import { downloadProject } from '@ide/bridge';
 
 const Button = ({ isBusy }) => {
-  const project = useSelector(selectProject);
+  const lazyProject = useSelectorLazy(selectProject);
 
   const download = () => {
+    const project = lazyProject();
     downloadProject(project);
   };
 

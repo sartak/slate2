@@ -1,18 +1,19 @@
 import React from 'react';
 import { canBuildProject } from '@ide/bridge';
 import { useAlert } from '../alert';
-import { useSelector } from 'react-redux';
+import { useSelectorLazy } from '../project/useSelectorLazy';
 import { selectProject } from '../project/selectors';
 import { buildProject } from '@ide/bridge';
 
 const Button = ({ isBusy, setBusy }) => {
   const alert = useAlert();
-  const project = useSelector(selectProject);
+  const lazyProject = useSelectorLazy(selectProject);
 
   const build = () => {
     setBusy(true);
     alert.dismissCategory('build-project');
 
+    const project = lazyProject();
     buildProject(project).then((directory) => {
       alert.success(`Built in ${directory}`, { category: 'build-project' });
       setBusy(false);

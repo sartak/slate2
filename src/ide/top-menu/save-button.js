@@ -1,18 +1,19 @@
 import React from 'react';
 import { canSaveProject } from '@ide/bridge';
 import { useAlert } from '../alert';
-import { useSelector } from 'react-redux';
+import { useSelectorLazy } from '../project/useSelectorLazy';
 import { selectProject } from '../project/selectors';
 import { saveProject } from '@ide/bridge';
 
 const Button = ({ isBusy, setBusy }) => {
   const alert = useAlert();
-  const project = useSelector(selectProject);
+  const lazyProject = useSelectorLazy(selectProject);
 
   const save = () => {
     setBusy(true);
     alert.dismissCategory('save-project');
 
+    const project = lazyProject();
     saveProject(project).then((saved) => {
       setBusy(false);
     }).catch((err) => {
