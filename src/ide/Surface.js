@@ -71,25 +71,27 @@ export const Surface = () => {
       y -= height / 2;
     }
 
+    const transform = {
+      ...surfaceOpts,
+      panX: -x,
+      panY: -y,
+      zoom: 1,
+    };
+
+    if (rendererRef.current?.isTransform(transform)) {
+      return;
+    }
+
     switch (mode) {
       case liveCallbackModes.DESIGN_TIME: {
-        dispatch(commitSurfaceTransformAction({
-          ...surfaceOpts,
-          panX: -x,
-          panY: -y,
-          zoom: 1,
-        }));
+        dispatch(commitSurfaceTransformAction(transform));
         break;
       }
 
       case liveCallbackModes.PREFLIGHT_STOPPED:
       case liveCallbackModes.PREFLIGHT_RUNNING: {
-        rendererRef.current?.changeTransform({
-          ...surfaceOpts,
-          panX: -x,
-          panY: -y,
-          zoom: 1,
-        });
+        rendererRef.current?.changeTransform(transform);
+        break;
       }
     }
   }, activeEntityIndex, TransformComponentId);

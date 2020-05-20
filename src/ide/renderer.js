@@ -34,6 +34,10 @@ const classes = {};
       this.onCommitTransform = onCommitTransform;
     }
 
+    isTransform({ panX, panY, zoom }) {
+      return this.panX === Number(panX) && this.panY === Number(panY) && this.zoom === Number(zoom);
+    }
+
     changeTransform(opts) {
       // If we receive an event from redux, but the user already started
       // enacting a new transform, then the user wins
