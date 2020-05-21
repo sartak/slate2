@@ -7,6 +7,10 @@ export class BaseComponent {
     return this.fields.find(({ id }) => id === target);
   }
 
+  fieldWithLabel(target) {
+    return this.fields.find(({ label, id }) => (label || id) === target);
+  }
+
   makeEntityComponent(overrides) {
     const defaults = {};
 
