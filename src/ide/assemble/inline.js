@@ -7,7 +7,12 @@ const parseSystemCall = (code) => {
     return;
   }
 
-  parse[2] = parse[2].split(/\s*,\s*/);
+  if (parse[2].match(/^\s*$/)) {
+    parse[2] = [];
+  } else {
+    parse[2] = parse[2].split(/\s*,\s*/);
+  }
+
   return parse.slice(1);
 };
 
