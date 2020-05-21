@@ -68,6 +68,11 @@ export class Preflight {
     }
 
     try {
+      if (!this.assembly?.didDeinitDesign && this.assembly?.deinitDesign) {
+        this.assembly.didDeinitDesign = true;
+        this.assembly.deinitDesign();
+      }
+
       const [assembler, context] = evaluateGameForPreflight({
         ...project,
         debuggers,
@@ -113,6 +118,9 @@ export class Preflight {
   }
 
   _start() {
+    this.assembly.deinitDesign();
+    this.assembly.didDeinitDesign = true;
+
     if (this.assemblyDirty) {
       this.regenerateAssembly();
     }
@@ -130,6 +138,7 @@ export class Preflight {
   _stop() {
     this.isRunning = false;
     this.loop.pause();
+    this.assembly.deinitPreflight();
 
     this.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
 

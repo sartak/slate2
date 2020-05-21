@@ -51,12 +51,24 @@ const __assembleGameForPreflight = (originalProject) => {
     ...__assembleDebugCall('renderEnd', '();', project, ctx),
   ].join("\n");
   
+  const deinitDesign = [
+    ...__assembleDebugCall('deinitBegin', '();', project, ctx),
+      ...ctx.deinit.map((fn) => fn(ctx)),
+    ...__assembleDebugCall('deinitEnd', '();', project, ctx),
+  ].join("\n");
+
   ctx.designMode = false;
 
   const initPreflight = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
       ...ctx.init.map((fn) => fn(ctx)),
     ...__assembleDebugCall('initEnd', '();', project, ctx),
+  ].join("\n");
+
+  const deinitPreflight = [
+    ...__assembleDebugCall('deinitBegin', '();', project, ctx),
+      ...ctx.deinit.map((fn) => fn(ctx)),
+    ...__assembleDebugCall('deinitEnd', '();', project, ctx),
   ].join("\n");
 
   const assembly = [
@@ -72,6 +84,8 @@ const __assembleGameForPreflight = (originalProject) => {
         `initPreflight: () => { ${initPreflight} },`,
         `renderDesign: (dt, time) => { ${renderDesign} },`,
         `step: ${step},`,
+        `deinitDesign: () => { ${deinitDesign} },`,
+        `deinitPreflight: () => { ${deinitPreflight} },`,
       `};`,
     `}`,
   ];

@@ -115,6 +115,7 @@ export const prepareSystems = (project, ctx) => {
     let inputCodeGenerator = null;
     let updateCodeGenerator = null;
     let renderCodeGenerator = null;
+    let deinitCodeGenerator = null;
 
     const baseParams = [];
 
@@ -147,6 +148,16 @@ export const prepareSystems = (project, ctx) => {
       renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
     }
 
+    if (system.__proto__.deinit) {
+      deinitCodeGenerator = (ctx) => {
+        if (initSkipDesignMode && ctx.designMode) {
+          return null;
+        }
+
+        return assembleInlineSystemCall(system, 'deinit', [...baseParams], project, ctx);
+      };
+    }
+
     if (needsEntities) {
       systemEntities = entityObjects.filter(({ id }) => {
         return !componentMaps.find(({ entityComponents }) => !entityComponents[id]);
@@ -161,6 +172,7 @@ export const prepareSystems = (project, ctx) => {
       inputCodeGenerator,
       updateCodeGenerator,
       renderCodeGenerator,
+      deinitCodeGenerator,
       renderMethod,
       needsRenderer,
       initReturnVar,
@@ -221,7 +233,7 @@ export const assembleSystems = (project, ctx) => {
   return [
     ...systemObjects.map((system) => {
       const systemId = system.id;
-      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, hasInit, initReturnVar, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, deinitCodeGenerator, hasInit, initReturnVar, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
 
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
@@ -249,6 +261,10 @@ export const assembleSystems = (project, ctx) => {
 
       if (renderCodeGenerator) {
         ctx.render.push(renderCodeGenerator);
+      }
+
+      if (deinitCodeGenerator) {
+        ctx.deinit.push(deinitCodeGenerator);
       }
 
       return [

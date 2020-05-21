@@ -20,6 +20,7 @@ export const newContext = (project, overrides = {}) => {
     input: [],
     update: [],
     render: [],
+    deinit: [],
     preparedLoop: false,
 
     gameClass: `${prefix}Game`,
