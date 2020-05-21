@@ -40,7 +40,7 @@ const assembleImports = (project, ctx) => {
 const assembleGameInit = (project, ctx) => {
   const calls = [
     ...assembleDebugCall('initBegin', '();', project, ctx),
-      ...ctx.init,
+      ...ctx.init.map((fn) => fn(ctx)),
     ...assembleDebugCall('initBegin', '();', project, ctx),
   ].filter(Boolean);
 
@@ -60,12 +60,12 @@ export const assembleGameStep = (project, ctx) => {
     ...assembleDebugCall('frameBegin', '();', project, ctx),
 
       ...assembleDebugCall('updateBegin', '();', project, ctx),
-        ...ctx.input,
-        ...ctx.update,
+        ...ctx.input.map((fn) => fn(ctx)),
+        ...ctx.update.map((fn) => fn(ctx)),
       ...assembleDebugCall('updateEnd', '();', project, ctx),
 
       ...assembleDebugCall('renderBegin', '();', project, ctx),
-        ...ctx.render,
+        ...ctx.render.map((fn) => fn(ctx)),
       ...assembleDebugCall('renderEnd', '();', project, ctx),
 
     ...assembleDebugCall('frameEnd', '();', project, ctx),

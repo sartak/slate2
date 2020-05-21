@@ -120,7 +120,7 @@ export const prepareSystems = (project, ctx) => {
 
     if (system.__proto__.init) {
       hasInit = true;
-      initCodeGenerator = () => {
+      initCodeGenerator = (ctx) => {
         const implementation = assembleInlineSystemCall(system, 'init', [], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
@@ -222,29 +222,29 @@ export const assembleSystems = (project, ctx) => {
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
 
-        ctx.init.push(
-          `[${ctx.renderVars.join(', ')}] = ${ctx.rendererVar}.prepareRenderer();`,
-        );
+        ctx.init.push((ctx) => (
+          `[${ctx.renderVars.join(', ')}] = ${ctx.rendererVar}.prepareRenderer();`
+        ));
 
-        ctx.render.unshift([
-          `${ctx.rendererVar}.beginRender();`,
-        ]);
+        ctx.render.unshift((ctx) => (
+          `${ctx.rendererVar}.beginRender();`
+        ));
       }
 
       if (initCodeGenerator) {
-        ctx.init.push(initCodeGenerator());
+        ctx.init.push(initCodeGenerator);
       }
 
       if (inputCodeGenerator) {
-        ctx.input.push(inputCodeGenerator());
+        ctx.input.push(inputCodeGenerator);
       }
 
       if (updateCodeGenerator) {
-        ctx.update.push(updateCodeGenerator());
+        ctx.update.push(updateCodeGenerator);
       }
 
       if (renderCodeGenerator) {
-        ctx.render.push(renderCodeGenerator());
+        ctx.render.push(renderCodeGenerator);
       }
 
       return [

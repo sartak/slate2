@@ -25,27 +25,27 @@ const __assembleGameForPreflight = (originalProject) => {
   const debug = __assembleDebuggers(project, ctx);
 
   if (!ctx.render.length) {
-    ctx.render.push(
-      `${ctx.rendererVar}.beginRender();`,
-    );
+    ctx.render.push((ctx) => (
+      `${ctx.rendererVar}.beginRender();`
+    ));
   }
 
-  ctx.render.push(
-    `${ctx.rendererVar}.finishRender();`,
-  );
+  ctx.render.push((ctx) => (
+    `${ctx.rendererVar}.finishRender();`
+  ));
 
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
 
   const init = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
-      ...ctx.init,
+      ...ctx.init.map((fn) => fn(ctx)),
     ...__assembleDebugCall('initEnd', '();', project, ctx),
   ].join("\n");
 
   const render = [
     ...__assembleDebugCall('renderBegin', '();', project, ctx),
-      ...ctx.render,
+      ...ctx.render.map((fn) => fn(ctx)),
     ...__assembleDebugCall('renderEnd', '();', project, ctx),
   ].join("\n");
   
