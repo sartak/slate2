@@ -8,14 +8,12 @@ export class Preflight {
   renderer = null;
   project = null;
   assemblyDirty = true;
-  scopeDirty = true;
   assembly = null;
   isRunning = false;
   loop = null;
   liveEntityValuesDebugger = new LiveEntityValuesDebugger();
   debuggers = [this.liveEntityValuesDebugger];
   storeUnsubscribe = null;
-  assemblyScopeCleaner = null;
 
   constructor(projectStore) {
     this.initialize(projectStore);
@@ -75,13 +73,9 @@ export class Preflight {
         debuggers,
       });
 
-      const assemblyScopeCleaner = () => {
-        const assembly = assembler(renderer, debuggers);
-        assembly.init();
-        return assembly;
-      };
+      const assembly = assembler(renderer, debuggers);
 
-      const assembly = assemblyScopeCleaner();
+      assembly.init();
 
       // Test a render to make sure we don't crash the whole UI if it breaks.
       if (assembly.render) {
@@ -90,25 +84,11 @@ export class Preflight {
 
       debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
 
-      this.assemblyScopeCleaner = assemblyScopeCleaner;
       this.assembly = assembly;
       this.assemblyDirty = false;
-      this.scopeDirty = false;
     } catch (e) {
       console.error(e);
     }
-  }
-
-  cleanAssemblyScope() {
-    const { assemblyScopeCleaner, isRunning, debuggers } = this;
-    if (isRunning) {
-      return;
-    }
-
-    this.assembly = assemblyScopeCleaner();
-    this.scopeDirty = false;
-
-    debuggers.forEach((debug) => debug.didCleanAssemblyScope && debug.didCleanAssemblyScope(this.assembly));
   }
 
   setRenderer(renderer) {
@@ -124,8 +104,6 @@ export class Preflight {
 
     if (this.assemblyDirty) {
       this.regenerateAssembly();
-    } else if (this.scopeDirty) {
-      this.cleanAssemblyScope();
     }
 
     const render = this.assembly?.render;
@@ -137,12 +115,10 @@ export class Preflight {
   _start() {
     if (this.assemblyDirty) {
       this.regenerateAssembly();
-    } else if (this.scopeDirty) {
-      this.cleanAssemblyScope();
     }
 
     this.isRunning = true;
-    this.scopeDirty = true;
+    this.assemblyDirty = true;
 
     this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart());
 

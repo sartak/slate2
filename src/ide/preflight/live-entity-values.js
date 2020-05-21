@@ -31,10 +31,6 @@ export default class LiveEntityValuesDebugger {
     this.entityMap = context.entityMap;
   }
 
-  didCleanAssemblyScope(assembly) {
-    this.components = assembly.components;
-  }
-
   entityForEntityIndex(entityIndex) {
     const { id } = this.entityList[entityIndex];
     return this.entityMap[id].index;
