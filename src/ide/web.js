@@ -8,7 +8,9 @@ import { Preflight, PreflightProvider } from './preflight';
 import { upgradeProject } from './project/upgrade';
 
 const renderProject = (container, project) => {
-  upgradeProject(project);
+  if (project) {
+    upgradeProject(project);
+  }
 
   const projectStore = createStore(
     projectReducer, project,
