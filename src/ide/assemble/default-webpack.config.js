@@ -34,9 +34,17 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            // babel has its own module loader
-            // presets: ['@babel/preset-env'],
-            presets: [path.resolve(slate2_path, '@babel', 'preset-env')],
+            presets: [
+              [
+                // babel has its own module loader
+                // '@babel/preset-env',
+                path.resolve(slate2_path, '@babel', 'preset-env'),
+                {
+                  loose: true,
+                  targets: "> 0.25%, not dead",
+                },
+              ],
+            ],
           },
         },
       },

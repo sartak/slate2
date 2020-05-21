@@ -1,106 +1,242 @@
-// returns [method name, [params], body]
-const parseSystemCall = (code) => {
-  // @Bugfix: This will break if a method attempts to use a default value that
-  // uses parentheses in its expression.
-  const parse = code.match(/^\s*function\s*([a-zA-Z0-9_]*)\s*\(([^)]*)\)\s*\{\s*(.*)\s*}\s*$/s);
-  if (!parse) {
-    return;
-  }
+import { parseSync, traverse } from "@babel/core";
+import generate from "@babel/generator";
+import * as t from "@babel/types";
+import BabelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
 
-  if (parse[2].match(/^\s*$/)) {
-    parse[2] = [];
-  } else {
-    parse[2] = parse[2].split(/\s*,\s*/);
-  }
+const extractMethodSubtree = (classAst, methodName, args, ctx) => {
+  let subtree;
 
-  return parse.slice(1);
+  traverse(classAst, {
+    ClassMethod(path) {
+      const { node } = path;
+
+      if (t.isIdentifier(node.key) && node.key.name === methodName) {
+        subtree = path;
+
+        path.replaceWith(
+          t.ExpressionStatement(
+            t.CallExpression(
+              t.parenthesizedExpression(
+                t.FunctionExpression(
+                  t.Identifier(methodName),
+                  node.params,
+                  node.body,
+                ),
+              ),
+              args.map((arg) => t.Identifier(arg)),
+            ),
+          ),
+        );
+      }
+    }
+  });
+
+  return subtree;
 };
 
-const rewriteBodyToUseComponentVariables = (system, originalBody, components, ctx) => {
+const rewriteTreeToUseComponentVariables = (system, ast, components, ctx) => {
   const { componentMap } = ctx;
-  let body = originalBody;
 
-  // @Bugfix: This optimistically assumes that any pattern of
-  // word1.componentLabel.word2 is a lookup of component field word2 for entity
-  // word1. I don't really see this hitting as a false negative, but the fix
-  // would involve manipulating the AST instead of the raw string code.
+  const componentByLabel = {};
   components.forEach((component) => {
-    const { label: componentLabel } = component;
-    const { fieldVarNamesByLabel } = componentMap[component.id];
-
-    body = body.replace(new RegExp(`\\b([a-zA-Z0-9_]+)\.${componentLabel}\.([a-zA-Z0-9_]+)\\b`, 'g'), (_, entityVar, fieldLabel) => {
-      const componentFieldVar = fieldVarNamesByLabel[fieldLabel];
-      if (!componentFieldVar) {
-        throw new Error(`System ${system.label} tried to use non-existent component ${componentLabel} field var ${fieldLabel}`);
-      }
-      return `${componentFieldVar}[${entityVar}]`;
-    });
-  });
-  return body;
-};
-
-const parameterizeBody = (originalBody, paramMap) => {
-  let body = originalBody;
-  const params = [];
-  const args = [];
-
-  paramMap.forEach(([param, arg]) => {
-    let safe = true;
-
-    // We already used a variable with the parameter name.
-    if (param !== arg && body.match(new RegExp(`\\b${arg}\\b`))) {
-      safe = false;
-    }
-    // If we reassign the argument, we want a standalone copy of it.
-    else if (body.match(new RegExp(`\\b${param}\\s*(\\+|-|\\*\\*?|/|%)?=[^=]`))) {
-      safe = false;
-    }
-    // @Consider: When would else it be unsafe to rewrite?
-
-    if (safe) {
-      // param === arg happens for variables like `dt` and `time`
-      if (param !== arg) {
-        body = body.replace(new RegExp(`\\b${param}\\b`, 'g'), arg);
-      }
-    } else {
-      params.push(param);
-      args.push(arg);
-    }
+    componentByLabel[component.label] = component;
   });
 
-  // We always wrap in a function to get the safety of not having to worry
-  // about `var` scope, other variable name reuse, and so on. However, the
-  // terser minifier will replace immediately-invoked function expressions when
-  // they're simple enough, like when they have no parameters.
-  const wrapPre = `(function (${params.join(', ')}) {`;
-  const wrapPost = `})(${args.join(', ')});`;
+  traverse(ast.node, {
+    MemberExpression(path) {
+      const { parent, node } = path;
+      const { object: primary, property: fieldNode } = node;
 
-  return [wrapPre, body, wrapPost].join("\n");
+      if (!t.isMemberExpression(primary) || !t.isIdentifier(fieldNode)) {
+        return;
+      }
+
+      const { object: entityNode, property: componentNode } = primary;
+
+      if (!t.isIdentifier(componentNode)) {
+        return;
+      }
+
+      // Now we know we have a pattern of two consecutive lookups `a.b.c`
+      // though `a`, the entity var, can be a complex expression like
+      // `entities[i]`
+
+      if (node.computed || primary.computed) {
+        // entity["Motion"].velocity_x or entity.Motion["velocity_x"]
+        return;
+      }
+
+      const componentLabel = componentNode.name;
+      const fieldLabel = fieldNode.name;
+
+      if (!componentByLabel[componentLabel]) {
+        // entity.Nonexistent.velocity_x
+        return;
+      }
+
+      // Now at this point we know we have a true positive and we switch from
+      // excluding
+
+      const component = componentByLabel[componentLabel];
+      const field = component.fieldWithLabel(fieldLabel);
+
+      if (!field) {
+        // entity.Motion.nonexistent
+        throw new Error(`Nonexistent field ${fieldLabel} on component ${componentLabel}`);
+      }
+
+      if (t.isMemberExpression(parent)) {
+        // foo.entity.Motion.velocity_x
+        throw new Error(`Unexpected compound lookup of component field ${componentLabel}.${fieldName}`);
+      }
+
+      if (t.isCallExpression(parent) && parent.callee == node) {
+        // entity.Motion.velocity_x()
+        throw new Error(`Unexpected method invocation of component field ${componentLabel}.${fieldName}(…) - it should just be a property lookup`);
+      }
+
+      const fieldVarName = componentMap[component.id].fieldVarNames[field.id];
+      const match = fieldVarName.match(/^([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)$/);
+      if (match) {
+        const [, componentVarName, fieldPropertyName] = match;
+        path.replaceWith(
+          t.MemberExpression(
+            t.MemberExpression(t.Identifier(componentVarName), t.Identifier(fieldPropertyName), false),
+            entityNode,
+            true,
+          ),
+        );
+      }
+      else {
+        path.replaceWith(
+          t.MemberExpression(t.Identifier(fieldVarName), entityNode, true),
+        );
+      }
+    }
+  }, ast.scope, ast);
 };
 
-export const assembleInlineSystemCall = (system, method_name, args, project, ctx) => {
+const inlineFunctionArguments = (ast, ctx) => {
+  const identical = [];
+  const replacements = [];
+
+  traverse(ast.node, {
+    CallExpression(path) {
+      const { callee: wrapper, arguments: args } = path.node;
+
+      if (!t.isParenthesizedExpression) {
+        throw new Error("Expected CallExpression(ParenthesizedExpression(FunctionExpression))");
+      }
+
+      if (!t.isFunctionExpression(wrapper.expression)) {
+        throw new Error("Expected CallExpression(ParenthesizedExpression(FunctionExpression))");
+      }
+
+      const callee = wrapper.expression;
+      const { params, body } = callee;
+
+      const seenIdentifier = {};
+      const seenAssignment = {};
+
+      traverse(body, {
+        Identifier(path) {
+          const { parent, node } = path;
+          const { name } = node;
+          if (t.isAssignmentExpression(parent) && parent.left === node) {
+            seenAssignment[name] = true;
+          }
+          seenIdentifier[name] = true;
+        }
+      }, path.scope, path);
+
+      const newParams = [];
+      const newArgs = [];
+      const replacementFor = {};
+
+      params.forEach((param, i) => {
+        const arg = args[i];
+        let isSafe = true;
+        let isIdentical = false;
+
+        if (!t.isIdentifier(param) || !t.isIdentifier(arg)) {
+          isSafe = false;
+        } else {
+          const { name: paramName } = param;
+          const { name: argName } = arg;
+
+          if (seenAssignment[paramName]) {
+            isSafe = false;
+          } else if (paramName === argName && isSafe) {
+            isIdentical = true;
+          } else if (seenIdentifier[argName]) {
+            isSafe = false;
+          }
+
+          if (isSafe) {
+            if (isIdentical) {
+              identical.push([paramName, argName]);
+            } else {
+              replacementFor[paramName] = argName;
+              replacements.push([paramName, argName]);
+            }
+          }
+        }
+
+        if (!isSafe) {
+          newParams.push(param);
+          newArgs.push(arg);
+        }
+      });
+
+      traverse(body, {
+        Identifier(path) {
+          const replacement = replacementFor[path.node.name];
+          if (replacement) {
+            path.node.name = replacement;
+          }
+        }
+      }, path.scope, path);
+
+      // report that we dropped extra args
+      args.slice(params.length).forEach((arg) => {
+        replacements.push(['_', generate(arg).code]);
+      });
+
+      path.node.arguments = newArgs;
+      callee.params = newParams;
+
+      // Only do this at the top level.
+      path.skip();
+    }
+  }, ast.scope, ast.parent);
+
+  return [...identical, ...replacements];
+};
+
+export const assembleInlineSystemCall = (system, methodName, args, project, ctx) => {
   const { systemMap } = ctx;
   const components = systemMap[system.id].componentObjects;
-  const code = String(system.__proto__[method_name]);
-  const parse = parseSystemCall(code);
+  const input = system.constructor.sourceCode;
 
-  if (!parse) {
-    throw new Error(`Could not parse ${system.label} ${method_name} for inlining`);
-  }
+  const classAst = parseSync(input, {
+    plugins: [
+      BabelPluginProposalClassProperties,
+    ],
+    sourceType: "module",
+  });
 
-  const [, params, body] = parse;
-  const paramMap = params.map((param, i) => [param, args[i]]);
-
-  const componentizedBody = rewriteBodyToUseComponentVariables(system, body, components, ctx);
-  const parameterizedBody = parameterizeBody(componentizedBody, paramMap);
+  const subtree = extractMethodSubtree(classAst, methodName, args, ctx);
+  rewriteTreeToUseComponentVariables(system, subtree, components, ctx);
+  const inlinedArgs = inlineFunctionArguments(subtree, ctx);
+  const output = generate(subtree.node).code;
 
   return [
     `/*`,
-    ` * ${system.label} ${method_name}`,
-    ...paramMap.map(([param, arg]) => ` *   ${param} <- ${arg}`),
+    ` * ${system.label} ${methodName}`,
+      ...inlinedArgs.map(([param, arg]) => ` *   ${param} <- ${arg}`),
     ` * Components: ${components.map(({ label }) => label).join(', ')}`,
     ` */`,
-    parameterizedBody,
+    output,
   ].join("\n");
 };
 

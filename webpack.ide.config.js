@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const electronVersion = require('electron/package.json').version;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isBuildWebIDE = process.env.SLATE2_ENV === 'web';
@@ -18,6 +19,10 @@ module.exports = {
       library: 'slate2',
       libraryTarget: 'var',
       libraryExport: 'default',
+    },
+    // needed to build babel for the web
+    node: {
+      fs: 'empty'
     },
   } : {
     output: {
@@ -69,8 +74,20 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-            plugins: ['@babel/plugin-proposal-class-properties'],
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: isBuildWebIDE ? "> 0.25%, not dead" : { "electron": electronVersion },
+                },
+              ],
+              '@babel/preset-react',
+            ],
+            plugins: [
+              '@babel/plugin-proposal-class-properties',
+              '@babel/plugin-proposal-nullish-coalescing-operator',
+              '@babel/plugin-proposal-optional-chaining',
+            ],
           },
         },
       },
