@@ -109,9 +109,14 @@ export const prepareSystems = (project, ctx) => {
     let systemEntities = [];
     let needsEntities = false;
     let needsRenderer = false;
+    let initCodeGenerator = null;
     let inputCodeGenerator = null;
     let updateCodeGenerator = null;
     let renderCodeGenerator = null;
+
+    if (system.__proto__.init) {
+      initCodeGenerator = () => assembleInlineSystemCall(system, 'init', [], project, ctx);
+    }
 
     if (system.__proto__.input) {
       inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', [], project, ctx);
@@ -138,6 +143,7 @@ export const prepareSystems = (project, ctx) => {
     systemMap[systemId] = {
       system,
       varName,
+      initCodeGenerator,
       inputCodeGenerator,
       updateCodeGenerator,
       renderCodeGenerator,
@@ -199,7 +205,7 @@ export const assembleSystems = (project, ctx) => {
   return [
     ...systemObjects.map((system) => {
       const systemId = system.id;
-      const { varName, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
 
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
@@ -211,6 +217,10 @@ export const assembleSystems = (project, ctx) => {
         ctx.render.unshift([
           `${ctx.rendererVar}.beginRender();`,
         ]);
+      }
+
+      if (initCodeGenerator) {
+        ctx.init.push(initCodeGenerator());
       }
 
       if (inputCodeGenerator) {
