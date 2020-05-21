@@ -75,11 +75,11 @@ export class Preflight {
 
       const assembly = assembler(renderer, debuggers);
 
-      assembly.init();
+      assembly.initDesign();
 
       // Test a render to make sure we don't crash the whole UI if it breaks.
-      if (assembly.render) {
-        assembly.render(0, 0);
+      if (assembly.renderDesign) {
+        assembly.renderDesign(0, 0);
       }
 
       debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
@@ -106,9 +106,9 @@ export class Preflight {
       this.regenerateAssembly();
     }
 
-    const render = this.assembly?.render;
-    if (render) {
-      render(0, 0);
+    const renderDesign = this.assembly?.renderDesign;
+    if (renderDesign) {
+      renderDesign(0, 0);
     }
   }
 
@@ -122,6 +122,7 @@ export class Preflight {
 
     this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart());
 
+    this.assembly.initPreflight();
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
   }

@@ -12,6 +12,8 @@ export const newContext = (project, overrides = {}) => {
   return {
     prefix,
 
+    designMode: false,
+
     imports: [],
 
     init: [],

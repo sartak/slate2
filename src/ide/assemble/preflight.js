@@ -37,18 +37,28 @@ const __assembleGameForPreflight = (originalProject) => {
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
 
-  const init = [
+  ctx.designMode = true;
+
+  const initDesign = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
       ...ctx.init.map((fn) => fn(ctx)),
     ...__assembleDebugCall('initEnd', '();', project, ctx),
   ].join("\n");
 
-  const render = [
+  const renderDesign = [
     ...__assembleDebugCall('renderBegin', '();', project, ctx),
       ...ctx.render.map((fn) => fn(ctx)),
     ...__assembleDebugCall('renderEnd', '();', project, ctx),
   ].join("\n");
   
+  ctx.designMode = false;
+
+  const initPreflight = [
+    ...__assembleDebugCall('initBegin', '();', project, ctx),
+      ...ctx.init.map((fn) => fn(ctx)),
+    ...__assembleDebugCall('initEnd', '();', project, ctx),
+  ].join("\n");
+
   const assembly = [
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
@@ -58,8 +68,9 @@ const __assembleGameForPreflight = (originalProject) => {
         `entities: ${ctx.entitiesVar},`,
         `components: ${ctx.componentsVar},`,
         `systems: ${ctx.systemsVar},`,
-        `init: () => { ${init} },`,
-        `render: (dt, time) => { ${render} },`,
+        `initDesign: () => { ${initDesign} },`,
+        `initPreflight: () => { ${initPreflight} },`,
+        `renderDesign: (dt, time) => { ${renderDesign} },`,
         `step: ${step},`,
       `};`,
     `}`,
