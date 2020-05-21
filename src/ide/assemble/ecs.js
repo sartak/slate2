@@ -106,31 +106,41 @@ export const prepareSystems = (project, ctx) => {
     const varName = `${ctx.prefix}system_${system.label}`;
     const entitiesVar = `${varName}_entities`;
     const renderMethod = `render_${renderer}`;
+    const initReturnVar = `${varName}_init_return`;
     let systemEntities = [];
     let needsEntities = false;
     let needsRenderer = false;
+    let hasInit = false;
     let initCodeGenerator = null;
     let inputCodeGenerator = null;
     let updateCodeGenerator = null;
     let renderCodeGenerator = null;
 
+    const baseParams = [];
+
     if (system.__proto__.init) {
-      initCodeGenerator = () => assembleInlineSystemCall(system, 'init', [], project, ctx);
+      hasInit = true;
+      initCodeGenerator = () => {
+        const implementation = assembleInlineSystemCall(system, 'init', [], project, ctx);
+        return `${initReturnVar} = ${implementation};`
+      };
+
+      baseParams.push(initReturnVar);
     }
 
     if (system.__proto__.input) {
-      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', [], project, ctx);
+      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', [...baseParams], project, ctx);
     }
 
     if (system.__proto__.update) {
       needsEntities = true;
-      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', [entitiesVar, 'dt', 'time'], project, ctx);
+      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', [...baseParams, entitiesVar, 'dt', 'time'], project, ctx);
     }
 
     if (system.__proto__[renderMethod]) {
       needsEntities = true;
       needsRenderer = true;
-      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethod, [...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
+      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
     }
 
     if (needsEntities) {
@@ -149,6 +159,8 @@ export const prepareSystems = (project, ctx) => {
       renderCodeGenerator,
       renderMethod,
       needsRenderer,
+      initReturnVar,
+      hasInit,
       needsEntities,
       entitiesVar,
       entityObjects: systemEntities,
@@ -205,7 +217,7 @@ export const assembleSystems = (project, ctx) => {
   return [
     ...systemObjects.map((system) => {
       const systemId = system.id;
-      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, hasInit, initReturnVar, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
 
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
@@ -237,12 +249,15 @@ export const assembleSystems = (project, ctx) => {
 
       return [
         (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
+
         (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => entityMap[id].index)}];`),
         ...(generateSystemVars && generateComponentVars ?
           componentObjects.map((component) => {
             return `${varName}.${component.label} = ${componentMap[component.id].varName};`;
           })
         : []),
+
+        (hasInit && `let ${initReturnVar} = undefined;`),
       ];
     }),
 
