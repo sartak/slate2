@@ -109,8 +109,13 @@ export const prepareSystems = (project, ctx) => {
     let systemEntities = [];
     let needsEntities = false;
     let needsRenderer = false;
+    let inputCodeGenerator = null;
     let updateCodeGenerator = null;
     let renderCodeGenerator = null;
+
+    if (system.__proto__.input) {
+      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', [], project, ctx);
+    }
 
     if (system.__proto__.update) {
       needsEntities = true;
@@ -133,6 +138,7 @@ export const prepareSystems = (project, ctx) => {
     systemMap[systemId] = {
       system,
       varName,
+      inputCodeGenerator,
       updateCodeGenerator,
       renderCodeGenerator,
       renderMethod,
@@ -193,7 +199,7 @@ export const assembleSystems = (project, ctx) => {
   return [
     ...systemObjects.map((system) => {
       const systemId = system.id;
-      const { varName, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+      const { varName, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
 
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
@@ -205,6 +211,10 @@ export const assembleSystems = (project, ctx) => {
         ctx.render.unshift([
           `${ctx.rendererVar}.beginRender();`,
         ]);
+      }
+
+      if (inputCodeGenerator) {
+        ctx.input.push(inputCodeGenerator());
       }
 
       if (updateCodeGenerator) {

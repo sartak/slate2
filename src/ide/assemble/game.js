@@ -60,6 +60,7 @@ export const assembleGameStep = (project, ctx) => {
     ...assembleDebugCall('frameBegin', '();', project, ctx),
 
       ...assembleDebugCall('updateBegin', '();', project, ctx),
+        ...ctx.input,
         ...ctx.update,
       ...assembleDebugCall('updateEnd', '();', project, ctx),
 
