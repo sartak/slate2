@@ -90,7 +90,7 @@ export const prepareSystems = (project, ctx) => {
 
   selectEnabledSystems(project).forEach((system) => {
     const systemId = system.id;
-    const { requiredComponents } = system;
+    const { requiredComponents, initSkipDesignMode } = system;
 
     const componentMaps = [];
     for (let i = 0, len = requiredComponents.length; i < len; ++i) {
@@ -121,6 +121,10 @@ export const prepareSystems = (project, ctx) => {
     if (system.__proto__.init) {
       hasInit = true;
       initCodeGenerator = (ctx) => {
+        if (initSkipDesignMode && ctx.designMode) {
+          return null;
+        }
+
         const implementation = assembleInlineSystemCall(system, 'init', [], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
