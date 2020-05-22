@@ -87,20 +87,39 @@ const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
 };
 
 export const InspectEntityLabel = ({ entityId }) => {
+  const [isFakeEmpty, setFakeEmpty] = useState(false);
   const dispatch = useDispatch();
   const entity = useSelector(
     makeSelectEntity(entityId),
     (prev, next) => prev.label === next.label,
   );
 
+  const { label } = entity;
+
+  const defaultValue = "Entity";
   const setLabel = (label) => dispatch(setEntityLabel(entityId, label));
 
   return (
     <div className="InspectEntityLabel">
       <input
         type="text"
-        value={entity.label}
-        onChange={({ target }) => setLabel(target.value)}
+        value={isFakeEmpty ? "" : label}
+        placeholder={defaultValue}
+        onChange={({ target }) => {
+          if (target.value === "") {
+            setFakeEmpty(true);
+            setLabel(defaultValue);
+          } else {
+            setFakeEmpty(false);
+            setLabel(target.value);
+          }
+        }}
+        onBlur={({ target }) => {
+          if (target.value === "") {
+            target.value = defaultValue;
+            setLabel(target.value);
+          }
+        }}
       />
     </div>
   );
