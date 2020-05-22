@@ -10,7 +10,9 @@ export const CHANGE_ENTITY_COMPONENT_VALUE = 'CHANGE_ENTITY_COMPONENT_VALUE';
 export const ADD_COMPONENT_TO_ENTITY = 'ADD_COMPONENT_TO_ENTITY';
 export const PREFLIGHT_RUNNING = 'PREFLIGHT_RUNNING';
 export const ADD_USER_DEFINED_SYSTEM = 'ADD_USER_DEFINED_SYSTEM';
+export const SET_ACTIVE_SYSTEM = 'SET_ACTIVE_SYSTEM';
 export const ADD_USER_DEFINED_COMPONENT = 'ADD_USER_DEFINED_COMPONENT';
+export const SET_ACTIVE_COMPONENT = 'SET_ACTIVE_COMPONENT';
 export const SET_ENTITY_LABEL = 'SET_ENTITY_LABEL';
 
 export const projectReducer = (state = null, action) => {
@@ -51,6 +53,26 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         activeEntityId: action.id,
+        activeComponentId: null,
+        activeSystemId: null,
+      };
+    }
+
+    case SET_ACTIVE_SYSTEM: {
+      return {
+        ...state,
+        activeEntityId: null,
+        activeComponentId: null,
+        activeSystemId: action.id,
+      };
+    }
+
+    case SET_ACTIVE_COMPONENT: {
+      return {
+        ...state,
+        activeEntityId: null,
+        activeComponentId: action.id,
+        activeSystemId: null,
       };
     }
 

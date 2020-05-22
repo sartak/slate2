@@ -1,15 +1,15 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 import { InspectEntity } from './entity';
-import { selectActiveEntityId } from '../project/selectors';
+import { selectActiveTypeId } from '../project/selectors';
 import './index.less';
 
 export const Inspector = () => {
-  const entityId = useSelector(selectActiveEntityId);
+  const [type, id] = useSelector(selectActiveTypeId, shallowEqual);
 
   return (
     <div className="Inspector">
-      {entityId !== null && <InspectEntity entityId={entityId} />}
+      {type === "Entity" && <InspectEntity entityId={id} />}
     </div>
   );
 }

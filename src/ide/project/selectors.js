@@ -53,3 +53,19 @@ export const selectEntities = ({ entities }) => entities;
 export const selectEntityList = ({ entities }) => Object.values(entities);
 
 export const selectActiveEntityId = ({ activeEntityId }) => activeEntityId;
+
+export const selectActiveComponentId = ({ activeComponentId }) => activeComponentId;
+
+export const selectActiveSystemId = ({ activeSystemId }) => activeSystemId;
+
+export const selectActiveTypeId = ({ activeEntityId, activeComponentId, activeSystemId}) => {
+  if (activeEntityId !== null) {
+    return ['Entity', activeEntityId];
+  } else if (activeComponentId !== null) {
+    return ['Component', activeComponentId];
+  } else if (activeSystemId !== null) {
+    return ['System', activeSystemId];
+  }
+
+  return [null, null];
+};

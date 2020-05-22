@@ -40,8 +40,16 @@ export const addUserDefinedSystemAction = (system) => {
   return { type: t.ADD_USER_DEFINED_SYSTEM, system };
 };
 
+export const setActiveSystemAction = (id) => {
+  return { type: t.SET_ACTIVE_SYSTEM, id };
+};
+
 export const addUserDefinedComponentAction = (component) => {
   return { type: t.ADD_USER_DEFINED_COMPONENT, component };
+};
+
+export const setActiveComponentAction = (id) => {
+  return { type: t.SET_ACTIVE_COMPONENT, id };
 };
 
 export const setEntityLabelAction = (id, label) => {
