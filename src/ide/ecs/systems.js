@@ -21,6 +21,7 @@ export const newUserDefinedSystem = () => {
   return {
     id: null, // to be filled in by caller
     label: null, // to be filled in by caller
+    requiredComponents: [],
   };
 };
 
