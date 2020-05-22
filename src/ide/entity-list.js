@@ -1,31 +1,32 @@
 import React from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addEntityAction, setActiveEntityIndex } from './project/actions';
+import { addEntityAction, setActiveEntityId } from './project/actions';
 import { newEntity } from './ecs/entities';
-import { selectEntities, selectActiveEntityIndex } from './project/selectors';
+import { selectEntityList, selectActiveEntityId } from './project/selectors';
 import './entity-list.less';
 
 export const EntityList = () => {
   const dispatch = useDispatch();
   const entities = useSelector(
-    selectEntities,
+    selectEntityList,
     (prev, next) => prev === next || shallowEqual(
       prev.map(({ id }) => id),
       next.map(({ id }) => id),
     ),
   );
-  const activeEntityIndex = useSelector(selectActiveEntityIndex);
+  const activeEntityId = useSelector(selectActiveEntityId);
 
   return (
     <div className="EntityList">
       <ul>
-        {entities.map((entity, i) => {
+        {entities.map((entity) => {
+          const { id } = entity;
           return (
             <li
-              key={entity.id}
-              className={activeEntityIndex === i ? "active" : null}
-              onClick={() => dispatch(setActiveEntityIndex(i))}
-            >Entity {entity.id}</li>
+              key={id}
+              className={activeEntityId === id ? "active" : null}
+              onClick={() => dispatch(setActiveEntityId(id))}
+            >Entity {id}</li>
           );
         })}
       </ul>

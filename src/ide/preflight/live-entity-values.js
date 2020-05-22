@@ -10,7 +10,6 @@ export const PREFLIGHT_STOPPED = 'PREFLIGHT_STOPPED';
 export default class LiveEntityValuesDebugger {
   project = null;
   dispatch = null;
-  entityList = null;
   entityMap = null;
   components = null;
   preflightRunning = false;
@@ -23,7 +22,6 @@ export default class LiveEntityValuesDebugger {
 
   didUpdateProject(prev, next) {
     this.project = next;
-    this.entityList = next?.entities;
   }
 
   didUpdateAssembly(project, assembly, context) {
@@ -31,22 +29,21 @@ export default class LiveEntityValuesDebugger {
     this.entityMap = context.entityMap;
   }
 
-  entityForEntityIndex(entityIndex) {
-    const { id } = this.entityList[entityIndex];
+  entityForEntityId(id) {
     return this.entityMap[id].index;
   }
 
   publishAssemblyValues(mode) {
     const { valueSubscriptions, componentsSubscriptions, components } = this;
 
-    valueSubscriptions.forEach(([callback, entityIndex, componentId, fieldId]) => {
-      const entity = this.entityForEntityIndex(entityIndex);
+    valueSubscriptions.forEach(([callback, entityId, componentId, fieldId]) => {
+      const entity = this.entityForEntityId(entityId);
       const value = components[componentId][fieldId][entity];
       callback(mode, value);
     });
 
-    componentsSubscriptions.forEach(([callback, entityIndex, componentIds]) => {
-      const entity = this.entityForEntityIndex(entityIndex);
+    componentsSubscriptions.forEach(([callback, entityId, componentIds]) => {
+      const entity = this.entityForEntityId(entityId);
 
       const componentValues = componentIds.map((componentId) => {
         const fieldValues = {};
@@ -66,33 +63,33 @@ export default class LiveEntityValuesDebugger {
   publishDesignValues(mode) {
     const { valueSubscriptions, componentsSubscriptions, project } = this;
 
-    valueSubscriptions.forEach(([callback, entityIndex, componentId, fieldId]) => {
-      const selector = makeSelectEntityComponentValue(entityIndex, componentId, fieldId);
+    valueSubscriptions.forEach(([callback, entityId, componentId, fieldId]) => {
+      const selector = makeSelectEntityComponentValue(entityId, componentId, fieldId);
       const value = selector(project);
 
       callback(mode, value);
     });
 
-    componentsSubscriptions.forEach(([callback, entityIndex, componentIds]) => {
-      const selector = makeSelectEntityComponents(entityIndex, componentIds);
+    componentsSubscriptions.forEach(([callback, entityId, componentIds]) => {
+      const selector = makeSelectEntityComponents(entityId, componentIds);
       const entityComponents = selector(project);
 
       callback(mode, ...entityComponents.map(({ values }) => values));
     });
   }
 
-  changeEntityComponentValueDesign(entityIndex, componentId, fieldId, value) {
-    this.dispatch(changeEntityComponentValueAction(entityIndex, componentId, fieldId, value));
+  changeEntityComponentValueDesign(entityId, componentId, fieldId, value) {
+    this.dispatch(changeEntityComponentValueAction(entityId, componentId, fieldId, value));
   }
 
-  changeEntityComponentValuePreflight(entityIndex, componentId, fieldId, value) {
+  changeEntityComponentValuePreflight(entityId, componentId, fieldId, value) {
     const { components, project } = this;
 
     const component = lookupComponentWithId(project, componentId);
     const field = component.fieldWithId(fieldId);
     const { defaultValue, type } = field;
 
-    const entity = this.entityForEntityIndex(entityIndex);
+    const entity = this.entityForEntityId(entityId);
 
     components[componentId][fieldId][entity] = canonicalizeValue(type, value, defaultValue);
   }
@@ -119,8 +116,8 @@ export default class LiveEntityValuesDebugger {
     this.publishDesignValues(PREFLIGHT_STOPPED);
   }
 
-  subscribeValue(callback, entityIndex, componentId, fieldId) {
-    const subscription = [callback, entityIndex, componentId, fieldId];
+  subscribeValue(callback, entityId, componentId, fieldId) {
+    const subscription = [callback, entityId, componentId, fieldId];
     this.valueSubscriptions.push(subscription);
 
     return () => {
@@ -128,8 +125,8 @@ export default class LiveEntityValuesDebugger {
     };
   }
 
-  subscribeComponents(callback, entityIndex, componentIds) {
-    const subscription = [callback, entityIndex, componentIds];
+  subscribeComponents(callback, entityId, componentIds) {
+    const subscription = [callback, entityId, componentIds];
     this.componentsSubscriptions.push(subscription);
 
     return () => {

@@ -16,20 +16,20 @@ export const addEntityAction = (entity) => {
   return { type: t.ADD_ENTITY, entity };
 };
 
-export const setActiveEntityIndex = (index) => {
-  return { type: t.SET_ACTIVE_ENTITY_INDEX, index };
+export const setActiveEntityId = (id) => {
+  return { type: t.SET_ACTIVE_ENTITY_ID, id };
 };
 
 export const commitSurfaceTransformAction = (surface) => {
   return { type: t.COMMIT_SURFACE_TRANSFORM, surface };
 };
 
-export const changeEntityComponentValueAction = (entityIndex, componentId, fieldId, value) => {
-  return { type: t.CHANGE_ENTITY_COMPONENT_VALUE, entityIndex, componentId, fieldId, value };
+export const changeEntityComponentValueAction = (entityId, componentId, fieldId, value) => {
+  return { type: t.CHANGE_ENTITY_COMPONENT_VALUE, entityId, componentId, fieldId, value };
 };
 
-export const addComponentToEntityAction = (entityIndex, entityComponent) => {
-  return { type: t.ADD_COMPONENT_TO_ENTITY, entityIndex, entityComponent };
+export const addComponentToEntityAction = (id, entityComponent) => {
+  return { type: t.ADD_COMPONENT_TO_ENTITY, id, entityComponent };
 };
 
 export const preflightRunningAction = (preflightRunning) => {

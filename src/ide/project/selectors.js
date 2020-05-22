@@ -3,12 +3,8 @@ import { BuiltinSystems } from '../ecs/systems';
 
 export const selectProject = (state) => state;
 
-export const selectEntities = ({ entities }) => entities;
-
-export const selectActiveEntityIndex = ({ activeEntityIndex }) => activeEntityIndex;
-
-export const makeSelectEntityByIndex = (index) => {
-  return ({ entities }) => entities[index];
+export const makeSelectEntity = (id) => {
+  return ({ entities }) => entities[id];
 };
 
 export const selectEnabledComponents = (state) => {
@@ -51,21 +47,21 @@ export const makeSelectSystemWithId = (systemId) => {
   return (state) => lookupSystemWithId(state, systemId);
 };
 
-export const makeSelectEntityComponentValue = (entityIndex, componentId, fieldId) => {
-  return ({ entities }) => entities[entityIndex].componentConfig[componentId].values[fieldId];
+export const makeSelectEntityComponentValue = (entityId, componentId, fieldId) => {
+  return ({ entities }) => entities[entityId].componentConfig[componentId].values[fieldId];
 };
 
-export const makeSelectEntityComponent = (entityIndex, componentId) => {
-  return ({ entities }) => entities[entityIndex].componentConfig[componentId];
+export const makeSelectEntityComponent = (entityId, componentId) => {
+  return ({ entities }) => entities[entityId].componentConfig[componentId];
 };
 
-export const makeSelectEntityComponents = (entityIndex, componentIds) => {
+export const makeSelectEntityComponents = (entityId, componentIds) => {
   return ({ entities }) => {
-    if (entityIndex === -1) {
+    if (entityId === null) {
       return null;
     }
 
-    const { componentConfig } = entities[entityIndex];
+    const { componentConfig } = entities[entityId];
     return componentIds.map((componentId) => componentConfig[componentId]);
   };
 };
@@ -75,3 +71,9 @@ export const selectPreflightRunning = ({ preflightRunning }) => preflightRunning
 export const selectRenderer = ({ renderer }) => renderer;
 
 export const selectSurface = ({ surface }) => surface;
+
+export const selectEntities = ({ entities }) => entities;
+
+export const selectEntityList = ({ entities }) => Object.values(entities);
+
+export const selectActiveEntityId = ({ activeEntityId }) => activeEntityId;

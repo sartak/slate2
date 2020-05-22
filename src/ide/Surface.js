@@ -4,7 +4,7 @@ import { commitSurfaceTransformAction } from './project/actions';
 import { rendererForType } from './renderer';
 import { TransformComponentId } from './components/transform';
 import { usePreflight } from './preflight';
-import { selectRenderer, selectSurface, selectActiveEntityIndex } from './project/selectors';
+import { selectRenderer, selectSurface, selectActiveEntityId } from './project/selectors';
 import { useLiveEntityComponentValues } from './preflight/useLiveEntityComponentValues';
 import * as liveCallbackModes from './preflight/live-entity-values';
 
@@ -14,7 +14,7 @@ export const Surface = () => {
   const preflight = usePreflight();
   const rendererType = useSelector(selectRenderer);
   const surfaceOpts = useSelector(selectSurface, shallowEqual);
-  const activeEntityIndex = useSelector(selectActiveEntityIndex);
+  const activeEntityId = useSelector(selectActiveEntityId);
 
   const rendererRef = useRef(null);
   const surfaceRef = useRef(null);
@@ -94,7 +94,7 @@ export const Surface = () => {
         break;
       }
     }
-  }, activeEntityIndex, TransformComponentId);
+  }, activeEntityId, TransformComponentId);
 
   return (
     <div className="Surface" ref={setSurfaceRefCallback} />

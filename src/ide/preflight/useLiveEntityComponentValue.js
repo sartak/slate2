@@ -4,32 +4,32 @@ import { makeSelectEntityComponentValue } from '../project/selectors';
 import { usePreflight } from '../preflight';
 import { DESIGN_TIME } from '../preflight/live-entity-values';
 
-export const useLiveEntityComponentValue = (originalCallback, entityIndex, componentId, fieldId) => {
-  const callback = useCallback(originalCallback, [entityIndex, componentId, fieldId]);
-  const fieldValue = useSelector(makeSelectEntityComponentValue(entityIndex, componentId, fieldId));
+export const useLiveEntityComponentValue = (originalCallback, entityId, componentId, fieldId) => {
+  const callback = useCallback(originalCallback, [entityId, componentId, fieldId]);
+  const fieldValue = useSelector(makeSelectEntityComponentValue(entityId, componentId, fieldId));
 
   const preflight = usePreflight();
 
   useEffect(() => {
-    if (entityIndex === -1) {
+    if (entityId === null) {
       return;
     }
 
-    const unsubscribe = preflight.subscribeToLiveEntityValue(callback, entityIndex, componentId, fieldId);
+    const unsubscribe = preflight.subscribeToLiveEntityValue(callback, entityId, componentId, fieldId);
     return unsubscribe;
-  }, [callback, entityIndex, componentId, fieldId]);
+  }, [callback, entityId, componentId, fieldId]);
 
   useEffect(() => {
-    if (entityIndex === -1) {
+    if (entityId === null) {
       return;
     }
 
     callback(DESIGN_TIME, fieldValue);
-  }, [callback, entityIndex, componentId, fieldId, fieldValue]);
+  }, [callback, entityId, componentId, fieldId, fieldValue]);
 
-  if (entityIndex === -1) {
-    return () => console.error('No entityIndex');
+  if (entityId === null) {
+    return () => console.error('No entityId');
   }
 
-  return (value) => preflight.changeEntityComponentValue(entityIndex, componentId, fieldId, value);
+  return (value) => preflight.changeEntityComponentValue(entityId, componentId, fieldId, value);
 };

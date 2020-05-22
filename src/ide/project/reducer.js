@@ -4,7 +4,7 @@ export const CREATE_PROJECT = 'CREATE_PROJECT';
 export const LOAD_PROJECT = 'LOAD_PROJECT';
 export const SET_RENDERER = 'SET_RENDERER';
 export const ADD_ENTITY = 'ADD_ENTITY';
-export const SET_ACTIVE_ENTITY_INDEX = 'SET_ACTIVE_ENTITY_INDEX';
+export const SET_ACTIVE_ENTITY_ID = 'SET_ACTIVE_ENTITY_ID';
 export const COMMIT_SURFACE_TRANSFORM = 'COMMIT_SURFACE_TRANSFORM';
 export const CHANGE_ENTITY_COMPONENT_VALUE = 'CHANGE_ENTITY_COMPONENT_VALUE';
 export const ADD_COMPONENT_TO_ENTITY = 'ADD_COMPONENT_TO_ENTITY';
@@ -30,21 +30,26 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_ENTITY: {
+      const { nextEntityId: id } = state;
+
       return {
         ...state,
-        nextEntityId: 1 + state.nextEntityId,
-        activeEntityIndex: state.entities.length,
-        entities: [
+        nextEntityId: 1 + id,
+        activeEntityId: id,
+        entities: {
           ...state.entities,
-          { ...action.entity, id: state.nextEntityId },
-        ],
+          [id]: {
+            ...action.entity,
+            id,
+          },
+        },
       };
     }
 
-    case SET_ACTIVE_ENTITY_INDEX: {
+    case SET_ACTIVE_ENTITY_ID: {
       return {
         ...state,
-        activeEntityIndex: action.index,
+        activeEntityId: action.id,
       };
     }
 
@@ -56,48 +61,51 @@ export const projectReducer = (state = null, action) => {
     }
 
     case CHANGE_ENTITY_COMPONENT_VALUE: {
-      const {entityIndex, componentId, fieldId, value} = action;
+      const { entityId, componentId, fieldId, value } = action;
+      const entity = state.entities[entityId];
+      const { componentConfig } = entity;
+      const { values } = componentConfig[componentId];
 
       return {
         ...state,
-        entities: state.entities.map((entity, i) => {
-          if (i !== entityIndex) {
-            return entity;
-          }
-          return {
+        entities: {
+          ...state.entities,
+          [entityId]: {
             ...entity,
             componentConfig: {
-              ...entity.componentConfig,
+              ...componentConfig,
               [componentId]: {
-                ...entity.componentConfig[componentId],
+                ...componentConfig[componentId],
                 values: {
-                  ...entity.componentConfig[componentId].values,
+                  ...values,
                   [fieldId]: value,
                 },
               },
             },
-          };
-        }),
+          },
+        },
       };
     }
 
     case ADD_COMPONENT_TO_ENTITY: {
-      const { entityIndex, entityComponent } = action;
+      const { id: entityId, entityComponent } = action;
+      const { id: entityComponentId } = entityComponent;
+      const entity = state.entities[entityId];
+      const { componentIds, componentConfig } = entity;
+
       return {
         ...state,
-        entities: state.entities.map((entity, i) => {
-          if (i !== entityIndex) {
-            return entity;
-          }
-          return {
+        entities: {
+          ...state.entities,
+          [entityId]: {
             ...entity,
-            componentIds: [...entity.componentIds, entityComponent.id],
+            componentIds: [...componentIds, entityComponentId],
             componentConfig: {
-              ...entity.componentConfig,
-              [entityComponent.id]: entityComponent,
+              ...componentConfig,
+              [entityComponentId]: entityComponent,
             },
-          };
-        }),
+          },
+        },
       };
     }
 

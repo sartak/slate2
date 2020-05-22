@@ -1,12 +1,11 @@
 import { assembleInlineSystemCall } from './inline';
 import { canonicalizeValue, zeroValueForType } from '../types';
-import { selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
+import { selectEntityList, selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 
 export const prepareEntities = (project, ctx) => {
   const { entityMap, entityObjects } = ctx;
-  const { entities } = project;
 
-  entities.forEach((entity, i) => {
+  selectEntityList(project).forEach((entity, i) => {
     entityObjects.push(entity);
     entityMap[entity.id] = {
       entity,

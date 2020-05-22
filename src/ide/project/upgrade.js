@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 14;
+export const currentVersion = 15;
 
 export const newProject = () => {
   return {
@@ -11,9 +11,9 @@ export const newProject = () => {
     width: 800,
     height: 600,
 
-    entities: [],
+    entities: {},
     nextEntityId: 1,
-    activeEntityIndex: -1,
+    activeEntityId: null,
 
     userDefinedSystems: {},
     nextUserDefinedSystemId: 1,
@@ -154,6 +154,21 @@ export const upgradeProject = (project) => {
     project.userDefinedComponents = {};
     project.nextUserDefinedComponentId = 1;
     project.activeComponentId = null;
+  }
+
+  if (project.version < 15) {
+    const entities = {};
+    let activeEntityId = null;
+
+    project.entities.forEach((entity, i) => {
+      entities[entity.id] = entity;
+      if (project.activeEntityIndex === i) {
+        activeEntityId = entity.id;
+      }
+    });
+
+    project.entities = entities;
+    project.activeEntityId = activeEntityId;
   }
 
   project.version = currentVersion;

@@ -4,26 +4,26 @@ import { makeSelectEntityComponents } from '../project/selectors';
 import { usePreflight } from '../preflight';
 import { DESIGN_TIME } from '../preflight/live-entity-values';
 
-export const useLiveEntityComponentValues = (originalCallback, entityIndex, ...componentIds) => {
-  const callback = useCallback(originalCallback, [entityIndex, ...componentIds]);
-  const entityComponents = useSelector(makeSelectEntityComponents(entityIndex, componentIds), shallowEqual);
+export const useLiveEntityComponentValues = (originalCallback, entityId, ...componentIds) => {
+  const callback = useCallback(originalCallback, [entityId, ...componentIds]);
+  const entityComponents = useSelector(makeSelectEntityComponents(entityId, componentIds), shallowEqual);
 
   const preflight = usePreflight();
 
   useEffect(() => {
-    if (entityIndex === -1) {
+    if (entityId === null) {
       return;
     }
 
-    const unsubscribe = preflight.subscribeToLiveEntityValues(callback, entityIndex, componentIds);
+    const unsubscribe = preflight.subscribeToLiveEntityValues(callback, entityId, componentIds);
     return unsubscribe;
-  }, [callback, entityIndex, ...componentIds]);
+  }, [callback, entityId, ...componentIds]);
 
   useEffect(() => {
-    if (entityIndex === -1) {
+    if (entityId === null) {
       return;
     }
 
     callback(DESIGN_TIME, ...entityComponents.map(({ values }) => values));
-  }, [callback, entityIndex, entityComponents]);
+  }, [callback, entityId, entityComponents]);
 };

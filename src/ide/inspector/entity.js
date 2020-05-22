@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { addComponentToEntityAction } from '../project/actions';
-import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntityByIndex } from '../project/selectors';
+import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
 
-const InspectEntityComponentValue = ({ entityIndex, component, field }) => {
+const InspectEntityComponentValue = ({ entityId, component, field }) => {
   const fieldRef = useRef(null);
 
   const { id: componentId } = component;
@@ -13,7 +13,7 @@ const InspectEntityComponentValue = ({ entityIndex, component, field }) => {
 
   const setComponentValue = useLiveEntityComponentValue((mode, value) => {
     fieldRef.current?.setValueUnlessFocused(value);
-  }, entityIndex, componentId, fieldId);
+  }, entityId, componentId, fieldId);
 
   const Editor = editorForType(type);
 
@@ -29,7 +29,7 @@ const InspectEntityComponentValue = ({ entityIndex, component, field }) => {
   );
 };
 
-const InspectEntityComponent = ({ entityIndex, componentId }) => {
+const InspectEntityComponent = ({ entityId, componentId }) => {
   const component = useSelector(makeSelectComponentWithId(componentId));
   const { fields, label: componentLabel } = component;
 
@@ -40,7 +40,7 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
         {fields.map((field) => (
           <InspectEntityComponentValue
             key={field.id}
-            entityIndex={entityIndex}
+            entityId={entityId}
             component={component}
             field={field}
           />
@@ -50,13 +50,13 @@ const InspectEntityComponent = ({ entityIndex, componentId }) => {
   );
 };
 
-const AddComponentToEntity = ({ entityIndex, entity, enabledComponents }) => {
+const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
   const dispatch = useDispatch();
   const [isAdding, setAdding] = useState(false);
 
   useEffect(() => {
     setAdding(false);
-  }, [entityIndex]);
+  }, [entityId]);
 
   if (!isAdding) {
     return (
@@ -65,7 +65,7 @@ const AddComponentToEntity = ({ entityIndex, entity, enabledComponents }) => {
   }
 
   const addComponent = (component) => {
-    dispatch(addComponentToEntityAction(entityIndex, component.makeEntityComponent()));
+    dispatch(addComponentToEntityAction(entityId, component.makeEntityComponent()));
     setAdding(false);
   };
 
@@ -86,9 +86,9 @@ const AddComponentToEntity = ({ entityIndex, entity, enabledComponents }) => {
   );
 };
 
-export const InspectEntity = ({ entityIndex }) => {
+export const InspectEntity = ({ entityId }) => {
   const entity = useSelector(
-    makeSelectEntityByIndex(entityIndex),
+    makeSelectEntity(entityId),
     (prev, next) => shallowEqual(
       Object.keys(prev.componentConfig),
       Object.keys(next.componentConfig),
@@ -103,7 +103,7 @@ export const InspectEntity = ({ entityIndex }) => {
         {entity.componentIds.map((id) => (
           <li key={id}>
             <InspectEntityComponent
-              entityIndex={entityIndex}
+              entityId={entityId}
               componentId={id}
             />
           </li>
@@ -111,7 +111,7 @@ export const InspectEntity = ({ entityIndex }) => {
       </ul>
       <div className="controls">
         <AddComponentToEntity
-          entityIndex={entityIndex}
+          entityId={entityId}
           entity={entity}
           enabledComponents={enabledComponents}
         />
