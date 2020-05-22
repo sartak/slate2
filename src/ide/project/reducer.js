@@ -14,6 +14,8 @@ export const SET_ACTIVE_SYSTEM = 'SET_ACTIVE_SYSTEM';
 export const ADD_USER_DEFINED_COMPONENT = 'ADD_USER_DEFINED_COMPONENT';
 export const SET_ACTIVE_COMPONENT = 'SET_ACTIVE_COMPONENT';
 export const SET_ENTITY_LABEL = 'SET_ENTITY_LABEL';
+export const SET_USER_DEFINED_COMPONENT_LABEL = 'SET_USER_DEFINED_COMPONENT_LABEL';
+export const SET_USER_DEFINED_SYSTEM_LABEL = 'SET_USER_DEFINED_SYSTEM_LABEL';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -198,6 +200,40 @@ export const projectReducer = (state = null, action) => {
           ...entities,
           [id]: {
             ...entity,
+            label,
+          },
+        },
+      };
+    }
+
+    case SET_USER_DEFINED_COMPONENT_LABEL: {
+      const { id, label } = action;
+      const { userDefinedComponents } = state;
+      const component = userDefinedComponents[id];
+
+      return {
+        ...state,
+        userDefinedComponents: {
+          ...userDefinedComponents,
+          [id]: {
+            ...component,
+            label,
+          },
+        },
+      };
+    }
+
+    case SET_USER_DEFINED_SYSTEM_LABEL: {
+      const { id, label } = action;
+      const { userDefinedSystems } = state;
+      const system = userDefinedSystems[id];
+
+      return {
+        ...state,
+        userDefinedSystems: {
+          ...userDefinedSystems,
+          [id]: {
+            ...system,
             label,
           },
         },

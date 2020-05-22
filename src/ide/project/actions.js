@@ -55,3 +55,11 @@ export const setActiveComponentAction = (id) => {
 export const setEntityLabelAction = (id, label) => {
   return { type: t.SET_ENTITY_LABEL, id, label };
 };
+
+export const setUserDefinedComponentLabelAction = (id, label) => {
+  return { type: t.SET_USER_DEFINED_COMPONENT_LABEL, id, label };
+};
+
+export const setUserDefinedSystemLabelAction = (id, label) => {
+  return { type: t.SET_USER_DEFINED_SYSTEM_LABEL, id, label };
+};
