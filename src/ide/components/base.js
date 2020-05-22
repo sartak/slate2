@@ -2,6 +2,7 @@ export class BaseComponent {
   id = null;
   label = null;
   fields = [];
+  userDefined = false;
 
   fieldWithId(target) {
     return this.fields.find(({ id }) => id === target);

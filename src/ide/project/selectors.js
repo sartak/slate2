@@ -7,14 +7,6 @@ export const makeSelectEntity = (id) => {
   return ({ entities }) => entities[id];
 };
 
-export const selectEnabledComponents = (state) => {
-  return BuiltinComponents;
-};
-
-export const selectEnabledSystems = (state) => {
-  return BuiltinSystems;
-};
-
 export const makeSelectComponentWithId = (componentId) => {
   return (state) => lookupComponentWithId(state, componentId);
 };
@@ -51,6 +43,26 @@ export const selectSurface = ({ surface }) => surface;
 export const selectEntities = ({ entities }) => entities;
 
 export const selectEntityList = ({ entities }) => Object.values(entities);
+
+export const selectAvailableComponentsList = (state) => {
+  const { userDefinedComponents } = state;
+  return [
+    ...BuiltinComponents,
+    ...Object.keys(userDefinedComponents).map((id) => lookupComponentWithId(state, id)),
+  ];
+};
+
+export const selectAvailableSystemsList = (state) => {
+  const { userDefinedSystems } = state;
+  return [
+    ...BuiltinSystems,
+    ...Object.keys(userDefinedSystems).map((id) => lookupSystemWithId(state, id)),
+  ];
+};
+
+export const selectEnabledComponents = selectAvailableComponentsList;
+
+export const selectEnabledSystems = selectAvailableSystemsList;
 
 export const selectActiveEntityId = ({ activeEntityId }) => activeEntityId;
 

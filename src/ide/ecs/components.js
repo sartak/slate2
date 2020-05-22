@@ -2,6 +2,7 @@ import { TransformComponent } from '../components/transform';
 import { MotionComponent } from '../components/motion';
 import { JoystickComponent } from '../components/joystick';
 import { RenderRectangleComponent } from '../components/render-rectangle';
+import { UserDefinedComponent } from '../components/user-defined';
 
 export const BuiltinComponents = [
   new TransformComponent,
@@ -24,7 +25,9 @@ BuiltinComponents.forEach((component) => {
 
 export const lookupComponentWithId = (project, componentId) => {
   if (!selectComponentWithIdMemo[componentId]) {
-    // construct UserDefinedComponent from project
+    const config = project.userDefinedComponents[componentId];
+    const component = new UserDefinedComponent(config);
+    selectComponentWithIdMemo[componentId] = component;
   }
   return selectComponentWithIdMemo[componentId];
 };

@@ -1,6 +1,7 @@
 import { MovementSystem } from '../systems/movement';
 import { RenderSystem } from '../systems/render';
 import { KeyboardInputSystem } from '../systems/keyboard-input';
+import { UserDefinedSystem } from '../systems/user-defined';
 
 import MovementSource from '!!raw-loader!../systems/movement';
 import RenderSource from '!!raw-loader!../systems/render';
@@ -30,7 +31,9 @@ BuiltinSystems.forEach((system) => {
 
 export const lookupSystemWithId = (project, systemId) => {
   if (!selectSystemWithIdMemo[systemId]) {
-    // construct UserDefinedSystem from project
+    const config = project.userDefinedSystems[systemId];
+    const system = new UserDefinedSystem(config);
+    selectSystemWithIdMemo[systemId] = system;
   }
   return selectSystemWithIdMemo[systemId];
 };
