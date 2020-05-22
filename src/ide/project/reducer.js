@@ -4,7 +4,7 @@ export const CREATE_PROJECT = 'CREATE_PROJECT';
 export const LOAD_PROJECT = 'LOAD_PROJECT';
 export const SET_RENDERER = 'SET_RENDERER';
 export const ADD_ENTITY = 'ADD_ENTITY';
-export const SELECT_ENTITY_INDEX = 'SELECT_ENTITY_INDEX';
+export const SET_ACTIVE_ENTITY_INDEX = 'SET_ACTIVE_ENTITY_INDEX';
 export const COMMIT_SURFACE_TRANSFORM = 'COMMIT_SURFACE_TRANSFORM';
 export const CHANGE_ENTITY_COMPONENT_VALUE = 'CHANGE_ENTITY_COMPONENT_VALUE';
 export const ADD_COMPONENT_TO_ENTITY = 'ADD_COMPONENT_TO_ENTITY';
@@ -41,7 +41,7 @@ export const projectReducer = (state = null, action) => {
       };
     }
 
-    case SELECT_ENTITY_INDEX: {
+    case SET_ACTIVE_ENTITY_INDEX: {
       return {
         ...state,
         activeEntityIndex: action.index,

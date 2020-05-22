@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addEntityAction, selectEntityIndexAction } from './project/actions';
+import { addEntityAction, setActiveEntityIndex } from './project/actions';
 import { newEntity } from './ecs/entities';
 import { selectEntities, selectActiveEntityIndex } from './project/selectors';
 import './entity-list.less';
@@ -24,7 +24,7 @@ export const EntityList = () => {
             <li
               key={entity.id}
               className={activeEntityIndex === i ? "active" : null}
-              onClick={() => dispatch(selectEntityIndexAction(i))}
+              onClick={() => dispatch(setActiveEntityIndex(i))}
             >Entity {entity.id}</li>
           );
         })}

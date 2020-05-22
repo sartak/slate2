@@ -16,8 +16,8 @@ export const addEntityAction = (entity) => {
   return { type: t.ADD_ENTITY, entity };
 };
 
-export const selectEntityIndexAction = (index) => {
-  return { type: t.SELECT_ENTITY_INDEX, index };
+export const setActiveEntityIndex = (index) => {
+  return { type: t.SET_ACTIVE_ENTITY_INDEX, index };
 };
 
 export const commitSurfaceTransformAction = (surface) => {
