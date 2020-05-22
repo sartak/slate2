@@ -15,6 +15,7 @@ export const newUserDefinedComponent = () => {
   return {
     id: null, // to be filled in by caller
     label: null, // to be filled in by caller
+    fields: [],
   };
 };
 
