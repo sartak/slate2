@@ -13,6 +13,7 @@ export const newEntity = (x, y) => {
 
   return {
     id: null, // to be filled in by caller
+    label: 'Entity',
 
     componentIds: [TransformComponentId, RenderRectangleComponentId],
     componentConfig: {

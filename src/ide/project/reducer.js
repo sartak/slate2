@@ -11,6 +11,7 @@ export const ADD_COMPONENT_TO_ENTITY = 'ADD_COMPONENT_TO_ENTITY';
 export const PREFLIGHT_RUNNING = 'PREFLIGHT_RUNNING';
 export const ADD_USER_DEFINED_SYSTEM = 'ADD_USER_DEFINED_SYSTEM';
 export const ADD_USER_DEFINED_COMPONENT = 'ADD_USER_DEFINED_COMPONENT';
+export const SET_ENTITY_LABEL = 'SET_ENTITY_LABEL';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -145,6 +146,22 @@ export const projectReducer = (state = null, action) => {
           [id]: {
             ...action.component,
             id,
+          },
+        },
+      };
+    }
+
+    case SET_ENTITY_LABEL: {
+      const { id, label } = action;
+      const entity = state.entities[id];
+
+      return {
+        ...state,
+        entities: {
+          ...state.entities,
+          [id]: {
+            ...entity,
+            label,
           },
         },
       };

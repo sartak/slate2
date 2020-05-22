@@ -43,3 +43,7 @@ export const addUserDefinedSystem = (system) => {
 export const addUserDefinedComponent = (component) => {
   return { type: t.ADD_USER_DEFINED_COMPONENT, component };
 };
+
+export const setEntityLabel = (id, label) => {
+  return { type: t.SET_ENTITY_LABEL, id, label };
+};

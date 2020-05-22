@@ -10,8 +10,8 @@ export const EntityList = () => {
   const entities = useSelector(
     selectEntityList,
     (prev, next) => prev === next || shallowEqual(
-      prev.map(({ id }) => id),
-      next.map(({ id }) => id),
+      prev.map(({ label }) => label),
+      next.map(({ label }) => label),
     ),
   );
   const activeEntityId = useSelector(selectActiveEntityId);
@@ -20,13 +20,13 @@ export const EntityList = () => {
     <div className="EntityList">
       <ul>
         {entities.map((entity) => {
-          const { id } = entity;
+          const { id, label } = entity;
           return (
             <li
               key={id}
               className={activeEntityId === id ? "active" : null}
               onClick={() => dispatch(setActiveEntityId(id))}
-            >Entity {id}</li>
+            >{label}</li>
           );
         })}
       </ul>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addComponentToEntityAction } from '../project/actions';
+import { addComponentToEntityAction, setEntityLabel } from '../project/actions';
 import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
@@ -86,6 +86,26 @@ const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
   );
 };
 
+export const InspectEntityLabel = ({ entityId }) => {
+  const dispatch = useDispatch();
+  const entity = useSelector(
+    makeSelectEntity(entityId),
+    (prev, next) => prev.label === next.label,
+  );
+
+  const setLabel = (label) => dispatch(setEntityLabel(entityId, label));
+
+  return (
+    <div className="InspectEntityLabel">
+      <input
+        type="text"
+        value={entity.label}
+        onChange={({ target }) => setLabel(target.value)}
+      />
+    </div>
+  );
+};
+
 export const InspectEntity = ({ entityId }) => {
   const entity = useSelector(
     makeSelectEntity(entityId),
@@ -99,6 +119,7 @@ export const InspectEntity = ({ entityId }) => {
 
   return (
     <div className="InspectEntity">
+      <InspectEntityLabel entityId={entityId} />
       <ul className="components">
         {entity.componentIds.map((id) => (
           <li key={id}>

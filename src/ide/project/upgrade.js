@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 15;
+export const currentVersion = 16;
 
 export const newProject = () => {
   return {
@@ -169,6 +169,12 @@ export const upgradeProject = (project) => {
 
     project.entities = entities;
     project.activeEntityId = activeEntityId;
+  }
+
+  if (project.version < 16) {
+    Object.values(project.entities).forEach((entity) => {
+      entity.label = 'Entity';
+    });
   }
 
   project.version = currentVersion;
