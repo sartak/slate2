@@ -4,6 +4,7 @@ import { addComponentToEntityAction, setEntityLabel } from '../project/actions';
 import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
+import { TextControlled } from '../field/text-controlled';
 
 const InspectEntityComponentValue = ({ entityId, component, field }) => {
   const fieldRef = useRef(null);
@@ -87,7 +88,6 @@ const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
 };
 
 export const InspectEntityLabel = ({ entityId }) => {
-  const [isFakeEmpty, setFakeEmpty] = useState(false);
   const dispatch = useDispatch();
   const entity = useSelector(
     makeSelectEntity(entityId),
@@ -95,31 +95,15 @@ export const InspectEntityLabel = ({ entityId }) => {
   );
 
   const { label } = entity;
-
   const defaultValue = "Entity";
   const setLabel = (label) => dispatch(setEntityLabel(entityId, label));
 
   return (
     <div className="InspectEntityLabel">
-      <input
-        type="text"
-        value={isFakeEmpty ? "" : label}
-        placeholder={defaultValue}
-        onChange={({ target }) => {
-          if (target.value === "") {
-            setFakeEmpty(true);
-            setLabel(defaultValue);
-          } else {
-            setFakeEmpty(false);
-            setLabel(target.value);
-          }
-        }}
-        onBlur={({ target }) => {
-          if (target.value === "") {
-            target.value = defaultValue;
-            setLabel(target.value);
-          }
-        }}
+      <TextControlled
+        value={label}
+        defaultValue={defaultValue}
+        onChange={setLabel}
       />
     </div>
   );
