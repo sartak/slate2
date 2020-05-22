@@ -187,6 +187,7 @@ export const assembleEntities = (project, ctx) => {
   const { entitiesVar, entityMap, entityObjects } = ctx;
   const indexes = entityObjects.map(({ id }) => entityMap[id].index);
   return [
+    ...entityObjects.map(({ label, id }) => `// ${entityMap[id].index}: ${label}`),
     `const ${entitiesVar} = [${indexes.join(', ')}];`,
   ];
 };
