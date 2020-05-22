@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { addComponentToEntityAction, setEntityLabelAction } from '../project/actions';
-import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
+import { selectEnabledComponents, makeSelectComponent, makeSelectEntity } from '../project/selectors';
 import { useSelectorLazy } from '../project/useSelectorLazy';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
@@ -32,7 +32,7 @@ const InspectEntityComponentValue = ({ entityId, component, field }) => {
 };
 
 const InspectEntityComponent = React.memo(({ entityId, componentId }) => {
-  const component = useSelector(makeSelectComponentWithId(componentId));
+  const component = useSelector(makeSelectComponent(componentId));
   const { fields, label: componentLabel } = component;
 
   return (

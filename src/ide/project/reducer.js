@@ -33,13 +33,13 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_ENTITY: {
-      const { nextEntityId: id } = state;
+      const { nextEntityId: id, entities } = state;
 
       return {
         ...state,
         nextEntityId: 1 + id,
         entities: {
-          ...state.entities,
+          ...entities,
           [id]: {
             ...action.entity,
             id,
@@ -89,14 +89,15 @@ export const projectReducer = (state = null, action) => {
 
     case CHANGE_ENTITY_COMPONENT_VALUE: {
       const { entityId, componentId, fieldId, value } = action;
-      const entity = state.entities[entityId];
+      const { entities } = state;
+      const entity = entities[entityId];
       const { componentConfig } = entity;
       const { values } = componentConfig[componentId];
 
       return {
         ...state,
         entities: {
-          ...state.entities,
+          ...entities,
           [entityId]: {
             ...entity,
             componentConfig: {
@@ -117,13 +118,14 @@ export const projectReducer = (state = null, action) => {
     case ADD_COMPONENT_TO_ENTITY: {
       const { id: entityId, entityComponent } = action;
       const { id: entityComponentId } = entityComponent;
-      const entity = state.entities[entityId];
+      const { entities } = state;
+      const entity = entities[entityId];
       const { componentIds, componentConfig } = entity;
 
       return {
         ...state,
         entities: {
-          ...state.entities,
+          ...entities,
           [entityId]: {
             ...entity,
             componentIds: [...componentIds, entityComponentId],
@@ -144,13 +146,13 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_USER_DEFINED_SYSTEM: {
-      const { nextUserDefinedSystemId: id } = state;
+      const { nextUserDefinedSystemId: id, userDefinedSystems } = state;
 
       return {
         ...state,
         nextUserDefinedSystemId: 1 + id,
         userDefinedSystems: {
-          ...state.userDefinedSystems,
+          ...userDefinedSystems,
           [id]: {
             ...action.system,
             id,
@@ -165,13 +167,13 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_USER_DEFINED_COMPONENT: {
-      const { nextUserDefinedComponentId: id } = state;
+      const { nextUserDefinedComponentId: id, userDefinedComponents } = state;
 
       return {
         ...state,
         nextUserDefinedComponentId: 1 + id,
         userDefinedComponents: {
-          ...state.userDefinedComponents,
+          ...userDefinedComponents,
           [id]: {
             ...action.component,
             id,
@@ -187,12 +189,13 @@ export const projectReducer = (state = null, action) => {
 
     case SET_ENTITY_LABEL: {
       const { id, label } = action;
-      const entity = state.entities[id];
+      const { entities } = state;
+      const entity = entities[id];
 
       return {
         ...state,
         entities: {
-          ...state.entities,
+          ...entities,
           [id]: {
             ...entity,
             label,

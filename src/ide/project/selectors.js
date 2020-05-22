@@ -7,12 +7,12 @@ export const makeSelectEntity = (id) => {
   return ({ entities }) => entities[id];
 };
 
-export const makeSelectComponentWithId = (componentId) => {
-  return (state) => lookupComponentWithId(state, componentId);
+export const makeSelectComponent = (id) => {
+  return (state) => lookupComponentWithId(state, id);
 };
 
-export const makeSelectSystemWithId = (systemId) => {
-  return (state) => lookupSystemWithId(state, systemId);
+export const makeSelectSystem = (id) => {
+  return (state) => lookupSystemWithId(state, id);
 };
 
 export const makeSelectEntityComponentValue = (entityId, componentId, fieldId) => {
