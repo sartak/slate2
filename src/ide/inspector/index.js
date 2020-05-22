@@ -9,7 +9,7 @@ export const Inspector = () => {
 
   return (
     <div className="Inspector">
-      {type === "Entity" && <InspectEntity entityId={id} />}
+      {type === "Entity" && <InspectEntity id={id} />}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { addComponentToEntityAction, setEntityLabelAction } from '../project/actions';
 import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
+import { useSelectorLazy } from '../project/useSelectorLazy';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
 import { TextControlled } from '../field/text-controlled';
@@ -30,7 +31,7 @@ const InspectEntityComponentValue = ({ entityId, component, field }) => {
   );
 };
 
-const InspectEntityComponent = ({ entityId, componentId }) => {
+const InspectEntityComponent = React.memo(({ entityId, componentId }) => {
   const component = useSelector(makeSelectComponentWithId(componentId));
   const { fields, label: componentLabel } = component;
 
@@ -49,15 +50,17 @@ const InspectEntityComponent = ({ entityId, componentId }) => {
       </ul>
     </div>
   );
-};
+});
 
-const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
+const AddComponentToEntity = ({ id }) => {
   const dispatch = useDispatch();
   const [isAdding, setAdding] = useState(false);
+  const enabledComponentsLazy = useSelectorLazy(selectEnabledComponents);
+  const entityLazy = useSelectorLazy(makeSelectEntity(id));
 
   useEffect(() => {
     setAdding(false);
-  }, [entityId]);
+  }, [id]);
 
   if (!isAdding) {
     return (
@@ -65,8 +68,11 @@ const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
     );
   }
 
+  const enabledComponents = enabledComponentsLazy();
+  const entity = entityLazy();
+
   const addComponent = (component) => {
-    dispatch(addComponentToEntityAction(entityId, component.makeEntityComponent()));
+    dispatch(addComponentToEntityAction(id, component.makeEntityComponent()));
     setAdding(false);
   };
 
@@ -87,57 +93,51 @@ const AddComponentToEntity = ({ entityId, entity, enabledComponents }) => {
   );
 };
 
-export const InspectEntityLabel = ({ entityId }) => {
+export const InspectEntityLabel = ({ id }) => {
   const dispatch = useDispatch();
   const entity = useSelector(
-    makeSelectEntity(entityId),
+    makeSelectEntity(id),
     (prev, next) => prev.label === next.label,
   );
 
-  const { label, id: defaultValue } = entity;
-  const setLabel = (label) => dispatch(setEntityLabelAction(entityId, label));
+  const { label } = entity;
+  const setLabel = (label) => dispatch(setEntityLabelAction(id, label));
 
   return (
     <div className="InspectEntityLabel">
       <TextControlled
         value={label}
-        defaultValue={defaultValue}
+        defaultValue={`Entity${id}`}
         onChange={setLabel}
       />
     </div>
   );
 };
 
-export const InspectEntity = ({ entityId }) => {
+export const InspectEntity = ({ id }) => {
   const entity = useSelector(
-    makeSelectEntity(entityId),
+    makeSelectEntity(id),
     (prev, next) => shallowEqual(
       Object.keys(prev.componentConfig),
       Object.keys(next.componentConfig),
     ),
   );
 
-  const enabledComponents = useSelector(selectEnabledComponents);
-
   return (
     <div className="InspectEntity">
-      <InspectEntityLabel entityId={entityId} />
+      <InspectEntityLabel id={id} />
       <ul className="components">
-        {entity.componentIds.map((id) => (
-          <li key={id}>
+        {entity.componentIds.map((componentId) => (
+          <li key={componentId}>
             <InspectEntityComponent
-              entityId={entityId}
-              componentId={id}
+              entityId={id}
+              componentId={componentId}
             />
           </li>
         ))}
       </ul>
       <div className="controls">
-        <AddComponentToEntity
-          entityId={entityId}
-          entity={entity}
-          enabledComponents={enabledComponents}
-        />
+        <AddComponentToEntity id={id} />
       </div>
     </div>
   );
