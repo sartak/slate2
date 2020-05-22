@@ -1,18 +1,27 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 13;
+export const currentVersion = 14;
 
 export const newProject = () => {
   return {
     version: currentVersion,
     id: uuid(),
     renderer: 'canvas',
-    entities: [],
-    nextEntityId: 1,
-    activeEntityIndex: -1,
     preflightRunning: false,
     width: 800,
     height: 600,
+
+    entities: [],
+    nextEntityId: 1,
+    activeEntityIndex: -1,
+
+    userDefinedSystems: {},
+    nextUserDefinedSystemId: 1,
+    activeSystemId: null,
+
+    userDefinedComponents: {},
+    nextUserDefinedComponentId: 1,
+    activeComponentId: null,
 
     surface: {
       panX: 0,
@@ -135,6 +144,16 @@ export const upgradeProject = (project) => {
   if (project.version < 13) {
     project.activeEntityIndex = project.selectedEntityIndex;
     delete project.selectedEntityIndex;
+  }
+
+  if (project.version < 14) {
+    project.userDefinedSystems = {};
+    project.nextUserDefinedSystemId = 1;
+    project.activeSystemId = null;
+
+    project.userDefinedComponents = {};
+    project.nextUserDefinedComponentId = 1;
+    project.activeComponentId = null;
   }
 
   project.version = currentVersion;

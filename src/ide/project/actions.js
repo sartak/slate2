@@ -35,3 +35,11 @@ export const addComponentToEntityAction = (entityIndex, entityComponent) => {
 export const preflightRunningAction = (preflightRunning) => {
   return { type: t.PREFLIGHT_RUNNING, preflightRunning };
 };
+
+export const addUserDefinedSystem = (system) => {
+  return { type: t.ADD_USER_DEFINED_SYSTEM, system };
+};
+
+export const addUserDefinedComponent = (component) => {
+  return { type: t.ADD_USER_DEFINED_COMPONENT, component };
+};

@@ -15,3 +15,9 @@ export const BuiltinSystems = [
   new RenderSystem,
   new KeyboardInputSystem,
 ];
+
+export const newUserDefinedSystem = () => {
+  return {
+    id: null, // to be filled in by caller
+  };
+};

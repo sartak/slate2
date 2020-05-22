@@ -108,6 +108,40 @@ export const projectReducer = (state = null, action) => {
       };
     }
 
+    case ADD_USER_DEFINED_SYSTEM: {
+      const { nextUserDefinedSystemId: id } = state;
+
+      return {
+        ...state,
+        nextUserDefinedSystemId: 1 + id,
+        activeSystemId: id,
+        userDefinedSystems: {
+          ...state.userDefinedSystems,
+          [id]: {
+            ...action.system,
+            id,
+          },
+        },
+      };
+    }
+
+    case ADD_USER_DEFINED_COMPONENT: {
+      const { nextUserDefinedComponentId: id } = state;
+
+      return {
+        ...state,
+        nextUserDefinedComponentId: 1 + id,
+        activeComponentId: id,
+        userDefinedComponents: {
+          ...state.userDefinedComponents,
+          [id]: {
+            ...action.component,
+            id,
+          },
+        },
+      };
+    }
+
     default: {
       return state;
     }

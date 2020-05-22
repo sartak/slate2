@@ -9,3 +9,9 @@ export const BuiltinComponents = [
   new JoystickComponent,
   new RenderRectangleComponent,
 ];
+
+export const newUserDefinedComponent = () => {
+  return {
+    id: null, // to be filled in by caller
+  };
+};
