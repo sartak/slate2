@@ -16,6 +16,16 @@ export const newUserDefinedComponent = () => {
     id: null, // to be filled in by caller
     label: null, // to be filled in by caller
     fields: [],
+    nextFieldId: 1,
+  };
+};
+
+export const newUserDefinedField = () => {
+  return {
+    id: null, // to be filled in by caller
+    label: null, // to be filled in by caller
+    type: 'float',
+    defaultValue: 0,
   };
 };
 

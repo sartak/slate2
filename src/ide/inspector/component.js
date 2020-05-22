@@ -1,7 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserDefinedComponentLabelAction } from '../project/actions';
+import { setUserDefinedComponentLabelAction, addFieldToUserDefinedComponentAction } from '../project/actions';
 import { makeSelectComponent } from '../project/selectors';
+import { newUserDefinedField } from '../ecs/components';
 import { TextControlled } from '../field/text-controlled';
 
 export const InspectUserDefinedComponentLabel = ({ id }) => {
@@ -25,6 +26,14 @@ export const InspectUserDefinedComponentLabel = ({ id }) => {
   );
 };
 
+const AddFieldToComponent = ({ id }) => {
+  const dispatch = useDispatch();
+
+  const addField = () => dispatch(addFieldToUserDefinedComponentAction(id, newUserDefinedField()));
+
+  return <button onClick={addField}>Add Field</button>;
+};
+
 export const InspectComponent = ({ id }) => {
   const component = useSelector(makeSelectComponent(id));
 
@@ -37,6 +46,9 @@ export const InspectComponent = ({ id }) => {
       ) : (
         <div className="label">{component.label}</div>
       )}
+      <div className="controls">
+        { userDefined && <AddFieldToComponent id={id} /> }
+      </div>
     </div>
   );
 };

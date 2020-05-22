@@ -60,6 +60,10 @@ export const setUserDefinedComponentLabelAction = (id, label) => {
   return { type: t.SET_USER_DEFINED_COMPONENT_LABEL, id, label };
 };
 
+export const addFieldToUserDefinedComponentAction = (id, field) => {
+  return { type: t.ADD_FIELD_TO_USER_DEFINED_COMPONENT, id, field };
+};
+
 export const setUserDefinedSystemLabelAction = (id, label) => {
   return { type: t.SET_USER_DEFINED_SYSTEM_LABEL, id, label };
 };
