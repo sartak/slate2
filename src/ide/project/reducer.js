@@ -44,6 +44,7 @@ export const projectReducer = (state = null, action) => {
           [id]: {
             ...action.entity,
             id,
+            label: `Entity${id}`,
           },
         },
       };
@@ -151,6 +152,7 @@ export const projectReducer = (state = null, action) => {
           [id]: {
             ...action.system,
             id,
+            label: `System${id}`,
           },
         },
       };
@@ -168,6 +170,7 @@ export const projectReducer = (state = null, action) => {
           [id]: {
             ...action.component,
             id,
+            label: `Component${id}`,
           },
         },
       };

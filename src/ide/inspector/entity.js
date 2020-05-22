@@ -94,8 +94,7 @@ export const InspectEntityLabel = ({ entityId }) => {
     (prev, next) => prev.label === next.label,
   );
 
-  const { label } = entity;
-  const defaultValue = "Entity";
+  const { label, id: defaultValue } = entity;
   const setLabel = (label) => dispatch(setEntityLabelAction(entityId, label));
 
   return (
