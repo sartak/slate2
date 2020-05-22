@@ -36,8 +36,8 @@ const InspectEntityComponent = React.memo(({ entityId, componentId }) => {
   const { fields, label: componentLabel } = component;
 
   return (
-    <div className="InspectEntityComponent">
-      <div className="componentLabel">{componentLabel}</div>
+    <div className="InspectSubobject">
+      <div className="label">{componentLabel}</div>
       <ul>
         {fields.map((field) => (
           <InspectEntityComponentValue
@@ -104,7 +104,7 @@ export const InspectEntityLabel = ({ id }) => {
   const setLabel = (label) => dispatch(setEntityLabelAction(id, label));
 
   return (
-    <div className="InspectEntityLabel">
+    <div className="InspectLabel">
       <TextControlled
         value={label}
         defaultValue={`Entity${id}`}
@@ -124,9 +124,9 @@ export const InspectEntity = ({ id }) => {
   );
 
   return (
-    <div className="InspectEntity">
+    <div className="InspectObject">
       <InspectEntityLabel id={id} />
-      <ul className="components">
+      <ul>
         {entity.componentIds.map((componentId) => (
           <li key={componentId}>
             <InspectEntityComponent
