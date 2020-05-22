@@ -10,6 +10,11 @@ export const FloatingEditor = ({ close, ...props }) => {
         {...props}
         height={500}
         width={600}
+        commands={{
+          quit: close,
+          q: close,
+          wq: close,
+        }}
       />
     </div>
   );
