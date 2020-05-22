@@ -15,3 +15,15 @@ export const newUserDefinedComponent = () => {
     id: null, // to be filled in by caller
   };
 };
+
+const selectComponentWithIdMemo = {};
+BuiltinComponents.forEach((component) => {
+  selectComponentWithIdMemo[component.id] = component;
+});
+
+export const lookupComponentWithId = (project, componentId) => {
+  if (!selectComponentWithIdMemo[componentId]) {
+    // construct UserDefinedComponent from project
+  }
+  return selectComponentWithIdMemo[componentId];
+};

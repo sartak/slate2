@@ -21,3 +21,15 @@ export const newUserDefinedSystem = () => {
     id: null, // to be filled in by caller
   };
 };
+
+const selectSystemWithIdMemo = {};
+BuiltinSystems.forEach((system) => {
+  selectSystemWithIdMemo[system.id] = system;
+});
+
+export const lookupSystemWithId = (project, systemId) => {
+  if (!selectSystemWithIdMemo[systemId]) {
+    // construct UserDefinedSystem from project
+  }
+  return selectSystemWithIdMemo[systemId];
+};

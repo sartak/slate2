@@ -1,6 +1,6 @@
 import { TransformComponentId } from '../components/transform';
 import { RenderRectangleComponentId } from '../components/render-rectangle';
-import { lookupComponentWithId } from '../project/selectors';
+import { lookupComponentWithId } from './components';
 
 export const newEntity = (x, y) => {
   // @Cleanup: lookupComponentWithId takes a project in order to be able
@@ -21,4 +21,3 @@ export const newEntity = (x, y) => {
     },
   };
 };
-

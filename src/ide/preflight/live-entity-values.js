@@ -1,4 +1,5 @@
-import { makeSelectEntityComponents, makeSelectEntityComponentValue, lookupComponentWithId } from '../project/selectors';
+import { makeSelectEntityComponents, makeSelectEntityComponentValue } from '../project/selectors';
+import { lookupComponentWithId } from '../ecs/components';
 import { changeEntityComponentValueAction } from '../project/actions';
 import { canonicalizeValue } from '../types';
 
