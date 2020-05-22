@@ -3,7 +3,7 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { addEntityAction, setActiveEntityAction } from './project/actions';
 import { newEntity } from './ecs/entities';
 import { selectEntityList, selectActiveEntityId } from './project/selectors';
-import './entity-list.less';
+import './list-entities.less';
 
 export const EntityList = () => {
   const dispatch = useDispatch();
