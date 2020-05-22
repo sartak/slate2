@@ -38,7 +38,6 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         nextEntityId: 1 + id,
-        activeEntityId: id,
         entities: {
           ...state.entities,
           [id]: {
@@ -47,6 +46,10 @@ export const projectReducer = (state = null, action) => {
             label: `Entity${id}`,
           },
         },
+
+        activeEntityId: id,
+        activeComponentId: null,
+        activeSystemId: null,
       };
     }
 
@@ -146,7 +149,6 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         nextUserDefinedSystemId: 1 + id,
-        activeSystemId: id,
         userDefinedSystems: {
           ...state.userDefinedSystems,
           [id]: {
@@ -155,6 +157,10 @@ export const projectReducer = (state = null, action) => {
             label: `System${id}`,
           },
         },
+
+        activeEntityId: null,
+        activeSystemId: id,
+        activeComponentId: null,
       };
     }
 
@@ -164,7 +170,6 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         nextUserDefinedComponentId: 1 + id,
-        activeComponentId: id,
         userDefinedComponents: {
           ...state.userDefinedComponents,
           [id]: {
@@ -173,6 +178,10 @@ export const projectReducer = (state = null, action) => {
             label: `Component${id}`,
           },
         },
+
+        activeEntityId: null,
+        activeSystemId: null,
+        activeComponentId: id,
       };
     }
 
