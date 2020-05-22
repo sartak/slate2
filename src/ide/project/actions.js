@@ -16,8 +16,8 @@ export const addEntityAction = (entity) => {
   return { type: t.ADD_ENTITY, entity };
 };
 
-export const setActiveEntityId = (id) => {
-  return { type: t.SET_ACTIVE_ENTITY_ID, id };
+export const setActiveEntityAction = (id) => {
+  return { type: t.SET_ACTIVE_ENTITY, id };
 };
 
 export const commitSurfaceTransformAction = (surface) => {
@@ -36,14 +36,14 @@ export const preflightRunningAction = (preflightRunning) => {
   return { type: t.PREFLIGHT_RUNNING, preflightRunning };
 };
 
-export const addUserDefinedSystem = (system) => {
+export const addUserDefinedSystemAction = (system) => {
   return { type: t.ADD_USER_DEFINED_SYSTEM, system };
 };
 
-export const addUserDefinedComponent = (component) => {
+export const addUserDefinedComponentAction = (component) => {
   return { type: t.ADD_USER_DEFINED_COMPONENT, component };
 };
 
-export const setEntityLabel = (id, label) => {
+export const setEntityLabelAction = (id, label) => {
   return { type: t.SET_ENTITY_LABEL, id, label };
 };

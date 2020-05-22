@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addComponentToEntityAction, setEntityLabel } from '../project/actions';
+import { addComponentToEntityAction, setEntityLabelAction } from '../project/actions';
 import { selectEnabledComponents, makeSelectComponentWithId, makeSelectEntity } from '../project/selectors';
 import { editorForType } from '../types';
 import { useLiveEntityComponentValue } from '../preflight/useLiveEntityComponentValue';
@@ -96,7 +96,7 @@ export const InspectEntityLabel = ({ entityId }) => {
 
   const { label } = entity;
   const defaultValue = "Entity";
-  const setLabel = (label) => dispatch(setEntityLabel(entityId, label));
+  const setLabel = (label) => dispatch(setEntityLabelAction(entityId, label));
 
   return (
     <div className="InspectEntityLabel">
