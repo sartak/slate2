@@ -25,7 +25,7 @@ const prepareInstantiateGame = (project, ctx) => {
 
 const assembleImports = (project, ctx) => {
   if (ctx.preparedRenderer) {
-    ctx.imports.push([ctx.rendererClass, `renderer/${project.renderer}`, true]);
+    ctx.imports.push([ctx.rendererClass, `renderer/${ctx.renderer}`, true]);
   }
 
   if (ctx.preparedLoop) {

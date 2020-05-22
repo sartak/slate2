@@ -1,3 +1,5 @@
+import { selectRenderer } from '../project/selectors';
+
 export const newContext = (project, overrides = {}) => {
   const prefix = 'prefix' in overrides ? overrides.prefix : '__';
 
@@ -7,7 +9,8 @@ export const newContext = (project, overrides = {}) => {
     'webgpu': [`${prefix}ctx`],
   };
 
-  const renderVars = renderVarsForRenderer[project.renderer];
+  const renderer = selectRenderer(project);
+  const renderVars = renderVarsForRenderer[renderer];
 
   return {
     prefix,
@@ -26,6 +29,7 @@ export const newContext = (project, overrides = {}) => {
     gameClass: `${prefix}Game`,
     loopClass: `${prefix}Loop`,
 
+    renderer,
     rendererClass: `${prefix}Renderer`,
     rendererVar: `${prefix}renderer`,
     renderVars,

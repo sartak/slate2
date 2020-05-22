@@ -84,8 +84,7 @@ export const prepareComponents = (project, ctx) => {
 };
 
 export const prepareSystems = (project, ctx) => {
-  const { componentMap, systemMap, systemObjects, entityObjects } = ctx;
-  const { renderer } = project;
+  const { componentMap, systemMap, systemObjects, entityObjects, renderer } = ctx;
 
   selectEnabledSystems(project).forEach((system) => {
     const systemId = system.id;
