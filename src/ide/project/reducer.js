@@ -9,21 +9,26 @@ export const COMMIT_SURFACE_TRANSFORM = 'COMMIT_SURFACE_TRANSFORM';
 export const CHANGE_ENTITY_COMPONENT_VALUE = 'CHANGE_ENTITY_COMPONENT_VALUE';
 export const ADD_COMPONENT_TO_ENTITY = 'ADD_COMPONENT_TO_ENTITY';
 export const PREFLIGHT_RUNNING = 'PREFLIGHT_RUNNING';
+export const ADD_USER_DEFINED_SYSTEM = 'ADD_USER_DEFINED_SYSTEM';
+export const ADD_USER_DEFINED_COMPONENT = 'ADD_USER_DEFINED_COMPONENT';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
     case CREATE_PROJECT: {
       return newProject();
     }
+
     case LOAD_PROJECT: {
       return action.project;
     }
+
     case SET_RENDERER: {
       return {
         ...state,
         renderer: action.renderer,
       };
     }
+
     case ADD_ENTITY: {
       return {
         ...state,
@@ -35,18 +40,21 @@ export const projectReducer = (state = null, action) => {
         ],
       };
     }
+
     case SELECT_ENTITY_INDEX: {
       return {
         ...state,
         activeEntityIndex: action.index,
       };
     }
+
     case COMMIT_SURFACE_TRANSFORM: {
       return {
         ...state,
         surface: action.surface,
       };
     }
+
     case CHANGE_ENTITY_COMPONENT_VALUE: {
       const {entityIndex, componentId, fieldId, value} = action;
 
@@ -72,6 +80,7 @@ export const projectReducer = (state = null, action) => {
         }),
       };
     }
+
     case ADD_COMPONENT_TO_ENTITY: {
       const { entityIndex, entityComponent } = action;
       return {
@@ -91,12 +100,14 @@ export const projectReducer = (state = null, action) => {
         }),
       };
     }
+
     case PREFLIGHT_RUNNING: {
       return {
         ...state,
         preflightRunning: action.preflightRunning,
       };
     }
+
     default: {
       return state;
     }
