@@ -24,10 +24,12 @@ BuiltinComponents.forEach((component) => {
 });
 
 export const lookupComponentWithId = (project, componentId) => {
-  if (!selectComponentWithIdMemo[componentId]) {
-    const config = project.userDefinedComponents[componentId];
-    const component = new UserDefinedComponent(config);
-    selectComponentWithIdMemo[componentId] = component;
+  const builtin = selectComponentWithIdMemo[componentId];
+  if (builtin) {
+    return builtin;
   }
-  return selectComponentWithIdMemo[componentId];
+
+  // @Performance: memoize
+  const config = project.userDefinedComponents[componentId];
+  return new UserDefinedComponent(config);
 };

@@ -30,10 +30,12 @@ BuiltinSystems.forEach((system) => {
 });
 
 export const lookupSystemWithId = (project, systemId) => {
-  if (!selectSystemWithIdMemo[systemId]) {
-    const config = project.userDefinedSystems[systemId];
-    const system = new UserDefinedSystem(config);
-    selectSystemWithIdMemo[systemId] = system;
+  const builtin = selectSystemWithIdMemo[systemId];
+  if (builtin) {
+    return builtin;
   }
-  return selectSystemWithIdMemo[systemId];
+
+  // @Performance: memoize
+  const config = project.userDefinedSystems[systemId];
+  return new UserDefinedSystem(config);
 };
