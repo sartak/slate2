@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export const TextControlled = ({ value, defaultValue, onChange }) => {
+export const TextControlled = ({ value, defaultValue, onChange, readOnly }) => {
   const [isFakeEmpty, setFakeEmpty] = useState(false);
 
   useEffect(() => {
@@ -13,8 +13,9 @@ export const TextControlled = ({ value, defaultValue, onChange }) => {
     <input
       type="text"
       value={isFakeEmpty ? "" : value}
+      readOnly={readOnly}
       placeholder={defaultValue}
-      onChange={({ target }) => {
+      onChange={readOnly ? null : ({ target }) => {
         if (target.value === "") {
           setFakeEmpty(true);
           onChange(defaultValue);
@@ -23,7 +24,7 @@ export const TextControlled = ({ value, defaultValue, onChange }) => {
           onChange(target.value);
         }
       }}
-      onBlur={({ target }) => {
+      onBlur={readOnly ? null : ({ target }) => {
         if (target.value === "") {
           target.value = defaultValue;
           onChange(target.value);
