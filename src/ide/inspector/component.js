@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction, setActiveSystemAction } from '../project/actions';
 import { makeSelectComponent, makeSelectComponentField, selectEnabledSystems } from '../project/selectors';
 import { newUserDefinedField } from '../ecs/components';
-import { BuiltinTypes, zeroValueForType, editorForType } from '../types';
+import { BuiltinTypes, zeroValueForType, editorForType, canonicalizeValue } from '../types';
 import { ObjectList } from '../list-objects';
 import { TextControlled } from '../field/text-controlled';
 
@@ -13,6 +13,7 @@ const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
 
   const { type, defaultValue } = field;
 
+  const zeroValue = zeroValueForType(type);
   const types = Object.keys(BuiltinTypes);
   const Editor = editorForType(type);
 
@@ -40,9 +41,12 @@ const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
           <span className="label">default</span>
           <Editor
             value={defaultValue}
-            defaultValue={zeroValueForType(type)}
+            defaultValue={zeroValue}
             readOnly={!userDefined}
-            onChange={(value) => dispatch(setUserDefinedComponentFieldMetadataAction(componentId, fieldId, 'defaultValue', value))}
+            onChange={(value) => {
+              const canonicalized = canonicalizeValue(type, value, zeroValue);
+              dispatch(setUserDefinedComponentFieldMetadataAction(componentId, fieldId, 'defaultValue', canonicalized));
+            }}
           />
         </li>
       </ul>
