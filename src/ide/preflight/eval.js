@@ -1,13 +1,19 @@
+import { selectActiveEntityId } from '../project/selectors';
+
 export default class EvalDebugger {
   project = null;
   assembly = null;
   preflightRunning = false;
 
   eval(code) {
-    if (this.preflightRunning) {
-      this.assembly.scheduleEval(code);
+    const { project, assembly, preflightRunning } = this;
+
+    const params = {};
+
+    if (preflightRunning) {
+      assembly.scheduleEval(code, params);
     } else {
-      this.assembly.immediateEval(code);
+      assembly.immediateEval(code, params);
     }
   }
 
