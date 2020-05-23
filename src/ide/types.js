@@ -11,14 +11,14 @@ export const BuiltinTypes = {
   float: {
     zeroValue: 0,
     canonicalize: (value, defaultValue) => (
-      value === "" ? defaultValue : Number(value)
+      !value ? defaultValue : Number(value)
     ),
     editor: FloatField,
   },
   color: {
     zeroValue: '#000000',
     canonicalize: (value, defaultValue) => (
-      value === "" ? defaultValue : value.toLowerCase()
+      !value ? defaultValue : value.toLowerCase()
     ),
     editor: ColorField,
   },

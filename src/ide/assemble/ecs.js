@@ -64,8 +64,19 @@ export const prepareComponents = (project, ctx) => {
       fields.push([field, values]);
 
       const fieldLabel = field.label ?? fieldId;
+      let fieldVarName;
 
-      const fieldVarName = generateComponentVars ? `${componentVarName}.${fieldId}` : `${componentVarName}_${fieldLabel}`;
+      if (generateComponentVars) {
+        if (Number.isInteger(fieldId)) {
+          fieldVarName = `${componentVarName}[${fieldId}]`;
+        }
+        else {
+          fieldVarName = `${componentVarName}.${fieldId}`;
+        }
+      } else {
+        fieldVarName = `${componentVarName}_${fieldId}`;
+      }
+
       fieldVarNames[fieldId] = fieldVarName;
       fieldVarNamesByLabel[fieldLabel] = fieldVarName;
     });

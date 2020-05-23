@@ -27,6 +27,7 @@ const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
           <span className="label">type</span>
           <select
             value={type}
+            readOnly={!userDefined}
             onChange={({ target }) => dispatch(setUserDefinedComponentFieldMetadataAction(componentId, fieldId, 'type', target.value))}
           >
             {types.map((type) => (
@@ -38,7 +39,8 @@ const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
           <span className="label">default</span>
           <Editor
             value={defaultValue}
-            defaultValue={zeroValueForType[type]}
+            defaultValue={zeroValueForType(type)}
+            readOnly={!userDefined}
             onChange={(value) => dispatch(setUserDefinedComponentFieldMetadataAction(componentId, fieldId, 'defaultValue', value))}
           />
         </li>
