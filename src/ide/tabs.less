@@ -106,5 +106,10 @@
   & > .content {
     flex-grow: 1;
     height: 0px; // flex will grow to fit the container
+
+    & > * {
+      height: 100%;
+      overflow: auto;
+    }
   }
 }
