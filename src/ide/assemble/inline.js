@@ -34,7 +34,7 @@ const extractMethodSubtree = (classAst, methodName, args, ctx) => {
   return subtree;
 };
 
-const rewriteTreeToUseComponentVariables = (system, ast, components, ctx) => {
+const rewriteTreeToUseComponentVariables = (ast, components, ctx) => {
   const { componentMap } = ctx;
 
   const componentByLabel = {};
@@ -226,7 +226,7 @@ export const assembleInlineSystemCall = (system, methodName, args, project, ctx)
   });
 
   const subtree = extractMethodSubtree(classAst, methodName, args, ctx);
-  rewriteTreeToUseComponentVariables(system, subtree, components, ctx);
+  rewriteTreeToUseComponentVariables(subtree, components, ctx);
   const inlinedArgs = inlineFunctionArguments(subtree, ctx);
   const output = generate(subtree.node).code;
 
