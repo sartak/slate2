@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { useSetValue } from './useSetValue';
 
-export const ColorField = forwardRef(({ defaultValue, onChange }, ref) => {
+export const ColorField = forwardRef(({ value, defaultValue, onChange }, ref) => {
   const inputRef = useSetValue(ref);
 
   return (
@@ -10,6 +10,7 @@ export const ColorField = forwardRef(({ defaultValue, onChange }, ref) => {
       ref={inputRef}
       defaultValue={defaultValue}
       placeholder={defaultValue}
+      value={value}
       onChange={({ target }) => onChange(target.value)}
     />
   );

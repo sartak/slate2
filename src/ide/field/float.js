@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { useSetValue } from './useSetValue';
 
-export const FloatField = forwardRef(({ defaultValue, onChange }, ref) => {
+export const FloatField = forwardRef(({ value, defaultValue, onChange }, ref) => {
   const inputRef = useSetValue(ref);
 
   return (
@@ -10,6 +10,7 @@ export const FloatField = forwardRef(({ defaultValue, onChange }, ref) => {
       ref={inputRef}
       defaultValue={defaultValue}
       placeholder={defaultValue}
+      value={value}
       onChange={({ target }) => onChange(target.value)}
       onBlur={({ target }) => {
         if (target.value === "") {
