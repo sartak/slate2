@@ -11,7 +11,7 @@
     padding: 0;
 
     & > li {
-      &.slate2_input::before {
+      &.s2_eval_input::before {
         display: inline-block;
         font-family: "Futura";
         content: ">";
@@ -21,7 +21,7 @@
         width: @left-pad;
       }
 
-      &.slate2_result::before {
+      &.s2_eval_result::before, &.s2_eval_error::before {
         display: inline-block;
         font-family: "Futura";
         content: "←";
@@ -29,6 +29,10 @@
         color: rgb(150, 150, 150);
         margin-left: -@left-pad;
         width: @left-pad;
+      }
+
+      &.s2_eval_error::before {
+        color: rgb(233, 131, 128);
       }
 
       word-wrap: break-word;
@@ -41,7 +45,7 @@
         color: rgb(183, 190, 198);
       }
 
-      &.info, &.slate2_result {
+      &.info, &.s2_eval_result {
         color: rgb(128, 131, 233);
       }
 
@@ -57,7 +61,7 @@
         }
       }
 
-      &.error {
+      &.error, &.s2_eval_error {
         color: rgb(233, 131, 128);
         background: rgb(37, 2, 1);
         &, & + li {
@@ -72,7 +76,7 @@
           border-bottom: 1px solid rgb(99, 86, 24);
         }
 
-        &.error {
+        &.error, &.s2_eval_error {
           border-bottom: 1px solid rgb(84, 12, 6);
         }
       }

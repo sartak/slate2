@@ -44,7 +44,7 @@ export class ConsoleManager {
       };
     });
 
-    ['slate2_input', 'slate2_result'].forEach((level) => {
+    ['s2_eval_input', 's2_eval_result', 's2_eval_error'].forEach((level) => {
       novelMethods.push(level);
       console[level] = function (...args) {
         // We intentionally don't filter these because they don't go to

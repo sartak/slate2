@@ -7,12 +7,12 @@ import { flattenList as __flattenList } from './inline';
 
 const __assembleEvalCall = (codeVar, project, ctx) => {
   return [
-    `console.slate2_input(${codeVar});`,
+    `console.s2_eval_input(${codeVar});`,
 
     `try {`,
-      `console.slate2_result(eval(${codeVar}));`,
+      `console.s2_eval_result(eval(${codeVar}));`,
     `} catch (e) {`,
-      `console.error(e.toString());`,
+      `console.s2_eval_error(e.toString());`,
     `}`,
   ].join("\n");
 };
