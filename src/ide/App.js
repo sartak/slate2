@@ -12,22 +12,24 @@ import { AlertProvider } from './alert/context';
 const App = () => {
   const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
 
+  if (project) {
+    return <ProjectEditor />;
+  }
+  else if (canLoadProject) {
+    return <OpenProject />;
+  } else {
+    const dispatch = useDispatch();
+    dispatch(createProjectAction());
+    return null;
+  }
+};
+
+const AppWrapper = () => {
   return (
     <AlertProvider>
-      {(() => {
-        if (project) {
-          return <ProjectEditor />;
-        }
-        else if (canLoadProject) {
-          return <OpenProject />;
-        } else {
-          const dispatch = useDispatch();
-          dispatch(createProjectAction());
-          return null;
-        }
-      })()}
+      <App />
     </AlertProvider>
   );
 };
 
-export default hot(App);
+export default hot(AppWrapper);
