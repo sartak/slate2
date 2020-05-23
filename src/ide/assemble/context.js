@@ -23,6 +23,7 @@ export const newContext = (project, overrides = {}) => {
     input: [],
     update: [],
     render: [],
+    cleanup: [],
     deinit: [],
     preparedLoop: false,
 
