@@ -5,6 +5,32 @@ import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs'
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
 import { flattenList as __flattenList } from './inline';
 
+const __assembleEvalCall = (codeVar, project, ctx) => {
+  return [
+    `console.log(${codeVar});`,
+
+    `try {`,
+      `console.log(eval(${codeVar}));`,
+    `} catch (e) {`,
+      `console.error(e.toString());`,
+    `}`,
+  ].join("\n");
+};
+
+const __assemblePreflightEval = (project, ctx) => {
+  ctx.evalVar = '__codeToEval';
+
+  ctx.cleanup.push((ctx) => [
+    `(function () {`,
+      `const __prevEval = ${ctx.evalVar};`,
+      `${ctx.evalVar} = [];`,
+      `__prevEval.forEach((__code) => {`,
+        __assembleEvalCall('__code', project, ctx),
+      `});`,
+    `})();`,
+  ].join("\n"));
+};
+
 const __assembleGameForPreflight = (originalProject) => {
   const project = {
     ...originalProject,
@@ -33,6 +59,8 @@ const __assembleGameForPreflight = (originalProject) => {
   ctx.render.push((ctx) => (
     `${ctx.rendererVar}.finishRender();`
   ));
+
+  __assemblePreflightEval(project, ctx);
 
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
@@ -74,6 +102,7 @@ const __assembleGameForPreflight = (originalProject) => {
   const assembly = [
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
+      `let ${ctx.evalVar} = [];`,
       ...ecs,
       ...debug,
       `return {`,
@@ -86,6 +115,8 @@ const __assembleGameForPreflight = (originalProject) => {
         `step: ${step},`,
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,
+        `scheduleEval: (code) => { ${ctx.evalVar}.push(code) },`,
+        `immediateEval: (__code) => { ${__assembleEvalCall('__code', project, ctx)} },`,
       `};`,
     `}`,
   ];

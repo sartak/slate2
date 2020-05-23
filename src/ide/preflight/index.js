@@ -157,6 +157,14 @@ export class Preflight {
   changeEntityComponentValue(...args) {
     this.debuggers.forEach((debug) => debug.changeEntityComponentValue && debug.changeEntityComponentValue(...args));
   }
+
+  eval(code) {
+    if (this.isRunning) {
+      this.assembly.scheduleEval(code);
+    } else {
+      this.assembly.immediateEval(code);
+    }
+  }
 }
 
 if (module.hot) {
