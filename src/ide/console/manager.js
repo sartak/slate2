@@ -8,11 +8,25 @@ export class ConsoleManager {
     const { lines, novelMethods, originalMethod } = this;
     const manager = this;
 
+    const filter = ([first, second, third]) => {
+      if (first.startsWith && first.startsWith('[HMR] ')) {
+        return false;
+      }
+
+      if (third && third.includes && third.includes('This warning will not show up')) {
+        return false;
+      }
+
+      return true;
+    };
+
     ['trace', 'debug', 'log', 'info', 'warn', 'error'].forEach((level) => {
       const original = originalMethod[level] = console[level];
       console[level] = function (...args) {
-        lines.push([level, args]);
-        manager.subscriptions.forEach((cb) => cb(level, args));
+        if (filter(args)) {
+          lines.push([level, args]);
+          manager.subscriptions.forEach((cb) => cb(level, args));
+        }
         return original(...args);
       };
     });
@@ -22,8 +36,10 @@ export class ConsoleManager {
     ['success'].forEach((level) => {
       novelMethods.push(level);
       console[level] = function (...args) {
-        lines.push([level, args]);
-        manager.subscriptions.forEach((cb) => cb(level, args));
+        if (filter(args)) {
+          lines.push([level, args]);
+          manager.subscriptions.forEach((cb) => cb(level, args));
+        }
         return originalLog(...args);
       };
     });
@@ -31,6 +47,8 @@ export class ConsoleManager {
     ['slate2_input', 'slate2_result'].forEach((level) => {
       novelMethods.push(level);
       console[level] = function (...args) {
+        // We intentionally don't filter these because they don't go to
+        // the browser's console.
         lines.push([level, args]);
         manager.subscriptions.forEach((cb) => cb(level, args));
       };
