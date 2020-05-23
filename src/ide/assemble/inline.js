@@ -34,7 +34,13 @@ const extractMethodSubtree = (classAst, methodName, args, ctx) => {
   return subtree;
 };
 
-const rewriteTreeToUseComponentVariables = (ast, components, ctx) => {
+export const rewriteCodeToUseComponentVariables = (code, components, ctx) => {
+  const ast = parseSync(code);
+  rewriteTreeToUseComponentVariables(ast, components, ctx, true);
+  return generate(ast).code;
+};
+
+const rewriteTreeToUseComponentVariables = (ast, components, ctx, rawAst) => {
   const { componentMap } = ctx;
 
   const componentByLabel = {};
@@ -42,7 +48,7 @@ const rewriteTreeToUseComponentVariables = (ast, components, ctx) => {
     componentByLabel[component.label] = component;
   });
 
-  traverse(ast.node, {
+  traverse((rawAst ? ast : ast.node), {
     MemberExpression(path) {
       const { parent, node } = path;
       const { object: primary, property: fieldNode } = node;
@@ -113,7 +119,7 @@ const rewriteTreeToUseComponentVariables = (ast, components, ctx) => {
         );
       }
     }
-  }, ast.scope, ast);
+  }, ...(rawAst ? [] : [ast.scope, ast]));
 };
 
 const inlineFunctionArguments = (ast, ctx) => {
