@@ -48,15 +48,20 @@ export default class EvalDebugger {
     };
   }
 
-  eval(code) {
+  prepareCode(input) {
+    return input;
+  }
+
+  eval(input) {
     const { assembly, preflightRunning } = this;
 
     const params = this.prepareParams();
+    const code = this.prepareCode(input);
 
     if (preflightRunning) {
-      assembly.scheduleEval(code, params);
+      assembly.scheduleEval(code, params, input);
     } else {
-      assembly.immediateEval(code, params);
+      assembly.immediateEval(code, params, input);
     }
   }
 

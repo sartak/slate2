@@ -5,9 +5,9 @@ import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs'
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
 import { flattenList as __flattenList } from './inline';
 
-const __assembleEvalCall = (codeVar, paramsVar, project, ctx) => {
+const __assembleEvalCall = (codeVar, paramsVar, inputVar, project, ctx) => {
   return [
-    `console.s2_eval_input(${codeVar});`,
+    `console.s2_eval_input(${inputVar});`,
 
     `Object.keys(${paramsVar}).forEach((varName) => {`,
       `${codeVar} = \`const \${varName} = ${paramsVar}["\${varName}"]; \${${codeVar}}\`;`,
@@ -28,8 +28,8 @@ const __assemblePreflightEval = (project, ctx) => {
     `(function () {`,
       `const __prevEval = ${ctx.evalVar};`,
       `${ctx.evalVar} = [];`,
-      `__prevEval.forEach(([__code, __params]) => {`,
-        __assembleEvalCall('__code', '__params', project, ctx),
+      `__prevEval.forEach(([__code, __params, __input]) => {`,
+        __assembleEvalCall('__code', '__params', '__input', project, ctx),
       `});`,
     `})();`,
   ].join("\n"));
@@ -119,8 +119,8 @@ const __assembleGameForPreflight = (originalProject) => {
         `step: ${step},`,
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,
-        `scheduleEval: (code, params) => { ${ctx.evalVar}.push([code, params]) },`,
-        `immediateEval: (__code, __params) => { ${__assembleEvalCall('__code', '__params', project, ctx)} },`,
+        `scheduleEval: (code, params, input) => { ${ctx.evalVar}.push([code, params, input]) },`,
+        `immediateEval: (__code, __params, __input) => { ${__assembleEvalCall('__code', '__params', '__input', project, ctx)} },`,
       `};`,
     `}`,
   ];
