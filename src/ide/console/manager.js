@@ -9,7 +9,7 @@ export class ConsoleManager {
     const manager = this;
 
     const filter = ([first, second, third]) => {
-      if (first.startsWith && first.startsWith('[HMR] ')) {
+      if (first && first.startsWith && first.startsWith('[HMR] ')) {
         return false;
       }
 
