@@ -190,6 +190,156 @@ const PrevZoomThreshold = 0.05;
         this.commitTransform();
       };
 
+      const centroidForTouches = (touches) => {
+        let cx = 0;
+        let cy = 0;
+        const len = touches.length;
+
+        // touches doesn't have a .forEach
+        for (let t = 0; t < len; ++t) {
+          const touch = touches[t];
+          cx += touch.pageX;
+          cy += touch.pageY;
+        }
+
+        return [
+          cx /= len,
+          cy /= len,
+        ];
+      };
+
+      // touchscreen pan and zoom
+      {
+        let startZoom;
+        let prevX, prevY;
+        let beganTransform = false;
+        let canvasLeft, canvasTop;
+
+        canvas.ontouchstart = (e) => {
+          e.preventDefault();
+
+          const rect = canvas.getBoundingClientRect();
+          canvasLeft = rect.left;
+          canvasTop = rect.top;
+
+          // Intentionally calculate this every time so that putting down
+          // a second finger doesn't jump.
+          [prevX, prevY] = centroidForTouches(e.touches);
+          prevX -= canvasLeft;
+          prevY -= canvasTop;
+
+          if (beganTransform) {
+            return;
+          }
+
+          this.beginTransform();
+          beganTransform = true;
+
+          startZoom = this.zoom;
+        };
+
+        canvas.ontouchmove = (e) => {
+          e.preventDefault();
+
+          let dz;
+          if (e.touches.length === 2) {
+            const newZoom = Math.max(MinZoom, Math.min(MaxZoom, startZoom * e.scale));
+
+            dz = newZoom / this.zoom;
+            this.zoom = newZoom;
+
+            if (Math.abs(newZoom - 1) >= PrevZoomThreshold) {
+              this.prevZoom = newZoom;
+            }
+          }
+
+          let [cx, cy] = centroidForTouches(e.touches);
+          cx -= canvasLeft;
+          cy -= canvasTop;
+
+          if (dz) {
+            this.panX = cx - (cx - this.panX) * dz;
+            this.panY = cy - (cy - this.panY) * dz;
+          }
+
+          this.panX += cx - prevX;
+          this.panY += cy - prevY;
+          prevX = cx;
+          prevY = cy;
+
+          this.render();
+        };
+
+        canvas.ontouchend = canvas.ontouchcancel = (e) => {
+          e.preventDefault();
+
+          if (e.touches.length === 0) {
+            beganTransform = false;
+            this.commitTransform();
+          } else {
+            [prevX, prevY] = centroidForTouches(e.touches);
+            prevX -= canvasLeft;
+            prevY -= canvasTop;
+          }
+        };
+      };
+
+      // Mac Safari pinch to zoom
+      {
+        let startZoom;
+        let prevX, prevY;
+        let canvasLeft, canvasTop;
+
+        canvas.addEventListener('gesturestart', (e) => {
+          e.preventDefault();
+          this.beginTransform();
+
+          const rect = canvas.getBoundingClientRect();
+          canvasLeft = rect.left;
+          canvasTop = rect.top;
+
+          startZoom = this.zoom;
+          prevX = e.pageX - canvasLeft;
+          prevY = e.pageY - canvasTop;
+        });
+
+        canvas.addEventListener('gesturechange', (e) => {
+          e.preventDefault();
+
+          let dz;
+          if (e.scale !== 1) {
+            const newZoom = Math.max(MinZoom, Math.min(MaxZoom, startZoom * e.scale));
+
+            dz = newZoom / this.zoom;
+            this.zoom = newZoom;
+
+            if (Math.abs(newZoom - 1) >= PrevZoomThreshold) {
+              this.prevZoom = newZoom;
+            }
+          }
+
+          const cx = e.pageX - canvasLeft;
+          const cy = e.pageY - canvasTop;
+
+          if (dz) {
+            this.panX = cx - (cx - this.panX) * dz;
+            this.panY = cy - (cy - this.panY) * dz;
+          }
+
+          this.panX += cx - prevX;
+          this.panY += cy - prevY;
+          prevX = cx;
+          prevY = cy;
+
+          this.render();
+        });
+
+        canvas.addEventListener('gestureend', (e) => {
+          e.preventDefault();
+          this.commitTransform();
+        });
+      };
+
       return ret;
     }
 
