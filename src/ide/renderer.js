@@ -6,6 +6,10 @@ const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 
 const classes = {};
 
+const MaxZoom = 10;
+const MinZoom = 0.1;
+const PrevZoomThreshold = 0.01;
+
 [
   ['CanvasRenderer', BaseCanvasRenderer],
   ['WebGLRenderer', BaseWebGLRenderer],
@@ -87,11 +91,11 @@ const classes = {};
     zoomAtScreenPoint(dz, x, y) {
       const newZoom = this.zoom * dz;
 
-      if (newZoom > 10 || newZoom < 0.1) {
+      if (newZoom > MaxZoom || newZoom < MinZoom) {
         return;
       }
 
-      if (Math.abs(this.zoom - 1) >= 0.01) {
+      if (Math.abs(this.zoom - 1) >= PrevZoomThreshold) {
         this.prevZoom = this.zoom;
       }
 
@@ -148,7 +152,7 @@ const classes = {};
         };
       };
 
-      // multitouch
+      // multitouch with trackpad
       canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
 
@@ -179,7 +183,7 @@ const classes = {};
         e.preventDefault();
 
         let dz;
-        if (Math.abs(this.zoom - 1) < 0.01) {
+        if (Math.abs(this.zoom - 1) < PrevZoomThreshold) {
           dz = this.prevZoom / this.zoom;
         } else {
           dz = 1 / this.zoom;
