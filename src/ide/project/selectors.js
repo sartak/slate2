@@ -34,6 +34,13 @@ export const makeSelectEntityComponents = (entityId, componentIds) => {
   };
 };
 
+export const makeSelectComponentField = (componentId, fieldId) => {
+  return (state) => {
+    const component = lookupComponentWithId(state, componentId);
+    return component.fieldWithId(fieldId);
+  };
+};
+
 export const selectPreflightRunning = ({ preflightRunning }) => preflightRunning;
 
 export const selectRenderer = ({ renderer }) => renderer;

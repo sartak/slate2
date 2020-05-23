@@ -17,6 +17,7 @@ export const SET_ENTITY_LABEL = 'SET_ENTITY_LABEL';
 export const SET_USER_DEFINED_COMPONENT_LABEL = 'SET_USER_DEFINED_COMPONENT_LABEL';
 export const SET_USER_DEFINED_SYSTEM_LABEL = 'SET_USER_DEFINED_SYSTEM_LABEL';
 export const ADD_FIELD_TO_USER_DEFINED_COMPONENT = 'ADD_FIELD_TO_USER_DEFINED_COMPONENT';
+export const SET_USER_DEFINED_COMPONENT_FIELD_METADATA = 'SET_USER_DEFINED_COMPONENT_FIELD_METADATA';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -262,6 +263,27 @@ export const projectReducer = (state = null, action) => {
                 label: `field${fieldId}`,
               },
             ],
+          },
+        },
+      };
+    }
+
+    case SET_USER_DEFINED_COMPONENT_FIELD_METADATA: {
+      const { componentId, fieldId, key, value } = action;
+      const { userDefinedComponents } = state;
+      const component = userDefinedComponents[componentId];
+      const { fields } = component;
+
+      return {
+        ...state,
+        userDefinedComponents: {
+          ...userDefinedComponents,
+          [componentId]: {
+            ...component,
+            fields: fields.map((field) => field.id !== fieldId ? field : {
+              ...field,
+              [key]: value,
+            }),
           },
         },
       };

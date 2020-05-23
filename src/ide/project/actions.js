@@ -64,6 +64,10 @@ export const addFieldToUserDefinedComponentAction = (id, field) => {
   return { type: t.ADD_FIELD_TO_USER_DEFINED_COMPONENT, id, field };
 };
 
+export const setUserDefinedComponentFieldMetadataAction = (componentId, fieldId, key, value) => {
+  return { type: t.SET_USER_DEFINED_COMPONENT_FIELD_METADATA, componentId, fieldId, key, value };
+};
+
 export const setUserDefinedSystemLabelAction = (id, label) => {
   return { type: t.SET_USER_DEFINED_SYSTEM_LABEL, id, label };
 };
