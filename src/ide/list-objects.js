@@ -16,9 +16,11 @@ export const ObjectList = ({ objects, activeId, onSelect, onAdd, addLabel }) => 
           );
         })}
       </ul>
-      <div className="controls">
-        <button onClick={onAdd}>{addLabel}</button>
-      </div>
+      {onAdd && (
+        <div className="controls">
+          <button onClick={onAdd}>{addLabel}</button>
+        </div>
+      )}
     </div>
   );
 };
