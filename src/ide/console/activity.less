@@ -1,0 +1,112 @@
+@left-pad: 30px;
+@line-padding-vertical: 2px;
+
+.ConsoleActivity {
+  font-family: Menlo, Monaco, "Courier New", monospace;
+  font-size: 12px;
+
+  & > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    & > li {
+      &.slate2_input::before {
+        display: inline-block;
+        font-family: "Futura";
+        content: ">";
+        text-align: center;
+        color: rgb(150, 150, 150);
+        margin-left: -@left-pad;
+        width: @left-pad;
+      }
+
+      &.slate2_result::before {
+        display: inline-block;
+        font-family: "Futura";
+        content: "←";
+        text-align: center;
+        color: rgb(150, 150, 150);
+        margin-left: -@left-pad;
+        width: @left-pad;
+      }
+
+      word-wrap: break-word;
+      white-space: pre-wrap;
+
+      padding: @line-padding-vertical @left-pad @line-padding-vertical @left-pad;
+      border-top: 1px solid rgb(58, 58, 58);
+
+      &.log {
+        color: rgb(183, 190, 198);
+      }
+
+      &.info, &.slate2_result {
+        color: rgb(128, 131, 233);
+      }
+
+      &.success {
+        color: rgb(128, 233, 131);
+      }
+
+      &.warn {
+        color: rgb(249, 222, 166);
+        background: rgb(50, 43, 8);
+        &, & + li:not(.error) {
+          border-top: 1px solid rgb(99, 86, 24);
+        }
+      }
+
+      &.error {
+        color: rgb(233, 131, 128);
+        background: rgb(37, 2, 1);
+        &, & + li {
+          border-top: 1px solid rgb(84, 12, 6);
+        }
+      }
+
+      &:last-child {
+        border-bottom: 1px solid rgb(58, 58, 58);
+
+        &.warn {
+          border-bottom: 1px solid rgb(99, 86, 24);
+        }
+
+        &.error {
+          border-bottom: 1px solid rgb(84, 12, 6);
+        }
+      }
+    }
+  }
+
+  & > .input {
+    position: relative;
+
+    & > .sigil {
+      position: absolute;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      font-family: "Futura";
+      color: rgb(72, 121, 230);
+      box-sizing: border-box;
+      text-align: center;
+      width: @left-pad;
+      padding-top: @line-padding-vertical;
+      height: 100%;
+    }
+
+    & > .field {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      font-family: Menlo, Monaco, "Courier New", monospace;
+      font-size: 12px;
+      background: rgb(32, 32, 32);
+      color: rgb(220, 220, 220);
+      border: none;
+      outline: none;
+      padding: @line-padding-vertical @left-pad 1.5em @left-pad;
+    }
+  }
+}

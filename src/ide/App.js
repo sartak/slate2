@@ -8,6 +8,7 @@ import { canLoadProject } from '@ide/bridge';
 import { createProjectAction } from './project/actions';
 import { selectProject } from './project/selectors';
 import { AlertProvider } from './alert/context';
+import { ConsoleProvider } from './console/context';
 
 const App = () => {
   const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
@@ -26,9 +27,11 @@ const App = () => {
 
 const AppWrapper = () => {
   return (
-    <AlertProvider>
-      <App />
-    </AlertProvider>
+    <ConsoleProvider>
+      <AlertProvider>
+        <App />
+      </AlertProvider>
+    </ConsoleProvider>
   );
 };
 

@@ -27,7 +27,7 @@ export class AlertManager {
   }
 
   success(message, options) {
-    console.info(message);
+    console.success ? console.success(message) : console.info(message);
     return this.alert('success', message, options);
   }
 
