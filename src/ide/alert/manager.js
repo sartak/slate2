@@ -27,16 +27,19 @@ export class AlertManager {
   }
 
   success(message, options) {
+    console.info(message);
     return this.alert('success', message, options);
   }
 
   warning(error, options) {
     const message = typeof error === 'string' ? error : error.toString();
+    console.warn(message);
     return this.alert('warning', message, options);
   }
 
   error(error, options) {
     const message = typeof error === 'string' ? error : error.toString();
+    console.error(message);
     return this.alert('error', message, options);
   }
 
