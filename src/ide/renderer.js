@@ -2,8 +2,6 @@ import BaseCanvasRenderer from '../engine/renderer/canvas';
 import BaseWebGLRenderer from '../engine/renderer/webgl';
 import BaseWebGPURenderer from '../engine/renderer/webgpu';
 
-const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
-
 const classes = {};
 
 const MaxZoom = 10;
@@ -167,9 +165,7 @@ const PrevZoomThreshold = 0.01;
           this.commitTransform();
         }, 100);
 
-        // since we can't prevent user zoom in the web version, have
-        // two-finger pan act as zoom, like in google maps
-        if (e.ctrlKey || !isElectron) {
+        if (e.ctrlKey) {
           const dz = Math.pow(2, -e.deltaY * 0.01);
           this.zoomAtScreenPoint(dz, e.offsetX, e.offsetY);
         } else {

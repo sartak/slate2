@@ -18,9 +18,44 @@
     <div id="App"></div>
     <script type="text/javascript">
       (function () {
-        window.addEventListener("DOMContentLoaded", function () {
+        window.addEventListener('DOMContentLoaded', function () {
           var container = document.getElementById('App');
           slate2(container);
+        });
+
+        // prevent zoom via touchscreen pinch
+        document.body.addEventListener('touchmove', function (e) {
+          if (e.scale != 1) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        // prevent zoom via trackpad pinch (Chrome)
+        document.body.addEventListener('mousewheel', function (e) {
+          if (e.ctrlKey) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        // prevent zoom via trackpad pinch (laptop Safari)
+        window.addEventListener('gesturestart', function (e) {
+          e.preventDefault()
+        });
+        window.addEventListener('gesturechange', function (e) {
+          e.preventDefault()
+        });
+        window.addEventListener('gestureend', function (e) {
+          e.preventDefault()
+        });
+
+        // prevent double tap to zoom (mobile Safari)
+        var lastTouchEnd = 0;
+        document.addEventListener('touchend', function (e) {
+          var now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
         });
       }())
     </script>
