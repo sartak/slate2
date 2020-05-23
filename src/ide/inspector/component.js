@@ -3,13 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction } from '../project/actions';
 import { makeSelectComponent, makeSelectComponentField } from '../project/selectors';
 import { newUserDefinedField } from '../ecs/components';
-import { BuiltinTypes } from '../types';
+import { BuiltinTypes, zeroValueForType, editorForType } from '../types';
 import { TextControlled } from '../field/text-controlled';
 
 const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
   const dispatch = useDispatch();
   const field = useSelector(makeSelectComponentField(componentId, fieldId));
+
+  const { type, defaultValue } = field;
+
   const types = Object.keys(BuiltinTypes);
+  const Editor = editorForType(type);
 
   return (
     <div className="InspectSubobject">
@@ -29,6 +33,14 @@ const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
               <option key={type}>{type}</option>
             ))}
           </select>
+        </li>
+        <li>
+          <span className="label">default</span>
+          <Editor
+            value={defaultValue}
+            defaultValue={zeroValueForType[type]}
+            onChange={(value) => dispatch(setUserDefinedComponentFieldMetadataAction(componentId, fieldId, 'defaultValue', value))}
+          />
         </li>
       </ul>
     </div>
