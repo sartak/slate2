@@ -79,6 +79,7 @@ export class Preflight {
       });
 
       const assembly = assembler(renderer, debuggers);
+      assembly.context = context;
 
       assembly.initDesign();
 
@@ -87,7 +88,7 @@ export class Preflight {
         assembly.renderDesign(0, 0);
       }
 
-      debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly, context));
+      debuggers.forEach((debug) => debug.didUpdateAssembly && debug.didUpdateAssembly(project, assembly));
 
       this.assembly = assembly;
       this.assemblyDirty = false;

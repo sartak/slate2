@@ -25,9 +25,9 @@ export default class LiveEntityValuesDebugger {
     this.project = next;
   }
 
-  didUpdateAssembly(project, assembly, context) {
+  didUpdateAssembly(project, assembly) {
     this.components = assembly.components;
-    this.entityMap = context.entityMap;
+    this.entityMap = assembly.context.entityMap;
   }
 
   entityForEntityId(id) {
