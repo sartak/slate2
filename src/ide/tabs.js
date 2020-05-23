@@ -15,7 +15,9 @@ export const Tabs = ({ tabs }) => {
             className={`tab${i === selectedIndex ? " selected" : ""}`}
             onClick={() => setSelectedIndex(i)}
           >
-            {label}
+            <span className="label">
+              {label}
+            </span>
           </li>
         ))}
       </ul>

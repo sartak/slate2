@@ -1,3 +1,13 @@
+@tab-radius: 8px;
+
+@tab-background: rgb(32, 32, 32);
+@hover-background: rgb(64, 64, 64);
+@selected-background: rgb(86, 86, 86);
+
+@tab-foreground: rgb(180, 180, 180);
+@hover-foreground: rgb(200, 200, 200);
+@selected-foreground: rgb(220, 220, 220);
+
 .tabs {
   display: flex;
   flex-direction: column;
@@ -6,38 +16,89 @@
   & > ul.controls {
     list-style-type: none;
     padding: 0;
-    margin: 0 0 4px 0;
+    margin: 2px 0 4px 0;
     overflow-x: scroll;
     overflow-y: hidden;
     min-height: 20px;
     flex-grow: 0;
     white-space: nowrap;
+    background: @tab-background;
+    border-bottom: 2px solid @selected-background;
 
     &::-webkit-scrollbar {
       display: none;
     }
 
     & > li.tab {
+      &::before, &::after {
+        position: absolute;
+        background: @tab-background;
+        color: @tab-background;
+        bottom: 0;
+        z-index: 0;
+        width: @tab-radius;
+        content: ".";
+        display: inline-block;
+      }
+      &::before {
+        left: 0px;
+      }
+      &::after {
+        right: 0px;
+      }
+      position: relative;
       cursor: pointer;
-      display: inline;
-      padding: 4px;
-      background: rgb(32, 32, 32);
-      color: rgb(180, 180, 180);
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
+      display: inline-block;
+      padding: 0;
+      border-top-left-radius: @tab-radius;
+      border-top-right-radius: @tab-radius;
+      background: @tab-background;
+      color: @tab-foreground;
 
       &:hover {
-        background: rgb(64, 64, 64);
-        color: rgb(200, 200, 200);
+        &::before, &::after, > .label {
+          background: @hover-background;
+          color: @hover-foreground;
+        }
       }
 
       &.selected, &.selected:hover {
-        background: rgb(86, 86, 86);
-        color: rgb(220, 220, 220);
+        &::before, &::after, > .label {
+          background: @selected-background;
+          color: @selected-foreground;
+        }
       }
 
       & + li.tab {
-        margin-left: 4px;
+        margin-left: -4px;
+      }
+
+      & > .label {
+        &::before, &::after {
+          position: absolute;
+          background: @tab-background;
+          color: @tab-background;
+          bottom: 0;
+          z-index: 1;
+          width: @tab-radius;
+          content: ".";
+          display: inline-block;
+        }
+        &::before {
+          left: -@tab-radius;
+          border-bottom-right-radius: @tab-radius;
+        }
+        &::after {
+          right: -@tab-radius;
+          border-bottom-left-radius: @tab-radius;
+        }
+
+        position: relative;
+        display: inline-block;
+        padding: 2px 4px 0px 4px;
+        margin: 0 @tab-radius 0px @tab-radius;
+        border-top-left-radius: @tab-radius;
+        border-top-right-radius: @tab-radius;
       }
     }
   }
