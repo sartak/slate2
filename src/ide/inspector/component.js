@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction } from '../project/actions';
-import { makeSelectComponent, makeSelectComponentField } from '../project/selectors';
+import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction, setActiveSystemAction } from '../project/actions';
+import { makeSelectComponent, makeSelectComponentField, selectEnabledSystems } from '../project/selectors';
 import { newUserDefinedField } from '../ecs/components';
 import { BuiltinTypes, zeroValueForType, editorForType } from '../types';
+import { ObjectList } from '../list-objects';
 import { TextControlled } from '../field/text-controlled';
 
 const InspectComponentField = ({ componentId, fieldId, userDefined }) => {
@@ -99,8 +100,25 @@ const AddFieldToComponent = ({ id }) => {
   return <button onClick={addField}>Add Field</button>;
 };
 
+const InspectComponentSystems = ({ systems }) => {
+  const dispatch = useDispatch();
+
+  return (
+    <React.Fragment>
+      <div className="label">Related Systems</div>
+      <ObjectList
+        objects={systems}
+        onSelect={({ id }) => dispatch(setActiveSystemAction(id))}
+      />
+    </React.Fragment>
+  );
+};
+
 export const InspectComponent = ({ id }) => {
   const component = useSelector(makeSelectComponent(id));
+  const systems = useSelector(selectEnabledSystems).filter(({ requiredComponents }) => (
+    requiredComponents.find((componentId) => componentId === id)
+  ));
 
   const { userDefined } = component;
 
@@ -120,6 +138,11 @@ export const InspectComponent = ({ id }) => {
       </ul>
       <div className="controls">
         { userDefined && <AddFieldToComponent id={id} /> }
+      </div>
+      <div className="references">
+        {systems.length ? (
+          <InspectComponentSystems systems={systems} />
+        ) : null}
       </div>
     </div>
   );
