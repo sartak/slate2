@@ -7,8 +7,8 @@ export default class EvalDebugger {
 
   prepareParams() {
     const { project, assembly } = this;
-    const { entities, components, systems } = assembly;
-    const { entityMap, componentObjects } = assembly.context;
+    const { context, entities, components, systems } = assembly;
+    const { entityMap, componentObjects } = context;
 
     const [activeType, activeId] = selectActiveTypeId(project);
 
@@ -41,6 +41,10 @@ export default class EvalDebugger {
       $es: entities,
       $cm,
       $sm,
+
+      $project: project,
+      $assembly: assembly,
+      $context: context,
     };
   }
 
