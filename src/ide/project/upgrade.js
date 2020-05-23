@@ -33,6 +33,14 @@ export const newProject = () => {
 };
 
 export const upgradeProject = (project) => {
+  if (project.version === currentVersion) {
+    return;
+  }
+
+  if (project.version > currentVersion) {
+    throw new Error(`Project has version ${project.version} but this version of slate2 can handle only up to ${currentVersion}`);
+  }
+
   if (!project.version) {
     project.version = 0;
   }
@@ -176,6 +184,8 @@ export const upgradeProject = (project) => {
       entity.label = 'Entity';
     });
   }
+
+  console.info(`Upgraded project from version ${project.version} to ${currentVersion}`);
 
   project.version = currentVersion;
 };
