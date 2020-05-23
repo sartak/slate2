@@ -1,4 +1,5 @@
 import { selectActiveTypeId } from '../project/selectors';
+import { rewriteCodeToUseComponentVariables } from '../assemble/inline';
 
 export default class EvalDebugger {
   project = null;
@@ -49,7 +50,11 @@ export default class EvalDebugger {
   }
 
   prepareCode(input) {
-    return input;
+    const { assembly } = this;
+    const { context } = assembly;
+    const { componentObjects } = context;
+
+    return rewriteCodeToUseComponentVariables(input, componentObjects, context);
   }
 
   eval(input) {
