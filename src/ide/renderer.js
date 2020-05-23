@@ -6,7 +6,7 @@ const classes = {};
 
 const MaxZoom = 10;
 const MinZoom = 0.1;
-const PrevZoomThreshold = 0.01;
+const PrevZoomThreshold = 0.05;
 
 [
   ['CanvasRenderer', BaseCanvasRenderer],
