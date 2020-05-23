@@ -7,8 +7,12 @@ export default class EvalDebugger {
 
   eval(code) {
     const { project, assembly, preflightRunning } = this;
+    const { entityMap } = assembly.context;
 
-    const params = {};
+    const activeEntityId = selectActiveEntityId(project);
+    const params = {
+      '$e': activeEntityId ? entityMap[activeEntityId].index : null,
+    };
 
     if (preflightRunning) {
       assembly.scheduleEval(code, params);
