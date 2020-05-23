@@ -1,6 +1,7 @@
 import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
 import LiveEntityValuesDebugger from './live-entity-values';
+import EvalDebugger from './eval';
 
 export { usePreflight, PreflightProvider } from './context';
 
@@ -12,7 +13,8 @@ export class Preflight {
   isRunning = false;
   loop = null;
   liveEntityValuesDebugger = new LiveEntityValuesDebugger();
-  debuggers = [this.liveEntityValuesDebugger];
+  evalDebugger = new EvalDebugger();
+  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger];
   storeUnsubscribe = null;
 
   constructor(projectStore) {
@@ -160,11 +162,7 @@ export class Preflight {
   }
 
   eval(code) {
-    if (this.isRunning) {
-      this.assembly.scheduleEval(code);
-    } else {
-      this.assembly.immediateEval(code);
-    }
+    this.evalDebugger.eval(code);
   }
 }
 
