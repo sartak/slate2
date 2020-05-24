@@ -204,6 +204,10 @@ export const upgradeProject = (project) => {
         delete project.entities[id];
         entity.id = newId;
         project.entities[newId] = entity;
+
+        if (String(project.activeEntityId) === id) {
+          project.activeEntityId = newId;
+        }
       }
     });
 
