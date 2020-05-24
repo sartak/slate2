@@ -25,8 +25,11 @@ export const Surface = () => {
     const renderer = rendererRef.current;
     if (renderer) {
       renderer.detach();
-      renderer.attach(surface);
-      renderer.render();
+
+      if (surface) {
+        renderer.attach(surface);
+        renderer.render();
+      }
     }
   }, []);
 
