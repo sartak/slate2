@@ -17,6 +17,8 @@ const renderArg = (arg) => {
     return ["javascript", String(arg)];
   } else if (arg === Infinity) {
     return ["javascript", arg];
+  } else if (typeof arg === "function") {
+    return ["javascript", String(arg)];
   } else if (typeof arg === "object") {
     try {
       return ["javascript", JSON.stringify(arg, null, 2)];
