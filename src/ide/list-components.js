@@ -23,6 +23,7 @@ export const ComponentList = () => {
       onSelect={({ id }) => dispatch(setActiveComponentAction(id))}
       onAdd={() => dispatch(addUserDefinedComponentAction(newUserDefinedComponent()))}
       addLabel="Add Component"
+      activeHint="= $c"
     />
   );
 }

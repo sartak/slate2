@@ -23,6 +23,7 @@ export const EntityList = () => {
       onSelect={({ id }) => dispatch(setActiveEntityAction(id))}
       onAdd={() => dispatch(addEntityAction(newEntity(0, 0)))}
       addLabel="Add Entity"
+      activeHint="= $e"
     />
   );
 }

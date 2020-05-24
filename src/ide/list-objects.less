@@ -20,6 +20,18 @@
         background: rgb(70, 70, 70);
         cursor: pointer;
       }
+
+      & > .hint {
+        &::before {
+          content: " ";
+        }
+
+        display: none;
+        color: gray;
+      }
+      &:hover > .hint {
+        display: inline;
+      }
     }
   }
 

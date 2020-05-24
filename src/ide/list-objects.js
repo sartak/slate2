@@ -1,7 +1,7 @@
 import React from 'react';
 import './list-objects.less';
 
-export const ObjectList = ({ objects, activeId, onSelect, onAdd, addLabel }) => {
+export const ObjectList = ({ objects, activeId, activeHint, onSelect, onAdd, addLabel }) => {
   return (
     <div className="ObjectList">
       <ul>
@@ -12,7 +12,10 @@ export const ObjectList = ({ objects, activeId, onSelect, onAdd, addLabel }) => 
               key={id}
               className={activeId === id ? "active" : null}
               onClick={() => onSelect(object)}
-            >{label}</li>
+            >
+              {label}
+              {activeHint && activeId === id && <span className="hint">{activeHint}</span>}
+            </li>
           );
         })}
       </ul>

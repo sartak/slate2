@@ -23,6 +23,7 @@ export const SystemList = () => {
       onSelect={({ id }) => dispatch(setActiveSystemAction(id))}
       onAdd={() => dispatch(addUserDefinedSystemAction(newUserDefinedSystem()))}
       addLabel="Add System"
+      activeHint="= $s"
     />
   );
 }
