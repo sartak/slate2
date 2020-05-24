@@ -31,7 +31,7 @@ const Alert = (alert) => {
 
 export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
-  const [manager, setManager] = useState(new AlertManager(alerts, setAlerts));
+  const [manager, setManager] = useState(() => new AlertManager(alerts, setAlerts));
 
   currentAlertProvider = manager;
   manager._hotReplaceContext = setManager;

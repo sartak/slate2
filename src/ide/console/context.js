@@ -8,7 +8,7 @@ export const useConsole = () => useContext(ConsoleContext);
 let currentConsoleManager;
 
 export const ConsoleProvider = ({ children }) => {
-  const [manager, setManager] = useState(new ConsoleManager().attach());
+  const [manager, setManager] = useState(() => new ConsoleManager().attach());
 
   currentConsoleManager = manager;
   manager._hotReplaceContext = setManager;
