@@ -173,7 +173,7 @@ const InspectUserDefinedSystemLabel = ({ id }) => {
     <div className="InspectLabel">
       <TextControlled
         value={label}
-        defaultValue={`System${id}`}
+        defaultValue={id}
         onChange={setLabel}
       />
     </div>

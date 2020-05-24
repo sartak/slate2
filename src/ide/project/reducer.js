@@ -48,7 +48,7 @@ export const projectReducer = (state = null, action) => {
           ...entities,
           [id]: {
             ...action.entity,
-            id,
+            id: `Entity${id}`,
             label: `Entity${id}`,
           },
         },
@@ -161,7 +161,7 @@ export const projectReducer = (state = null, action) => {
           ...userDefinedSystems,
           [id]: {
             ...action.system,
-            id,
+            id: `System${id}`,
             label: `System${id}`,
           },
         },
@@ -182,7 +182,7 @@ export const projectReducer = (state = null, action) => {
           ...userDefinedComponents,
           [id]: {
             ...action.component,
-            id,
+            id: `Component${id}`,
             label: `Component${id}`,
           },
         },

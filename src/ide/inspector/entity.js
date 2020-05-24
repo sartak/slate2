@@ -107,7 +107,7 @@ export const InspectEntityLabel = ({ id }) => {
     <div className="InspectLabel">
       <TextControlled
         value={label}
-        defaultValue={`Entity${id}`}
+        defaultValue={id}
         onChange={setLabel}
       />
     </div>

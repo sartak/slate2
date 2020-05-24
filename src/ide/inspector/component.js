@@ -68,7 +68,7 @@ export const InspectUserDefinedComponentLabel = ({ id }) => {
     <div className="InspectLabel">
       <TextControlled
         value={label}
-        defaultValue={`Component${id}`}
+        defaultValue={id}
         onChange={setLabel}
       />
     </div>

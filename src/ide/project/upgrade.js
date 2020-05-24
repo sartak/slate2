@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 16;
+export const currentVersion = 17;
 
 export const newProject = () => {
   return {
@@ -182,6 +182,55 @@ export const upgradeProject = (project) => {
   if (project.version < 16) {
     Object.values(project.entities).forEach((entity) => {
       entity.label = 'Entity';
+    });
+  }
+
+  if (project.version < 17) {
+    Object.entries(project.entities).forEach(([id, entity]) => {
+      if (id.match(/^\d+$/)) {
+        const newId = `Entity${id}`;
+        delete project.entities[id];
+        entity.id = newId;
+        project.entities[newId] = entity;
+      }
+    });
+
+    Object.entries(project.userDefinedSystems).forEach(([id, system]) => {
+      if (id.match(/^\d+$/)) {
+        const newId = `System${id}`;
+        delete project.userDefinedSystems[id];
+        system.id = newId;
+        project.userDefinedSystems[newId] = system;
+
+        if (String(project.activeSystemId) === id) {
+          project.activeSystemId = newId;
+        }
+      }
+    });
+
+    Object.entries(project.userDefinedComponents).forEach(([id, component]) => {
+      if (id.match(/^\d+$/)) {
+        const newId = `Component${id}`;
+        delete project.userDefinedComponents[id];
+        component.id = newId;
+        project.userDefinedComponents[newId] = component;
+
+        Object.values(project.userDefinedSystems).forEach((system) => {
+          system.requiredComponents = system.requiredComponents.map((c) => String(c) === id ? newId : c);
+        });
+
+        Object.values(project.entities).forEach((entity) => {
+          entity.componentIds = entity.componentIds.map((c) => String(c) === id ? newId : c);
+          if (entity.componentConfig[id]) {
+            entity.componentConfig[newId] = entity.componentConfig[id];
+            delete entity.componentConfig[id];
+          }
+        });
+
+        if (String(project.activeComponentId) === id) {
+          project.activeComponentId = newId;
+        }
+      }
     });
   }
 
