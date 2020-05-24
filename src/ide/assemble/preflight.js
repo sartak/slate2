@@ -47,6 +47,7 @@ const __assembleGameForPreflight = (originalProject) => {
   const ctx = __newContext(project, {
     prefix: '__',
     systemClassPrefix: '__systemClasses.',
+    forPreflight: true,
   });
 
   __prepareECS(project, ctx);
