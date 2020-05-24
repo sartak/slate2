@@ -15,28 +15,28 @@
       & > span {
         margin-right: 2em;
         display: inline-block;
+        max-width: 100%;
         word-wrap: break-word;
         white-space: pre-wrap;
+        vertical-align: top;
+      }
+
+      &.s2_eval_input::before, &.s2_eval_result::before, &.s2_eval_error::before {
+        display: inline-block;
+        font-family: "Futura";
+        text-align: center;
+        margin-left: -@left-pad;
+        width: @left-pad;
+        color: rgb(150, 150, 150);
       }
 
       &.s2_eval_input::before {
-        display: inline-block;
-        font-family: "Futura";
         content: ">";
-        text-align: center;
-        color: rgb(150, 150, 150);
-        margin-left: -@left-pad;
-        width: @left-pad;
       }
 
       &.s2_eval_result::before, &.s2_eval_error::before {
-        display: inline-block;
-        font-family: "Futura";
         content: "←";
-        text-align: center;
-        color: rgb(150, 150, 150);
-        margin-left: -@left-pad;
-        width: @left-pad;
+        margin-top: -2px;
       }
 
       &.s2_eval_error::before {
@@ -115,7 +115,7 @@
       width: 100%;
       font-family: Menlo, Monaco, "Courier New", monospace;
       font-size: 12px;
-      padding: 1px 0 0 @left-pad;
+      padding: 0 0 0 @left-pad;
       height: 4em;
     }
   }
