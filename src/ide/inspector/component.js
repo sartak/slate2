@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction, setActiveSystemAction } from '../project/actions';
-import { makeSelectComponent, makeSelectComponentField, selectEnabledSystems } from '../project/selectors';
+import { setUserDefinedComponentLabelAction, setUserDefinedComponentFieldMetadataAction, addFieldToUserDefinedComponentAction, setActiveSystemAction, setActiveEntityAction } from '../project/actions';
+import { makeSelectComponent, makeSelectComponentField, selectEnabledSystems, selectEntityList } from '../project/selectors';
 import { newUserDefinedField } from '../ecs/components';
 import { BuiltinTypes, zeroValueForType, editorForType, canonicalizeValue } from '../types';
 import { ObjectList } from '../list-objects';
@@ -118,10 +118,27 @@ const InspectComponentSystems = ({ systems }) => {
   );
 };
 
+const InspectComponentEntities = ({ entities }) => {
+  const dispatch = useDispatch();
+
+  return (
+    <React.Fragment>
+      <div className="label">Entities</div>
+      <ObjectList
+        objects={entities}
+        onSelect={({ id }) => dispatch(setActiveEntityAction(id))}
+      />
+    </React.Fragment>
+  );
+};
+
 export const InspectComponent = ({ id }) => {
   const component = useSelector(makeSelectComponent(id));
   const systems = useSelector(selectEnabledSystems).filter(({ requiredComponents }) => (
     requiredComponents.find((componentId) => componentId === id)
+  ));
+  const entities = useSelector(selectEntityList).filter(({ componentConfig }) => (
+    componentConfig[id]
   ));
 
   const { userDefined } = component;
@@ -146,6 +163,9 @@ export const InspectComponent = ({ id }) => {
       <div className="references">
         {systems.length ? (
           <InspectComponentSystems systems={systems} />
+        ) : null}
+        {entities.length ? (
+          <InspectComponentEntities entities={entities} />
         ) : null}
       </div>
     </div>
