@@ -4,22 +4,20 @@ import { ConsoleInput } from './input';
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import './activity.less';
 
-const renderArgs = (args) => {
-  return args.map((arg) => {
-    if (arg === null) {
-      return "null";
-    } else if (arg === undefined) {
-      return "undefined";
-    } else if (typeof arg === "object") {
-      try {
-        return JSON.stringify(arg, null, 2);
-      } catch (e) {
-        return arg;
-      }
+const renderArg = (arg) => {
+  if (arg === null) {
+    return ["javascript", "null"];
+  } else if (arg === undefined) {
+    return ["javascript", "undefined"];
+  } else if (typeof arg === "object") {
+    try {
+      return ["javascript", JSON.stringify(arg, null, 2)];
+    } catch (e) {
+      return [null, arg];
     }
+  }
 
-    return arg;
-  }).join(' ');
+  return [null, arg];
 };
 
 export const ConsoleActivity = () => {
@@ -30,8 +28,8 @@ export const ConsoleActivity = () => {
 
   const setListRef = useCallback((list) => {
     listRef.current = list;
-    list?.querySelectorAll('li[data-lang=javascript').forEach((li) => {
-      monaco.editor.colorizeElement(li, { theme: 'vs-dark' });
+    list?.querySelectorAll('li span[data-lang=javascript').forEach((span) => {
+      monaco.editor.colorizeElement(span, { theme: 'vs-dark' });
     });
   }, []);
 
@@ -39,12 +37,29 @@ export const ConsoleActivity = () => {
     const unsubscribe = manager.subscribe((level, args) => {
       if (listRef.current) {
         const li = document.createElement('li');
-        li.innerText = renderArgs(args);
         li.classList.add(level);
-        if (level === 's2_eval_input') {
-          li.dataset.lang = 'javascript';
-          monaco.editor.colorizeElement(li, { theme: 'vs-dark' });
-        }
+
+        args.forEach((arg) => {
+          let [lang, display] = renderArg(arg);
+          if (level === 's2_eval_input') {
+            lang = 'javascript';
+          }
+
+          const span = document.createElement('span');
+
+          if (lang) {
+            span.dataset.lang = lang;
+          }
+
+          const textNode = document.createTextNode(display);
+          span.appendChild(textNode);
+          li.appendChild(span);
+
+          if (lang) {
+            monaco.editor.colorizeElement(span, { theme: 'vs-dark' });
+          }
+        });
+
         listRef.current.appendChild(li);
         inputRef.current?.scrollIntoView(false);
       }
@@ -60,12 +75,14 @@ export const ConsoleActivity = () => {
     <div className="ConsoleActivity">
       <ul ref={setListRef} key={Date.now()}>
         {manager.lines.map(([level, args], i) => (
-          <li
-            key={i}
-            className={level}
-            data-lang={level === 's2_eval_input' ? 'javascript' : null}
-          >
-            {renderArgs(args)}
+          <li key={i} className={level}>
+            {args.map((arg, i) => {
+              let [lang, display] = renderArg(arg);
+              if (level === 's2_eval_input') {
+                lang = 'javascript';
+              }
+              return <span key={i} data-lang={lang}>{display}</span>;
+            })}
           </li>
         ))}
       </ul>

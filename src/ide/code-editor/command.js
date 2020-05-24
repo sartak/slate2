@@ -11,15 +11,29 @@ export const CommandEditor = (props) => {
       suppressStatusBar
       options={{
         automaticLayout: true,
+
+        wordWrap: "on",
+        scrollBeyondLastLine: false,
+        scrollBeyondLastColumn: false,
+
         renderLineHighlight: false,
         scrollbar: {
+          useShadows: false,
           vertical: 'hidden',
           horizontal: 'hidden',
         },
-        scrollBeyondLastLine: false,
-        scrollBeyondLastColumn: false,
+
+        // hide left margin
         lineNumbers: false,
-        wordWrap: "on",
+        glyphMargin: false,
+        folding: false,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 0,
+
+        // hide right margin
+        hideCursorInOverviewRuler: true,
+        overviewRulerBorder: false,
+
         ...props.options,
       }}
 

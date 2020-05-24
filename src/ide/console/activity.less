@@ -12,6 +12,13 @@
     padding: 0;
 
     & > li {
+      & > span {
+        margin-right: 2em;
+        display: inline-block;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+
       &.s2_eval_input::before {
         display: inline-block;
         font-family: "Futura";
@@ -35,9 +42,6 @@
       &.s2_eval_error::before {
         color: rgb(233, 131, 128);
       }
-
-      word-wrap: break-word;
-      white-space: pre-wrap;
 
       padding: @line-padding-vertical @left-pad @line-padding-vertical @left-pad;
       border-top: 1px solid rgb(58, 58, 58);
@@ -68,6 +72,10 @@
         &, & + li {
           border-top: 1px solid rgb(84, 12, 6);
         }
+      }
+
+      &:first-child {
+        border-top: none;
       }
 
       &:last-child {
@@ -107,8 +115,8 @@
       width: 100%;
       font-family: Menlo, Monaco, "Courier New", monospace;
       font-size: 12px;
-      padding: @line-padding-vertical @left-pad 1.5em @left-pad;
-      height: 8em;
+      padding: 1px 0 0 @left-pad;
+      height: 4em;
     }
   }
 }
