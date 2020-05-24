@@ -19,6 +19,8 @@ const renderArg = (arg) => {
     return ["javascript", arg];
   } else if (typeof arg === "function") {
     return ["javascript", String(arg)];
+  } else if (arg instanceof Error) {
+    return [null, arg.toString()];
   } else if (typeof arg === "object") {
     try {
       return ["javascript", JSON.stringify(arg, null, 2)];
