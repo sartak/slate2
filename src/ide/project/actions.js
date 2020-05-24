@@ -72,6 +72,6 @@ export const setUserDefinedSystemLabelAction = (id, label) => {
   return { type: t.SET_USER_DEFINED_SYSTEM_LABEL, id, label };
 };
 
-export const setCodeForUserDefinedSystemMethod = (id, method, code) => {
+export const setCodeForUserDefinedSystemMethodAction = (id, method, code) => {
   return { type: t.SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD, id, method, code };
 };
