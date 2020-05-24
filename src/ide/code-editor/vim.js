@@ -1,25 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import { CodeEditorBase } from './base';
 import { initVimMode, VimMode } from 'monaco-vim';
-import './code-editor.less';
-
-export const CodeEditorBase = (props) => {
-  return (
-    <MonacoEditor
-      theme="vs-dark"
-
-      {...props}
-
-      options={{
-        minimap: {
-          enabled: false,
-        },
-        ...(props.options || null),
-        readOnly: props.readOnly,
-      }}
-    />
-  );
-};
 
 const showConfirm = (vim, text) => {
   if (vim && vim.statusBar) {
@@ -122,5 +103,3 @@ export const CodeEditorVim = (props) => {
     </div>
   );
 };
-
-export const CodeEditor = CodeEditorVim;
