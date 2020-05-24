@@ -22,6 +22,7 @@ export const SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD = 'SET_CODE_FOR_USER_DEFINE
 export const ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM = 'ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM';
 export const REMOVE_REQUIRED_COMPONENT_FROM_USER_DEFINED_SYSTEM = 'REMOVE_REQUIRED_COMPONENT_FROM_USER_DEFINED_SYSTEM';
 export const SET_SELECTED_TAB_LABEL = 'SET_SELECTED_TAB_LABEL';
+export const SET_BUILD_OPTION = 'SET_BUILD_OPTION';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -411,6 +412,19 @@ export const projectReducer = (state = null, action) => {
             ...tabs,
             [id]: label,
           },
+        },
+      };
+    }
+
+    case SET_BUILD_OPTION: {
+      const { key, value } = action;
+      const { build } = state;
+
+      return {
+        ...state,
+        build: {
+          ...build,
+          [key]: value,
         },
       };
     }

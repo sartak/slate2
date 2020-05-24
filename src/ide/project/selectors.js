@@ -92,3 +92,7 @@ export const selectActiveTypeId = ({ activeEntityId, activeComponentId, activeSy
 export const makeSelectTabLabel = (id) => {
   return ({ ide }) => ide.tabs[id];
 };
+
+export const makeSelectBuildOption = (key) => {
+  return ({ build }) => build[key];
+};

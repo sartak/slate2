@@ -87,3 +87,7 @@ export const removeRequiredComponentFromUserDefinedSystemAction = (systemId, com
 export const setSelectedTabLabelAction = (id, label) => {
   return { type: t.SET_SELECTED_TAB_LABEL, id, label };
 };
+
+export const setBuildOption = (key, value) => {
+  return { type: t.SET_BUILD_OPTION, key, value };
+};
