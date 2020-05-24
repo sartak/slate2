@@ -4,6 +4,7 @@ import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepare
 import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs';
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
 import { flattenList as __flattenList } from './inline';
+import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
 
 const __assembleEvalCall = (codeVar, paramsVar, inputVar, project, ctx) => {
   return [
@@ -131,7 +132,14 @@ const __assembleGameForPreflight = (originalProject) => {
 const __evaluateGameForPreflight = (__project) => {
   const __systemClasses = {};
   __selectEnabledSystems(__project).forEach((__system) => {
-    __systemClasses[__system.id] = __system.constructor;
+    if (__system.userDefined) {
+      // @Cleanup: we should pass functions that can pass config for
+      // this constructor
+      __systemClasses[__system.id] = __UserDefinedSystem.constructor;
+    }
+    else {
+      __systemClasses[__system.id] = __system.constructor;
+    }
   });
 
   const [__assembly, __context] = __assembleGameForPreflight(__project);
