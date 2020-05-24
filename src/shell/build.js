@@ -1,4 +1,4 @@
-const { app, ipcMain: ipc, shell } = require('electron');
+const { app, ipcMain: ipc } = require('electron');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -13,12 +13,20 @@ ipc.on('build-project', (event, assembly) => {
 
   makeTempDir('src').then((tmpDir) => {
     const buildWithWebpack = buildWithExternalWebpack;
-    buildWithWebpack(assembly, tmpDir).then((stdout, stderr) => {
-      if (shell.openItem(directory)) {
-        event.reply('build-project-success', stdout, stderr);
-      } else {
-        event.reply('build-project-error', new Error(`Unable to open ${tmpDir}`));
-      }
+    buildWithWebpack(assembly, tmpDir).then((webpack_stdout, webpack_stderr) => {
+      execFile(path.resolve(tmpDir, 'postbuild.sh'), [], {
+        cwd: tmpDir,
+      }, (error, postbuild_stdout, postbuild_stderr) => {
+        if (error) {
+          const stdout = [webpack_stdout, postbuild_stdout].filter(Boolean).join("\n");
+          const stderr = [webpack_stderr, postbuild_stderr].filter(Boolean).join("\n");
+          event.reply('build-project-error', { error, stdout, stderr });
+        } else {
+          const stdout = [webpack_stdout, postbuild_stdout].filter(Boolean).join("\n");
+          const stderr = [webpack_stderr, postbuild_stderr].filter(Boolean).join("\n");
+          event.reply('build-project-success', stdout, stderr);
+        }
+      });
     }).catch((err) => {
       event.reply('build-project-error', err);
     });
@@ -48,6 +56,7 @@ const buildWithLiveWebpack = (assembly, tmpDir) => {
     [tmpDir, 'webpack.config.js', assembly.webpackConfig],
     [srcDir, 'game.js', assembly.game],
     [srcDir, 'index.html', assembly.indexHtml],
+    [tmpDir, 'postbuild.sh', assembly.postbuild, '755'],
   ].map((args) => saveFile(...args))).then(() => {
     process.chdir(tmpDir);
 
@@ -84,6 +93,7 @@ const buildWithExternalWebpack = (assembly, tmpDir) => {
     [tmpDir, 'webpack.config.js', assembly.webpackConfig],
     [srcDir, 'game.js', assembly.game],
     [srcDir, 'index.html', assembly.indexHtml],
+    [tmpDir, 'postbuild.sh', assembly.postbuild, '755'],
   ].map((args) => saveFile(...args))).then(() => {
     return new Promise((resolve, reject) => {
       execFile(path.resolve(SLATE2_HOME, 'node_modules', '.bin', 'webpack'), [], {
