@@ -9,6 +9,14 @@ export const CodeEditorBase = (props) => {
 
         {...props}
 
+        editorDidMount={(editor, ...rest) => {
+          if (!props.suppressAutofocus) {
+            editor.focus();
+          }
+
+          props.editorDidMount?.(editor, ...rest);
+        }}
+
         options={{
           minimap: {
             enabled: false,
