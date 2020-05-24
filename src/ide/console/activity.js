@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useConsole } from './context';
 import { ConsoleInput } from './input';
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import './activity.less';
 
 const renderArgs = (args) => {
@@ -27,12 +28,23 @@ export const ConsoleActivity = () => {
   const scrollTimeout = useRef(null);
   const inputRef = useRef(null);
 
+  const setListRef = useCallback((list) => {
+    listRef.current = list;
+    list?.querySelectorAll('li[data-lang=javascript').forEach((li) => {
+      monaco.editor.colorizeElement(li, { theme: 'vs-dark' });
+    });
+  }, []);
+
   useEffect(() => {
     const unsubscribe = manager.subscribe((level, args) => {
       if (listRef.current) {
         const li = document.createElement('li');
         li.innerText = renderArgs(args);
         li.classList.add(level);
+        if (level === 's2_eval_input') {
+          li.dataset.lang = 'javascript';
+          monaco.editor.colorizeElement(li, { theme: 'vs-dark' });
+        }
         listRef.current.appendChild(li);
         inputRef.current?.scrollIntoView(false);
       }
@@ -46,9 +58,13 @@ export const ConsoleActivity = () => {
 
   return (
     <div className="ConsoleActivity">
-      <ul ref={listRef} key={Date.now()}>
+      <ul ref={setListRef} key={Date.now()}>
         {manager.lines.map(([level, args], i) => (
-          <li key={i} className={level}>
+          <li
+            key={i}
+            className={level}
+            data-lang={level === 's2_eval_input' ? 'javascript' : null}
+          >
             {renderArgs(args)}
           </li>
         ))}
