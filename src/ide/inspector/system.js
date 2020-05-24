@@ -36,7 +36,7 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
 
     let code;
     if (userDefined) {
-      if (method in system.methods) {
+      if (system.methods[method]) {
         code = system.methods[method];
       } else {
         const config = SystemMethods.find(([name]) => name === method);
@@ -56,7 +56,7 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
       <div className="label">{method}</div>
       <div className="field">
         {userDefined ? (
-          method in system.methods ? (
+          system.methods[method] ? (
             <button onClick={edit}>Edit Code</button>
           ) : (
             <button onClick={edit}>Add Method</button>
