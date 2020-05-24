@@ -21,6 +21,8 @@ export const CodeEditorBase = (props) => {
           minimap: {
             enabled: false,
           },
+          wordWrap: 'on',
+          wrappingIndent: 'indent',
           ...(props.options || null),
           readOnly: props.readOnly,
         }}
