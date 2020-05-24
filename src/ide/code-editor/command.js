@@ -47,7 +47,8 @@ export const CommandEditor = (props) => {
 
       editorDidMount={(editor, ...rest) => {
         editor.addCommand(monaco.KeyCode.Enter, () => {
-          const text = editor.getValue();
+          let text = editor.getValue();
+          text = text.replace(/\s+$/, "");
           setText('');
           props.onCommand?.(text);
         });
