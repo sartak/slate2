@@ -238,7 +238,7 @@ export const assembleComponents = (project, ctx) => {
 
 export const assembleSystems = (project, ctx) => {
   const { entityMap, componentMap, systemMap, systemObjects, systemClassPrefix } = ctx;
-  const { generateComponentVars, generateSystemVars } = project;
+  const { generateSystemVars } = project;
 
   return [
     ...systemObjects.map((system) => {
@@ -281,11 +281,6 @@ export const assembleSystems = (project, ctx) => {
         (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
 
         (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => entityMap[id].index)}];`),
-        ...(generateSystemVars && generateComponentVars ?
-          componentObjects.map((component) => {
-            return `${varName}.${component.label} = ${componentMap[component.id].varName};`;
-          })
-        : []),
 
         (hasInit && `let ${initReturnVar} = undefined;`),
       ];
