@@ -9,6 +9,14 @@ const renderArg = (arg) => {
     return ["javascript", "null"];
   } else if (arg === undefined) {
     return ["javascript", "undefined"];
+  } else if (arg === true) {
+    return ["javascript", "true"];
+  } else if (arg === false) {
+    return ["javascript", "false"];
+  } else if (Number.isNaN(arg)) {
+    return ["javascript", String(arg)];
+  } else if (arg === Infinity) {
+    return ["javascript", arg];
   } else if (typeof arg === "object") {
     try {
       return ["javascript", JSON.stringify(arg, null, 2)];
