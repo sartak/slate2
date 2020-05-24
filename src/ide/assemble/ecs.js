@@ -99,7 +99,7 @@ export const prepareSystems = (project, ctx) => {
 
   selectEnabledSystems(project).forEach((system) => {
     const systemId = system.id;
-    const { requiredComponents, initSkipDesignMode } = system;
+    const { requiredComponents, initSkipDesignMode, userDefined } = system;
 
     const componentMaps = [];
     for (let i = 0, len = requiredComponents.length; i < len; ++i) {
@@ -129,10 +129,13 @@ export const prepareSystems = (project, ctx) => {
     const baseParams = [];
 
     const getMethod = (name) => {
-      if (!system.__proto__[name]) {
-        return undefined;
+      if (userDefined && system.methods[name]) {
+        return { func: system.methods[name] };
       }
-      return system.constructor.sourceCode;
+      if (system.__proto__[name]) {
+        return { file: system.constructor.sourceCode };
+      }
+      return undefined;
     };
 
     const initMethod = getMethod('init');

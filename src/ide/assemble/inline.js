@@ -34,6 +34,44 @@ const extractMethodSubtree = (classAst, methodName, args, ctx) => {
   return subtree;
 };
 
+const invokeInlineFunction = (functionAst, methodName, args, ctx) => {
+  const { body } = functionAst.program;
+
+  if (body.length !== 1) {
+    throw new Error(`Expected one top-level function declaration; got ${body.length} statements`);
+  }
+
+  if (!t.isFunctionDeclaration(body[0])) {
+    throw new Error(`Expected a function declaration; got ${body[0].type}`);
+  }
+
+  traverse(functionAst, {
+    FunctionDeclaration(path) {
+      const { node } = path;
+      const { params, body, id } = node;
+
+      path.replaceWith(
+        t.ExpressionStatement(
+          t.CallExpression(
+            t.parenthesizedExpression(
+              t.FunctionExpression(
+                t.Identifier(t.isIdentifier(id) ? id.name : methodName),
+                params,
+                body,
+              ),
+            ),
+            args.map((arg) => t.Identifier(arg)),
+          ),
+        ),
+      );
+
+      path.skip();
+    }
+  });
+
+  return functionAst;
+};
+
 export const rewriteCodeToUseComponentVariables = (code, components, componentDictionaryLookup, ctx) => {
   const ast = parseSync(code);
   rewriteTreeToUseComponentVariables(ast, components, componentDictionaryLookup, ctx, true);
@@ -167,11 +205,11 @@ const rewriteTreeToUseComponentVariables = (ast, components, componentDictionary
   }, ...(rawAst ? [] : [ast.scope, ast]));
 };
 
-const inlineFunctionArguments = (ast, ctx) => {
+const inlineFunctionArguments = (ast, ctx, rawAst) => {
   const identical = [];
   const replacements = [];
 
-  traverse(ast.node, {
+  traverse(rawAst ? ast : ast.node, {
     CallExpression(path) {
       const { callee: wrapper, arguments: args } = path.node;
 
@@ -259,26 +297,38 @@ const inlineFunctionArguments = (ast, ctx) => {
       // Only do this at the top level.
       path.skip();
     }
-  }, ast.scope, ast.parent);
+  }, ...(rawAst ? [] : [ast.scope, ast]));
 
   return [...identical, ...replacements];
 };
 
-export const assembleInlineSystemCall = (system, methodName, classCode, args, project, ctx) => {
+export const assembleInlineSystemCall = (system, methodName, code, args, project, ctx) => {
   const { systemMap } = ctx;
   const components = systemMap[system.id].componentObjects;
 
-  const classAst = parseSync(classCode, {
-    plugins: [
-      BabelPluginProposalClassProperties,
-    ],
-    sourceType: "module",
-  });
+  let subtree;
+  let rawAst;
+  if (code.func) {
+    const functionAst = parseSync(code.func);
+    subtree = invokeInlineFunction(functionAst, methodName, args, ctx);
+    rawAst = true;
+  } else if (code.file) {
+    const classAst = parseSync(code.file, {
+      plugins: [
+        BabelPluginProposalClassProperties,
+      ],
+      sourceType: "module",
+    });
 
-  const subtree = extractMethodSubtree(classAst, methodName, args, ctx);
-  rewriteTreeToUseComponentVariables(subtree, components, null, ctx);
-  const inlinedArgs = inlineFunctionArguments(subtree, ctx);
-  const output = generate(subtree.node).code;
+    subtree = extractMethodSubtree(classAst, methodName, args, ctx);
+    rawAst = false;
+  } else {
+    throw new Error('Expected object with key `func` or `file`, got ' + JSON.stringify(Object.keys(code)));
+  }
+
+  rewriteTreeToUseComponentVariables(subtree, components, null, ctx, rawAst);
+  const inlinedArgs = inlineFunctionArguments(subtree, ctx, rawAst);
+  const output = generate(subtree.program ?? subtree.node).code;
 
   return [
     `/*`,
