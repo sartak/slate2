@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 17;
+export const currentVersion = 18;
 
 export const newProject = () => {
   return {
@@ -28,6 +28,12 @@ export const newProject = () => {
       panY: 0,
       zoom: 1,
       prevZoom: 0.5,
+    },
+
+    ide: {
+      tabs: {
+        'panel-left': 'Entities',
+      },
     },
   };
 };
@@ -232,6 +238,14 @@ export const upgradeProject = (project) => {
         }
       }
     });
+  }
+
+  if (project.version < 18) {
+    project.ide = {
+      tabs: {
+        'panel-left': 'Entities',
+      },
+    };
   }
 
   console.info(`Upgraded project from version ${project.version} to ${currentVersion}`);

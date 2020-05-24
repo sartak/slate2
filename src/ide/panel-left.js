@@ -7,11 +7,14 @@ import { Tabs } from './tabs';
 export const PanelLeft = () => {
   return (
     <div className="PanelLeft">
-      <Tabs tabs={[
-        ['Entities', EntityList],
-        ['Components', ComponentList],
-        ['Systems', SystemList],
-      ]} />
+      <Tabs
+        id='panel-left'
+        tabs={[
+          ['Entities', EntityList],
+          ['Components', ComponentList],
+          ['Systems', SystemList],
+        ]}
+      />
     </div>
   );
 }

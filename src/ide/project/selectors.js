@@ -88,3 +88,7 @@ export const selectActiveTypeId = ({ activeEntityId, activeComponentId, activeSy
 
   return [null, null];
 };
+
+export const makeSelectTabLabel = (id) => {
+  return ({ ide }) => ide.tabs[id];
+};

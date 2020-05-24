@@ -79,3 +79,7 @@ export const setCodeForUserDefinedSystemMethodAction = (id, method, code) => {
 export const addRequiredComponentToUserDefinedSystemAction = (systemId, componentId) => {
   return { type: t.ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM, systemId, componentId };
 };
+
+export const setSelectedTabLabelAction = (id, label) => {
+  return { type: t.SET_SELECTED_TAB_LABEL, id, label };
+};

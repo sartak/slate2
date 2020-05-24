@@ -20,6 +20,7 @@ export const ADD_FIELD_TO_USER_DEFINED_COMPONENT = 'ADD_FIELD_TO_USER_DEFINED_CO
 export const SET_USER_DEFINED_COMPONENT_FIELD_METADATA = 'SET_USER_DEFINED_COMPONENT_FIELD_METADATA';
 export const SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD = 'SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD';
 export const ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM = 'ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM';
+export const SET_SELECTED_TAB_LABEL = 'SET_SELECTED_TAB_LABEL';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -325,6 +326,23 @@ export const projectReducer = (state = null, action) => {
           [systemId]: {
             ...system,
             requiredComponents: [...requiredComponents, componentId],
+          },
+        },
+      };
+    }
+
+    case SET_SELECTED_TAB_LABEL: {
+      const { id, label } = action;
+      const { ide } = state;
+      const { tabs } = ide;
+
+      return {
+        ...state,
+        ide: {
+          ...ide,
+          tabs: {
+            ...tabs,
+            [id]: label,
           },
         },
       };
