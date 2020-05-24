@@ -18,6 +18,7 @@ export const SET_USER_DEFINED_COMPONENT_LABEL = 'SET_USER_DEFINED_COMPONENT_LABE
 export const SET_USER_DEFINED_SYSTEM_LABEL = 'SET_USER_DEFINED_SYSTEM_LABEL';
 export const ADD_FIELD_TO_USER_DEFINED_COMPONENT = 'ADD_FIELD_TO_USER_DEFINED_COMPONENT';
 export const SET_USER_DEFINED_COMPONENT_FIELD_METADATA = 'SET_USER_DEFINED_COMPONENT_FIELD_METADATA';
+export const SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD = 'SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -284,6 +285,27 @@ export const projectReducer = (state = null, action) => {
               ...field,
               [key]: value,
             }),
+          },
+        },
+      };
+    }
+
+    case SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD: {
+      const { id, method, code } = action;
+      const { userDefinedSystems } = state;
+      const system = userDefinedSystems[id];
+      const { methods } = system;
+
+      return {
+        ...state,
+        userDefinedSystems: {
+          ...userDefinedSystems,
+          [id]: {
+            ...system,
+            methods: {
+              ...methods,
+              [method]: code,
+            },
           },
         },
       };
