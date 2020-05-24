@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction } from '../project/actions';
-import { makeSelectSystem } from '../project/selectors';
+import { useSelectorLazy } from '../project/useSelectorLazy';
+import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction, addRequiredComponentToUserDefinedSystemAction } from '../project/actions';
+import { makeSelectSystem, selectEnabledComponents, selectProject } from '../project/selectors';
+import { lookupComponentWithId  } from '../ecs/components';
 import { TextControlled } from '../field/text-controlled';
 import { useFloatingEditor } from '../code-editor';
 
@@ -94,6 +96,69 @@ const InspectSystemMethods = ({ id }) => {
   );
 };
 
+const AddRequiredComponentToSystem = ({ id }) => {
+  const dispatch = useDispatch();
+  const [isAdding, setAdding] = useState(false);
+  const enabledComponentsLazy = useSelectorLazy(selectEnabledComponents);
+  const systemLazy = useSelectorLazy(makeSelectSystem(id));
+
+  useEffect(() => {
+    setAdding(false);
+  }, [id]);
+
+  if (!isAdding) {
+    return (
+      <button onClick={() => setAdding(true)}>Add Component</button>
+    );
+  }
+
+  const enabledComponents = enabledComponentsLazy();
+  const system = systemLazy();
+
+  const addComponent = (component) => {
+    dispatch(addRequiredComponentToUserDefinedSystemAction(id, component.id));
+    setAdding(false);
+  };
+
+  return (
+    <ul>
+      {enabledComponents.map((component) => {
+        if (system.requiredComponents.find((id) => id === component.id)) {
+          return null;
+        }
+
+        return (
+          <li key={component.id}>
+            <button onClick={() => addComponent(component)}>Add {component.label}</button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
+const InspectSystemComponents = ({ id }) => {
+  const system = useSelector(makeSelectSystem(id));
+  const project = useSelector(selectProject);
+
+  const { userDefined, requiredComponents } = system;
+
+  return (
+    <div className="InspectSubobject">
+      <div className="label">Required Components</div>
+      <ul>
+        {requiredComponents.map((componentId) => {
+          const component = lookupComponentWithId(project, componentId);
+          return (
+            <li key={componentId}>{component.label}</li>
+          );
+        })}
+      </ul>
+      {userDefined && <AddRequiredComponentToSystem id={id} />}
+    </div>
+  );
+};
+
 const InspectUserDefinedSystemLabel = ({ id }) => {
   const dispatch = useDispatch();
   const system = useSelector(
@@ -127,6 +192,7 @@ export const InspectSystem = ({ id }) => {
         <div className="label">{system.label}</div>
       )}
       <ul>
+        <li><InspectSystemComponents id={id} /></li>
         <li><InspectSystemMethods id={id} /></li>
       </ul>
     </div>

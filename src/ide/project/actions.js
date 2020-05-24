@@ -75,3 +75,7 @@ export const setUserDefinedSystemLabelAction = (id, label) => {
 export const setCodeForUserDefinedSystemMethodAction = (id, method, code) => {
   return { type: t.SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD, id, method, code };
 };
+
+export const addRequiredComponentToUserDefinedSystemAction = (systemId, componentId) => {
+  return { type: t.ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM, systemId, componentId };
+};

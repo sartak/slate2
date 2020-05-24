@@ -19,6 +19,7 @@ export const SET_USER_DEFINED_SYSTEM_LABEL = 'SET_USER_DEFINED_SYSTEM_LABEL';
 export const ADD_FIELD_TO_USER_DEFINED_COMPONENT = 'ADD_FIELD_TO_USER_DEFINED_COMPONENT';
 export const SET_USER_DEFINED_COMPONENT_FIELD_METADATA = 'SET_USER_DEFINED_COMPONENT_FIELD_METADATA';
 export const SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD = 'SET_CODE_FOR_USER_DEFINED_SYSTEM_METHOD';
+export const ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM = 'ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -306,6 +307,24 @@ export const projectReducer = (state = null, action) => {
               ...methods,
               [method]: code,
             },
+          },
+        },
+      };
+    }
+
+    case ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM: {
+      const { systemId, componentId } = action;
+      const { userDefinedSystems } = state;
+      const system = userDefinedSystems[systemId];
+      const { requiredComponents } = system;
+
+      return {
+        ...state,
+        userDefinedSystems: {
+          ...userDefinedSystems,
+          [systemId]: {
+            ...system,
+            requiredComponents: [...requiredComponents, componentId],
           },
         },
       };
