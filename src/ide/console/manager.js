@@ -1,4 +1,5 @@
 export class ConsoleManager {
+  attached = false;
   lines = [];
   originalMethod = {};
   novelMethods = [];
@@ -7,6 +8,11 @@ export class ConsoleManager {
   attach() {
     const { lines, novelMethods, originalMethod } = this;
     const manager = this;
+
+    if (this.attached) {
+      return;
+    }
+    this.attached = true;
 
     const filter = ([first, second, third]) => {
       if (first && first.startsWith && first.startsWith('[HMR] ')) {
@@ -58,6 +64,11 @@ export class ConsoleManager {
   }
 
   detach() {
+    if (!this.attached) {
+      return;
+    }
+    this.attached = false;
+
     Object.entries(this.originalMethod).forEach(([name, implementation]) => {
       console[name] = implementation;
     });
