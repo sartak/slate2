@@ -16,6 +16,10 @@ export const FloatingEditor = ({ close, ...props }) => {
           qui: close,
           quit: close,
 
+          qa: close,
+          qal: close,
+          qall: close,
+
           wq: close,
           wqa: close,
           wqal: close,
