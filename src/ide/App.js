@@ -9,6 +9,7 @@ import { createProjectAction } from './project/actions';
 import { selectProject } from './project/selectors';
 import { AlertProvider } from './alert/context';
 import { ConsoleProvider } from './console/context';
+import { FloatingEditorProvider } from './code-editor/context';
 
 const App = () => {
   const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
@@ -29,7 +30,9 @@ const AppWrapper = () => {
   return (
     <ConsoleProvider>
       <AlertProvider>
-        <App />
+        <FloatingEditorProvider>
+          <App />
+        </FloatingEditorProvider>
       </AlertProvider>
     </ConsoleProvider>
   );
