@@ -40,12 +40,16 @@ export class KeyboardInputSystem extends BaseSystem {
     window.addEventListener('keydown', downListener);
     window.addEventListener('keyup', upListener);
 
-    return [pressed, downListener, upListener];
+    const detach = () => {
+      window.removeEventListener('keydown', downListener);
+      window.removeEventListener('keyup', upListener);
+    };
+
+    return [pressed, detach];
   }
 
-  deinit([pressed, downListener, upListener]) {
-    window.removeEventListener('keydown', downListener);
-    window.removeEventListener('keyup', upListener);
+  deinit([pressed, detach]) {
+    detach();
   }
 
   input([pressed]) {
