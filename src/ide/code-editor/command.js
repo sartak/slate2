@@ -9,6 +9,7 @@ export const CommandEditor = (props) => {
       language="javascript"
       value={text}
       suppressStatusBar
+      insertMode
       options={{
         automaticLayout: true,
 

@@ -46,11 +46,24 @@ const installCommands = (editor, vim, commands) => {
   });
 };
 
-const addVim = (editor, statusBar, commands) => {
+const addVim = (editor, statusBar, commands, props) => {
   const vim = initVimMode(editor, statusBar);
 
   if (commands) {
     installCommands(editor, vim, commands);
+  }
+
+  if (props.insertMode) {
+    // @Upstream: ask for an API
+    const browserEvent = new Event('keydown');
+    browserEvent.keyCode = 39;
+    browserEvent.key = "i";
+
+    const wrapperEvent = new Event('keydown');
+    wrapperEvent.keyCode = 39;
+    wrapperEvent.browserEvent = browserEvent;
+
+    vim.handleKeyDown(wrapperEvent);
   }
 
   return vim;
@@ -67,7 +80,7 @@ export const CodeEditorVim = (props) => {
     vimRef.current = null;
 
     if (statusBar && editorRef.current) {
-      vimRef.current = addVim(editorRef.current, statusBar, props.commands);
+      vimRef.current = addVim(editorRef.current, statusBar, props.commands, props);
     }
   }, []);
 
@@ -83,7 +96,7 @@ export const CodeEditorVim = (props) => {
 
     if (statusBarRef.current || suppressStatusBar) {
       vimRef.current?.dispose();
-      vimRef.current = addVim(editor, statusBarRef.current, props.commands);
+      vimRef.current = addVim(editor, statusBarRef.current, props.commands, props);
     }
 
     if (props.editorDidMount) {
