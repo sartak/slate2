@@ -3,18 +3,20 @@ import MonacoEditor from 'react-monaco-editor';
 
 export const CodeEditorBase = (props) => {
   return (
-    <MonacoEditor
-      theme="vs-dark"
+    <div className="CodeEditor">
+      <MonacoEditor
+        theme="vs-dark"
 
-      {...props}
+        {...props}
 
-      options={{
-        minimap: {
-          enabled: false,
-        },
-        ...(props.options || null),
-        readOnly: props.readOnly,
-      }}
-    />
+        options={{
+          minimap: {
+            enabled: false,
+          },
+          ...(props.options || null),
+          readOnly: props.readOnly,
+        }}
+      />
+    </div>
   );
 };

@@ -55,7 +55,7 @@ export const ConsoleActivity = () => {
       </ul>
       <div ref={inputRef} className="input">
         <div className="sigil">&gt;</div>
-        <ConsoleInput />
+        <div className="field"><ConsoleInput /></div>
       </div>
     </div>
   );
