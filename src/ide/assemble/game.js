@@ -1,15 +1,18 @@
 import { assembleECS, prepareECS } from './ecs';
 import { assembleDebugCall, assembleDebuggers, prepareDebuggers } from './debug';
+import { prepareCommand, assembleCommandSetup, assembleCommandStepPrepare } from './command';
 import { newContext } from './context';
 import { flattenList } from './inline';
 
 export const assembleGame = (project, ctx = newContext(project)) => {
   prepareECS(project, ctx);
+  prepareCommand(project, ctx);
   prepareInstantiateGame(project, ctx);
   prepareDebuggers(project, ctx);
 
   const assembly = [
     ...assembleECS(project, ctx),
+    ...assembleCommandSetup(project, ctx),
     ...assembleDebuggers(project, ctx),
     ...assembleInstantiateGame(project, ctx),
   ];
@@ -60,7 +63,10 @@ export const assembleGameStep = (project, ctx) => {
     ...assembleDebugCall('frameBegin', '();', project, ctx),
 
       ...assembleDebugCall('updateBegin', '();', project, ctx),
+
+        ...assembleCommandStepPrepare(project, ctx),
         ...ctx.input.map((fn) => fn(ctx)),
+
         ...ctx.update.map((fn) => fn(ctx)),
       ...assembleDebugCall('updateEnd', '();', project, ctx),
 

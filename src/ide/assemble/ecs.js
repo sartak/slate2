@@ -95,7 +95,7 @@ export const prepareComponents = (project, ctx) => {
 };
 
 export const prepareSystems = (project, ctx) => {
-  const { componentMap, systemMap, systemObjects, entityObjects, renderer } = ctx;
+  const { componentMap, systemMap, systemObjects, entityObjects, renderer, commandFrameVar, commandKeysVar } = ctx;
 
   selectEnabledSystems(project).forEach((system) => {
     const systemId = system.id;
@@ -146,7 +146,7 @@ export const prepareSystems = (project, ctx) => {
           return null;
         }
 
-        const implementation = assembleInlineSystemCall(system, 'init', initMethod, [], project, ctx);
+        const implementation = assembleInlineSystemCall(system, 'init', initMethod, [commandKeysVar], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
 
@@ -155,7 +155,7 @@ export const prepareSystems = (project, ctx) => {
 
     const inputMethod = getMethod('input');
     if (inputMethod) {
-      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', inputMethod, [...baseParams], project, ctx);
+      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', inputMethod, [...baseParams, commandFrameVar], project, ctx);
     }
 
     const updateMethod = getMethod('update');

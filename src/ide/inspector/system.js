@@ -9,8 +9,8 @@ import { useFloatingEditor } from '../code-editor';
 
 // @Cleanup: find a more canonical location for this list.
 const SystemMethods = [
-  ['init', []],
-  ['input', []],
+  ['init', ['commandKeys']],
+  ['input', ['frame']],
   ['update', ['entities', 'dt', 'time']],
   ['render_canvas', ['ctx', 'entities', 'dt', 'time']],
   ['render_webgl', ['ctx', 'entities', 'dt', 'time']],

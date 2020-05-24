@@ -56,6 +56,10 @@ export const newContext = (project, overrides = {}) => {
     systemObjects: [],
     systemClassPrefix: prefix,
 
+    commandPressedFn: `command`,
+    commandKeysVar: `${prefix}commandKeys`,
+    commandFrameVar: `${prefix}commandFrame`,
+
     ...overrides,
   };
 };

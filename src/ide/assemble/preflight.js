@@ -2,6 +2,7 @@ import { newContext as __newContext } from './context';
 import { assembleGameStep as __assembleGameStep } from './game';
 import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepareDebuggers, assembleDebuggers as __assembleDebuggers } from './debug';
 import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs';
+import { prepareCommand as __prepareCommand, assembleCommandSetup as __assembleCommandSetup } from './command';
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
 import { flattenList as __flattenList } from './inline';
 import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
@@ -51,9 +52,11 @@ const __assembleGameForPreflight = (originalProject) => {
   });
 
   __prepareECS(project, ctx);
+  __prepareCommand(project, ctx);
   __prepareDebuggers(project, ctx);
 
   const ecs = __assembleECS(project, ctx);
+  const command = __assembleCommandSetup(project, ctx);
   const debug = __assembleDebuggers(project, ctx);
 
   if (!ctx.render.length) {
@@ -110,6 +113,7 @@ const __assembleGameForPreflight = (originalProject) => {
       `let [${ctx.renderVars.join(', ')}] = [];`,
       `let ${ctx.evalVar} = [];`,
       ...ecs,
+      ...command,
       ...debug,
       `return {`,
         `entities: ${ctx.entitiesVar},`,
