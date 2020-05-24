@@ -130,13 +130,29 @@ const makeTempDir = (subdir) => {
   });
 };
 
-const saveFile = (directory, filename, content) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(path.join(directory, filename), content, (err) => {
+const saveFile = (directory, basename, content, mode) => {
+  const filename = path.join(directory, basename);
+  const writePromise = new Promise((resolve, reject) => {
+    fs.writeFile(filename, content, (err) => {
       if (err) {
         return reject(err);
       }
       resolve();
+    });
+  });
+
+  if (mode === undefined) {
+    return writePromise;
+  }
+
+  return writePromise.then(() => {
+    return new Promise((resolve, reject) => {
+      fs.chmod(filename, mode, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
     });
   });
 };
