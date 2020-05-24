@@ -56,4 +56,12 @@ module.exports = {
       template: './src/index.html',
     }),
   ],
+
+  stats: {
+    all: false,
+    errors: true,
+    warnings: true,
+    logging: "warn",
+    colors: false,
+  },
 };

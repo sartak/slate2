@@ -13,9 +13,9 @@ ipc.on('build-project', (event, assembly) => {
 
   makeTempDir('src').then((tmpDir) => {
     const buildWithWebpack = buildWithExternalWebpack;
-    buildWithWebpack(assembly, tmpDir).then((directory, warnings) => {
+    buildWithWebpack(assembly, tmpDir).then((stdout, stderr) => {
       if (shell.openItem(directory)) {
-        event.reply('build-project-success', directory, warnings);
+        event.reply('build-project-success', stdout, stderr);
       } else {
         event.reply('build-project-error', new Error(`Unable to open ${tmpDir}`));
       }
@@ -70,7 +70,7 @@ const buildWithLiveWebpack = (assembly, tmpDir) => {
           return reject(info.errors);
         }
 
-        resolve(distDir, stats.hasWarnings ? info.warnings : null);
+        resolve(null, stats.hasWarnings ? info.warnings : null);
       });
     });
   });
@@ -94,15 +94,10 @@ const buildWithExternalWebpack = (assembly, tmpDir) => {
         },
       }, (error, stdout, stderr) => {
         if (error) {
-          console.error(error);
-          console.error('stderr: ', stderr);
-          console.log('stdout: ', stdout);
-          return reject(error);
+          return reject({ error, stdout, stderr });
         }
 
-        console.error('stderr: ', stderr);
-        console.log('stdout: ', stdout);
-        resolve(distDir);
+        resolve(stdout, stderr);
       });
     });
   });

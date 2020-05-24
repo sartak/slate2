@@ -14,12 +14,33 @@ const Button = ({ isBusy, setBusy }) => {
     alert.dismissCategory('build-project');
 
     const project = lazyProject();
-    buildProject(project).then((directory) => {
-      alert.success(`Built in ${directory}`, { category: 'build-project' });
+    buildProject(project).then((stdout, stderr) => {
+      if (stdout) {
+        console.log(stdout);
+      }
+
+      if (stderr) {
+        console.error(stderr);
+      }
+
+      alert.success('Build successful', { category: 'build-project' });
       setBusy(false);
     }).catch((err) => {
-      setBusy(false);
-      alert.error(err, { category: 'build-project' });
+      const { error, stdout, stderr } = err;
+      if (stdout) {
+        if (stdout.match(/error/i)) {
+          console.error(stdout);
+        } else {
+          console.log(stdout);
+        }
+      }
+
+      if (stderr) {
+        console.error(stderr);
+      }
+
+      console.error(error ?? err);
+      alert.error('Failed to build', { category: 'build-project' });
     });
   };
 
