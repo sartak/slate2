@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const requireFromString = require('require-from-string');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 
 const SLATE2_HOME = "/Users/shawn/devel/slate2"; // @Fix: app.getAppPath()
 
@@ -86,7 +86,7 @@ const buildWithExternalWebpack = (assembly, tmpDir) => {
     [srcDir, 'index.html', assembly.indexHtml],
   ].map((args) => saveFile(...args))).then(() => {
     return new Promise((resolve, reject) => {
-      exec(path.resolve(SLATE2_HOME, 'node_modules', '.bin', 'webpack'), {
+      execFile(path.resolve(SLATE2_HOME, 'node_modules', '.bin', 'webpack'), [], {
         cwd: tmpDir,
         env: {
           ...process.env,
