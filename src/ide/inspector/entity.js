@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { addComponentToEntityAction, setEntityLabelAction } from '../project/actions';
+import { addComponentToEntityAction, setEntityLabelAction, setActiveComponentAction } from '../project/actions';
 import { selectEnabledComponents, makeSelectComponent, makeSelectEntity } from '../project/selectors';
 import { useSelectorLazy } from '../project/useSelectorLazy';
 import { editorForType } from '../types';
@@ -32,12 +32,13 @@ const InspectEntityComponentValue = ({ entityId, component, field }) => {
 };
 
 const InspectEntityComponent = React.memo(({ entityId, componentId }) => {
+  const dispatch = useDispatch();
   const component = useSelector(makeSelectComponent(componentId));
   const { fields, label: componentLabel } = component;
 
   return (
     <div className="InspectSubobject">
-      <div className="label">{componentLabel}</div>
+      <div className="label clickable" onClick={() => dispatch(setActiveComponentAction(componentId))}>{componentLabel}</div>
       <ul>
         {fields.map((field) => (
           <InspectEntityComponentValue

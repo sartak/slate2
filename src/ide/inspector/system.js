@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSelectorLazy } from '../project/useSelectorLazy';
-import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction, addRequiredComponentToUserDefinedSystemAction, removeRequiredComponentFromUserDefinedSystemAction } from '../project/actions';
+import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction, addRequiredComponentToUserDefinedSystemAction, removeRequiredComponentFromUserDefinedSystemAction, setActiveComponentAction } from '../project/actions';
 import { makeSelectSystem, selectEnabledComponents, selectProject } from '../project/selectors';
 import { lookupComponentWithId  } from '../ecs/components';
 import { TextControlled } from '../field/text-controlled';
@@ -152,7 +152,7 @@ const InspectSystemComponents = ({ id }) => {
           const component = lookupComponentWithId(project, componentId);
           return (
             <li key={componentId}>
-              <span className="label">{component.label}</span>
+              <span className="label clickable" onClick={() => dispatch(setActiveComponentAction(componentId))}>{component.label}</span>
               {userDefined && (
                 <button
                   onClick={() => {
