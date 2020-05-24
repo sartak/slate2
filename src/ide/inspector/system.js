@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSelectorLazy } from '../project/useSelectorLazy';
-import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction, addRequiredComponentToUserDefinedSystemAction } from '../project/actions';
+import { setUserDefinedSystemLabelAction, setCodeForUserDefinedSystemMethodAction, addRequiredComponentToUserDefinedSystemAction, removeRequiredComponentFromUserDefinedSystemAction } from '../project/actions';
 import { makeSelectSystem, selectEnabledComponents, selectProject } from '../project/selectors';
 import { lookupComponentWithId  } from '../ecs/components';
 import { TextControlled } from '../field/text-controlled';
@@ -138,6 +138,7 @@ const AddRequiredComponentToSystem = ({ id }) => {
 };
 
 const InspectSystemComponents = ({ id }) => {
+  const dispatch = useDispatch();
   const system = useSelector(makeSelectSystem(id));
   const project = useSelector(selectProject);
 
@@ -150,11 +151,24 @@ const InspectSystemComponents = ({ id }) => {
         {requiredComponents.map((componentId) => {
           const component = lookupComponentWithId(project, componentId);
           return (
-            <li key={componentId}>{component.label}</li>
+            <li key={componentId}>
+              <span className="label">{component.label}</span>
+              {userDefined && (
+                <button
+                  onClick={() => {
+                    dispatch(removeRequiredComponentFromUserDefinedSystemAction(id, componentId));
+                  }}
+                >
+                  Remove
+                </button>
+              )}
+            </li>
           );
         })}
       </ul>
-      {userDefined && <AddRequiredComponentToSystem id={id} />}
+      <div className="controls">
+        {userDefined && <AddRequiredComponentToSystem id={id} />}
+      </div>
     </div>
   );
 };

@@ -80,6 +80,10 @@ export const addRequiredComponentToUserDefinedSystemAction = (systemId, componen
   return { type: t.ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM, systemId, componentId };
 };
 
+export const removeRequiredComponentFromUserDefinedSystemAction = (systemId, componentId) => {
+  return { type: t.REMOVE_REQUIRED_COMPONENT_FROM_USER_DEFINED_SYSTEM, systemId, componentId };
+};
+
 export const setSelectedTabLabelAction = (id, label) => {
   return { type: t.SET_SELECTED_TAB_LABEL, id, label };
 };
