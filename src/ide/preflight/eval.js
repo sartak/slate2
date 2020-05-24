@@ -46,6 +46,22 @@ export default class EvalDebugger {
       $project: project,
       $assembly: assembly,
       $context: context,
+
+      $cel: (componentLabel, entity) => {
+        // There's a chance of false positives, since the pattern
+        // is just .ComponentName
+        if (!Number.isInteger(entity)) {
+          return entity[componentLabel];
+        }
+
+        const component = $cm[componentLabel];
+        const out = {};
+        Object.entries(component).forEach(([fieldLabel, values]) => {
+          out[fieldLabel] = values[entity];
+        });
+
+        return out;
+      },
     };
   }
 
@@ -54,7 +70,13 @@ export default class EvalDebugger {
     const { context } = assembly;
     const { componentObjects } = context;
 
-    return rewriteCodeToUseComponentVariables(input, componentObjects, context);
+    try {
+      return rewriteCodeToUseComponentVariables(input, componentObjects, '$cel', context);
+    } catch (e) {
+      console.s2_eval_input(input);
+      console.s2_eval_error(e.toString());
+      return null;
+    }
   }
 
   eval(input) {
@@ -62,6 +84,10 @@ export default class EvalDebugger {
 
     const params = this.prepareParams();
     const code = this.prepareCode(input);
+
+    if (code === null) {
+      return;
+    }
 
     if (preflightRunning) {
       assembly.scheduleEval(code, params, input);

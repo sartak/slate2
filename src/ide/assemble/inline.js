@@ -34,13 +34,13 @@ const extractMethodSubtree = (classAst, methodName, args, ctx) => {
   return subtree;
 };
 
-export const rewriteCodeToUseComponentVariables = (code, components, ctx) => {
+export const rewriteCodeToUseComponentVariables = (code, components, componentDictionaryLookup, ctx) => {
   const ast = parseSync(code);
-  rewriteTreeToUseComponentVariables(ast, components, ctx, true);
+  rewriteTreeToUseComponentVariables(ast, components, componentDictionaryLookup, ctx, true);
   return generate(ast).code;
 };
 
-const rewriteTreeToUseComponentVariables = (ast, components, ctx, rawAst) => {
+const rewriteTreeToUseComponentVariables = (ast, components, componentDictionaryLookup, ctx, rawAst) => {
   const { componentMap } = ctx;
 
   const componentByLabel = {};
@@ -51,12 +51,57 @@ const rewriteTreeToUseComponentVariables = (ast, components, ctx, rawAst) => {
   traverse((rawAst ? ast : ast.node), {
     MemberExpression(path) {
       const { parent, node } = path;
-      const { object: primary, property: fieldNode } = node;
+      const { object: primary, property } = node;
 
-      if (!t.isMemberExpression(primary) || !t.isIdentifier(fieldNode)) {
+      if (componentDictionaryLookup && t.isExpression(primary) && !t.isMemberExpression(primary) && t.isIdentifier(property)) {
+        const entityNode = primary;
+        const componentNode = property;
+
+        if (componentNode.computed) {
+          // entity["Motion"]
+          return;
+        }
+
+        const componentLabel = componentNode.name;
+
+        if (!componentByLabel[componentLabel]) {
+          // entity.Nonexistent
+          return;
+        }
+
+        if (t.isMemberExpression(parent)) {
+          // foo.entity.Motion
+          // We don't throw an exception here because false positives are
+          // more likely.
+          return;
+        }
+
+        if (t.isCallExpression(parent) && parent.callee == node) {
+          // entity.Motion()
+          // We don't throw an exception here because false positives are
+          // more likely.
+          return;
+        }
+
+        path.replaceWith(
+          t.CallExpression(
+            t.Identifier(componentDictionaryLookup),
+            [
+              t.stringLiteral(componentLabel),
+              entityNode,
+            ],
+          ),
+        );
+        path.skip();
+
         return;
       }
 
+      if (!t.isMemberExpression(primary) || !t.isIdentifier(property)) {
+        return;
+      }
+
+      const fieldNode = property;
       const { object: entityNode, property: componentNode } = primary;
 
       if (!t.isIdentifier(componentNode)) {
@@ -232,7 +277,7 @@ export const assembleInlineSystemCall = (system, methodName, args, project, ctx)
   });
 
   const subtree = extractMethodSubtree(classAst, methodName, args, ctx);
-  rewriteTreeToUseComponentVariables(subtree, components, ctx);
+  rewriteTreeToUseComponentVariables(subtree, components, null, ctx);
   const inlinedArgs = inlineFunctionArguments(subtree, ctx);
   const output = generate(subtree.node).code;
 
