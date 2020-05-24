@@ -264,12 +264,11 @@ const inlineFunctionArguments = (ast, ctx) => {
   return [...identical, ...replacements];
 };
 
-export const assembleInlineSystemCall = (system, methodName, args, project, ctx) => {
+export const assembleInlineSystemCall = (system, methodName, classCode, args, project, ctx) => {
   const { systemMap } = ctx;
   const components = systemMap[system.id].componentObjects;
-  const input = system.constructor.sourceCode;
 
-  const classAst = parseSync(input, {
+  const classAst = parseSync(classCode, {
     plugins: [
       BabelPluginProposalClassProperties,
     ],

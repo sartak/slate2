@@ -114,7 +114,7 @@ export const prepareSystems = (project, ctx) => {
 
     const varName = `${ctx.prefix}system_${system.label}`;
     const entitiesVar = `${varName}_entities`;
-    const renderMethod = `render_${renderer}`;
+    const renderMethodName = `render_${renderer}`;
     const initReturnVar = `${varName}_init_return`;
     let systemEntities = [];
     let needsEntities = false;
@@ -128,42 +128,54 @@ export const prepareSystems = (project, ctx) => {
 
     const baseParams = [];
 
-    if (system.__proto__.init) {
+    const getMethod = (name) => {
+      if (!system.__proto__[name]) {
+        return undefined;
+      }
+      return system.constructor.sourceCode;
+    };
+
+    const initMethod = getMethod('init');
+    if (initMethod) {
       hasInit = true;
       initCodeGenerator = (ctx) => {
         if (initSkipDesignMode && ctx.designMode) {
           return null;
         }
 
-        const implementation = assembleInlineSystemCall(system, 'init', [], project, ctx);
+        const implementation = assembleInlineSystemCall(system, 'init', initMethod, [], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
 
       baseParams.push(initReturnVar);
     }
 
-    if (system.__proto__.input) {
-      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', [...baseParams], project, ctx);
+    const inputMethod = getMethod('input');
+    if (inputMethod) {
+      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', inputMethod, [...baseParams], project, ctx);
     }
 
-    if (system.__proto__.update) {
+    const updateMethod = getMethod('update');
+    if (updateMethod) {
       needsEntities = true;
-      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', [...baseParams, entitiesVar, 'dt', 'time'], project, ctx);
+      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, 'dt', 'time'], project, ctx);
     }
 
-    if (system.__proto__[renderMethod]) {
+    const renderMethod = getMethod(renderMethodName);
+    if (renderMethod) {
       needsEntities = true;
       needsRenderer = true;
-      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
+      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethodName, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
     }
 
-    if (system.__proto__.deinit) {
+    const deinitMethod = getMethod('deinit');
+    if (deinitMethod) {
       deinitCodeGenerator = (ctx) => {
         if (initSkipDesignMode && ctx.designMode) {
           return null;
         }
 
-        return assembleInlineSystemCall(system, 'deinit', [...baseParams], project, ctx);
+        return assembleInlineSystemCall(system, 'deinit', deinitMethod, [...baseParams], project, ctx);
       };
     }
 
@@ -182,7 +194,6 @@ export const prepareSystems = (project, ctx) => {
       updateCodeGenerator,
       renderCodeGenerator,
       deinitCodeGenerator,
-      renderMethod,
       needsRenderer,
       initReturnVar,
       hasInit,
