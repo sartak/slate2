@@ -91,6 +91,10 @@ export class ConsoleManager {
   }
 
   unsubscribe(callback) {
+    if (this._unsubscribeUsing) {
+      return this._unsubscribeUsing.unsubscribe(callback);
+    }
+
     this.subscriptions = this.subscriptions.filter((cb) => cb !== callback);
   }
 }
@@ -106,6 +110,7 @@ if (module.hot) {
 
     next.attach();
 
+    this._unsubscribeUsing = next;
     this._hotReplaceContext(next);
   };
 }
