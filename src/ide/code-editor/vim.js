@@ -57,6 +57,8 @@ const addVim = (editor, statusBar, commands) => {
 };
 
 export const CodeEditorVim = (props) => {
+  const { suppressStatusBar } = props;
+
   const editorRef = useRef(null);
   const vimRef = useRef(null);
 
@@ -79,7 +81,7 @@ export const CodeEditorVim = (props) => {
   const editorDidMount = (editor, ...rest) => {
     editorRef.current = editor;
 
-    if (statusBarRef.current) {
+    if (statusBarRef.current || suppressStatusBar) {
       vimRef.current?.dispose();
       vimRef.current = addVim(editor, statusBarRef.current, props.commands);
     }
@@ -95,11 +97,13 @@ export const CodeEditorVim = (props) => {
         {...props}
         editorDidMount={editorDidMount}
       />
-      <div
-        style={{width: Number(props.width)}}
-        className="statusBar"
-        ref={statusBarRef}
-      />
+      {!suppressStatusBar && (
+        <div
+          style={{width: Number(props.width)}}
+          className="statusBar"
+          ref={statusBarRef}
+        />
+      )}
     </div>
   );
 };
