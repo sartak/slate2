@@ -58,6 +58,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: id,
         activeComponentId: null,
         activeSystemId: null,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Entities',
+          },
+        },
       };
     }
 
@@ -67,6 +75,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: action.id,
         activeComponentId: null,
         activeSystemId: null,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Entities',
+          },
+        },
       };
     }
 
@@ -76,6 +92,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: null,
         activeComponentId: null,
         activeSystemId: action.id,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Systems',
+          },
+        },
       };
     }
 
@@ -85,6 +109,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: null,
         activeComponentId: action.id,
         activeSystemId: null,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Components',
+          },
+        },
       };
     }
 
@@ -171,6 +203,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: null,
         activeSystemId: id,
         activeComponentId: null,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Systems',
+          },
+        },
       };
     }
 
@@ -192,6 +232,14 @@ export const projectReducer = (state = null, action) => {
         activeEntityId: null,
         activeSystemId: null,
         activeComponentId: id,
+
+        ide: {
+          ...state.ide,
+          tabs: {
+            ...state.ide.tabs,
+            'panel-left': 'Components',
+          },
+        },
       };
     }
 
