@@ -79,6 +79,12 @@ export class Preflight {
         debuggers,
       });
 
+      this.latestCode = code;
+
+      if (!assembler) {
+        return;
+      }
+
       const assembly = assembler(renderer, debuggers);
       assembly.context = context;
       assembly.code = code;

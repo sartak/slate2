@@ -11,7 +11,7 @@ export const PreviewContent = ({ stopPreviewing, isPreflight }) => {
   const preflight = usePreflight();
 
   useEffect(() => {
-    const code = isPreflight ? preflight.assembly?.code : assembleGame(project);
+    const code = isPreflight ? preflight.latestCode : assembleGame(project);
     const closeEditor = edit(
       code,
       isPreflight ? "preflight" : "build",
@@ -25,7 +25,7 @@ export const PreviewContent = ({ stopPreviewing, isPreflight }) => {
     return () => {
       closeEditor();
     };
-  }, [project, isPreflight, isPreflight ? preflight.assembly?.code : assembleGame]);
+  }, [project, isPreflight, isPreflight ? preflight.latestCode : assembleGame]);
 
   return <React.Fragment />;
 };

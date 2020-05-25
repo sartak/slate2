@@ -205,7 +205,12 @@ const __evaluateGameForPreflight = (__project) => {
   });
 
   const [__assembly, __context] = __assembleGameForPreflight(__project);
-  return [eval(__assembly), __context, __assembly];
+  try {
+    return [eval(__assembly), __context, __assembly];
+  } catch (e) {
+    console.error(e);
+    return [null, __context, __assembly];
+  }
 };
 
 export { __evaluateGameForPreflight as evaluateGameForPreflight, __assembleGameForPreflight as assembleGameForPreflight };
