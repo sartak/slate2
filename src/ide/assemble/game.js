@@ -31,7 +31,7 @@ const prepareInstantiateGame = (project, ctx) => {
     const { attachListenerFn } = ctx;
     return [
       `const ${attachListenerFn} = (event, callback) => {`,
-        `window.addEventListener(event, callback);`,
+        `${ctx.rendererVar}.addEventListener(event, callback);`,
       `};`,
     ].join("\n");
   });

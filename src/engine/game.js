@@ -40,17 +40,13 @@ export default class Game {
   }
 
   run() {
-    const { init, loop } = this.options;
+    const { init, loop, renderer } = this.options;
     if (!this.preloaded || !this.activated) {
       return;
     }
 
-    if (init) {
-      init();
-    }
-
-    if (loop) {
-      loop.run();
-    }
+    init?.();
+    renderer?.focus();
+    loop?.run();
   }
 }

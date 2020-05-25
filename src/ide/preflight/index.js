@@ -133,6 +133,7 @@ export class Preflight {
     this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart());
 
     this.assembly.initPreflight();
+    this.renderer.focus();
     this.loop = new Loop(this.assembly.step);
     this.loop.run();
   }

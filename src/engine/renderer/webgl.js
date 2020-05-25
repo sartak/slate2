@@ -5,6 +5,7 @@ export default class WebGLRenderer {
     this.ctx = null;
     this.width = null;
     this.height = null;
+    this.clickHandler = null;
   }
 
   attach(container) {
@@ -20,13 +21,27 @@ export default class WebGLRenderer {
     const { width, height } = container.getBoundingClientRect();
     this.width = canvas.width = Math.floor(width);
     this.height = canvas.height = Math.floor(height);
+
+    // allow focus
+    canvas.tabIndex = 1;
+
+    const clickHandler = () => canvas.focus();
+    this.addEventListener('click', clickHandler);
+    this.clickHandler = clickHandler;
+
     container.appendChild(canvas);
 
     this.ctx = canvas.getContext('2d');
   }
 
   detach() {
-    const { canvas, container } = this;
+    const { clickHandler, canvas, container } = this;
+
+    if (clickHandler) {
+      this.removeEventListener('click', clickHandler);
+      this.clickHandler = null;
+    }
+
     if (canvas) {
       this.canvas = null;
       this.ctx = null;
@@ -46,5 +61,17 @@ export default class WebGLRenderer {
     ctx.resetTransform();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
+  }
+
+  addEventListener(event, callback) {
+    this.canvas.addEventListener(event, callback);
+  }
+
+  removeEventListener(event, callback) {
+    this.canvas.removeEventListener(event, callback);
+  }
+
+  focus() {
+    this.canvas.focus();
   }
 }

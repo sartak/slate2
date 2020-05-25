@@ -54,9 +54,9 @@ const __assemblePreflightAttachDetach = (project, ctx) => {
 
   const attach = [
     `const ${attachListenerFn} = (event, callback) => {`,
-      `window.addEventListener(event, callback);`,
+      `${ctx.rendererVar}.addEventListener(event, callback);`,
       `${ctx.detachCallbacksVar}.push(() => {`,
-        `window.removeEventListener(event, callback);`,
+        `${ctx.rendererVar}.removeEventListener(event, callback);`,
       `});`,
     `};`,
   ].join("\n");

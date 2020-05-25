@@ -7,6 +7,7 @@ import { usePreflight } from './preflight';
 import { selectRenderer, selectSurface, selectActiveEntityId } from './project/selectors';
 import { useLiveEntityComponentValues } from './preflight/useLiveEntityComponentValues';
 import * as liveCallbackModes from './preflight/live-entity-values';
+import './surface.less';
 
 export const Surface = () => {
   const dispatch = useDispatch();
