@@ -2,6 +2,7 @@ import { selectActiveTypeId } from '../project/selectors';
 import { rewriteCodeToUseComponentVariables } from '../assemble/inline';
 
 export default class EvalDebugger {
+  label = "eval";
   project = null;
   assembly = null;
   preflightRunning = false;

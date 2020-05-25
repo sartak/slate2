@@ -6,7 +6,7 @@ export const prepareDebuggers = (project, ctx) => {
   }
 
   project.debuggers.forEach((debug, i) => {
-    const varName = `${prefix}debugger_${i}`;
+    const varName = `${prefix}debugger${i}_${debug.label}`;
     const className = `${debuggerClassPrefix}Debug${i}`;
 
     ctx.imports.push([className, debug.path, true]);

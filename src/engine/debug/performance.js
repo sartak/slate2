@@ -12,6 +12,7 @@ const ChartHeight = Math.ceil(HeightPerMs * MsPerFrame * Overage);
 
 export default class PerformanceDebugger {
   constructor() {
+    this.label = "performance";
     this.path = 'debug/performance';
     this.container = null;
     this.chart = null;

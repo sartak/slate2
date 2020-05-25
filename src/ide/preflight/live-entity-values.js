@@ -9,6 +9,7 @@ export const PREFLIGHT_STOPPING = 'PREFLIGHT_STOPPING';
 export const PREFLIGHT_STOPPED = 'PREFLIGHT_STOPPED';
 
 export default class LiveEntityValuesDebugger {
+  label = "live_entity_values";
   project = null;
   dispatch = null;
   entityMap = null;
