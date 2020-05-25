@@ -175,8 +175,6 @@ const ClickDistanceThreshold = 10;
 
       // multitouch with trackpad
       canvas.addEventListener('wheel', (e) => {
-        e.preventDefault();
-
         this.beginTransform();
 
         // we don't get an end notification
@@ -196,7 +194,7 @@ const ClickDistanceThreshold = 10;
           this.panY = this.panY - e.deltaY * 2;
           this.render();
         }
-      });
+      }, { passive: true });
 
       canvas.ondblclick = (e) => {
         e.preventDefault();
