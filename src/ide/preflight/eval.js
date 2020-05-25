@@ -7,7 +7,67 @@ export default class EvalDebugger {
   assembly = null;
   preflightRunning = false;
 
-  prepareParams() {
+  prepareAssembly(map, project, ctx) {
+    ctx.evalVar = `${ctx.prefix}codeToEval`;
+  }
+
+  assemblePreflightInit(map, project, ctx) {
+    return [
+      `let ${ctx.evalVar} = [];`,
+    ];
+  }
+
+  assembleEvalCall(codeVar, paramsVar, inputVar) {
+    return [
+      `console.s2_eval_input(${inputVar});`,
+
+      `Object.keys(${paramsVar}).forEach((varName) => {`,
+        `${codeVar} = \`const \${varName} = ${paramsVar}["\${varName}"]; \${${codeVar}}\`;`,
+      `});`,
+
+      `try {`,
+        `console.s2_eval_result(eval(${codeVar}));`,
+      `} catch (e) {`,
+        `console.s2_eval_error(e.toString());`,
+      `}`,
+    ];
+  }
+
+  assemble_cleanupEnd(map, project, ctx) {
+    const { evalVar } = ctx;
+    const prevEvalVar = `${evalVar}_prev`;
+    const codeVar = `${ctx.prefix}code`;
+    const paramsVar = `${ctx.prefix}params`;
+    const inputVar = `${ctx.prefix}input`;
+
+    return [
+      `(function () {`,
+        `const ${prevEvalVar} = ${evalVar};`,
+        `${evalVar} = [];`,
+        `${prevEvalVar}.forEach(([${[codeVar, paramsVar, inputVar].join(", ")}]) => {`,
+          ...this.assembleEvalCall(codeVar, paramsVar, inputVar),
+        `});`,
+      `})();`,
+    ];
+  }
+
+  assemblePreflightReturn(map, project, ctx) {
+    const codeVar = `${ctx.prefix}code`;
+    const paramsVar = `${ctx.prefix}params`;
+    const inputVar = `${ctx.prefix}input`;
+
+    return [
+      `scheduleEval: (${[codeVar, paramsVar, inputVar].join(", ")}) => {`,
+        `${ctx.evalVar}.push([${[codeVar, paramsVar, inputVar].join(", ")}]);`,
+      `},`,
+
+      `immediateEval: (${[codeVar, paramsVar, inputVar].join(", ")}) => {`,
+        ...this.assembleEvalCall(codeVar, paramsVar, inputVar),
+      `},`,
+    ];
+  }
+
+  paramsForEval() {
     const { project, assembly } = this;
     const { context, entities, components, systems } = assembly;
     const { entityMap, componentObjects } = context;
@@ -66,7 +126,7 @@ export default class EvalDebugger {
     };
   }
 
-  prepareCode(input) {
+  preprocessCodeForEval(input) {
     const { assembly } = this;
     const { context } = assembly;
     const { componentObjects } = context;
@@ -83,8 +143,8 @@ export default class EvalDebugger {
   eval(input) {
     const { assembly, preflightRunning } = this;
 
-    const params = this.prepareParams();
-    const code = this.prepareCode(input);
+    const params = this.paramsForEval();
+    const code = this.preprocessCodeForEval(input);
 
     if (code === null) {
       return;

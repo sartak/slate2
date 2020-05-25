@@ -24,25 +24,33 @@ export const prepareDebuggers = (project, ctx) => {
   });
 };
 
-export const assembleDebugCall = (methodName, rest, project, ctx) => {
+export const assembleDebugCall = (methodName, rest, project, ctx, quiet = false) => {
   const { debuggers, debuggerMap } = ctx;
   const assembleMethod = `assemble_${methodName}`;
 
-  return debuggers.map((debug, i) => {
-    const map = debuggerMap[i];
-    const { varName } = map;
-    return [
-      (debug.__proto__[methodName] && `${varName}.${methodName}${rest}`),
-      ...(debug.__proto__[assembleMethod] ? debug[assembleMethod](map, project, ctx) : []),
-    ].filter(Boolean).join("\n");
-  }).filter((c) => c.length);
+  return [
+    (quiet ? '' : `/* begin ${methodName} phase */`),
+    ...debuggers.map((debug, i) => {
+      const map = debuggerMap[i];
+      const { varName } = map;
+      return [
+        (debug.__proto__[methodName] && `${varName}.${methodName}${rest}`),
+        ...(debug.__proto__[assembleMethod] ? [
+          (quiet ? null : `/* begin ${debug.label} ${assembleMethod}() */`),
+          ...debug[assembleMethod](map, project, ctx),
+          (quiet ? null : `/* end ${debug.label} ${assembleMethod}() */`),
+        ] : []),
+      ].filter(Boolean).join("\n");
+    }).filter((c) => c.length),
+    (quiet ? '' : `/* end ${methodName} phase */`),
+  ];
 };
 
 export const assembleDebuggers = (project, ctx) => {
   const { debuggers, debuggerMap } = ctx;
   const { generateDebuggerVars } = project;
 
-  const attach = assembleDebugCall('attach', '(...args);', project, ctx).filter(Boolean);
+  const attach = assembleDebugCall('attach', '(...args);', project, ctx, true).filter(Boolean);
 
   return [
     ...debuggers.map((debug, i) => {

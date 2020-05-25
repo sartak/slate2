@@ -1,6 +1,6 @@
 import { newContext as __newContext } from './context';
 import { assembleGameStep as __assembleGameStep } from './game';
-import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepareDebuggers, assembleDebuggers as __assembleDebuggers } from './debug';
+import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepareDebuggers, assembleDebuggers as __assembleDebuggers, assembleDebugPreflightReturn as __assembleDebugPreflightReturn } from './debug';
 import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs';
 import { prepareCommand as __prepareCommand, assembleCommandSetup as __assembleCommandSetup } from './command';
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
@@ -8,36 +8,6 @@ import { assembleInlineSystemCall as __assembleInlineSystemCall, flattenList as 
 import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
 import { RenderSystemId as __RenderSystemId } from '../systems/render';
 import { lookupSystemWithId as __lookupSystemWithId } from '../ecs/systems';
-
-const __assembleEvalCall = (codeVar, paramsVar, inputVar, project, ctx) => {
-  return [
-    `console.s2_eval_input(${inputVar});`,
-
-    `Object.keys(${paramsVar}).forEach((varName) => {`,
-      `${codeVar} = \`const \${varName} = ${paramsVar}["\${varName}"]; \${${codeVar}}\`;`,
-    `});`,
-
-    `try {`,
-      `console.s2_eval_result(eval(${codeVar}));`,
-    `} catch (e) {`,
-      `console.s2_eval_error(e.toString());`,
-    `}`,
-  ].join("\n");
-};
-
-const __assemblePreflightEval = (project, ctx) => {
-  ctx.evalVar = '__codeToEval';
-
-  ctx.cleanup.push((ctx) => [
-    `(function () {`,
-      `const __prevEval = ${ctx.evalVar};`,
-      `${ctx.evalVar} = [];`,
-      `__prevEval.forEach(([__code, __params, __input]) => {`,
-        __assembleEvalCall('__code', '__params', '__input', project, ctx),
-      `});`,
-    `})();`,
-  ].join("\n"));
-};
 
 const __assembleDesignAttachDetach = (project, ctx) => {
   const { attachListenerFn } = ctx;
@@ -117,8 +87,6 @@ const __assembleGameForPreflight = (originalProject) => {
     `${ctx.rendererVar}.finishRender();`
   ));
 
-  __assemblePreflightEval(project, ctx);
-
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
 
@@ -166,7 +134,6 @@ const __assembleGameForPreflight = (originalProject) => {
   const assembly = [
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
-      `let ${ctx.evalVar} = [];`,
       `const ${ctx.detachCallbacksVar} = [];`,
       ...ecs,
       ...command,
@@ -181,8 +148,6 @@ const __assembleGameForPreflight = (originalProject) => {
         `step: ${step},`,
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,
-        `scheduleEval: (code, params, input) => { ${ctx.evalVar}.push([code, params, input]) },`,
-        `immediateEval: (__code, __params, __input) => { ${__assembleEvalCall('__code', '__params', '__input', project, ctx)} },`,
         `hitTest: ${hitTest},`,
       `};`,
     `}`,
