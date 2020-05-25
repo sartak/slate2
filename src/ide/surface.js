@@ -50,8 +50,10 @@ export const Surface = () => {
 
     rendererRef.current = renderer;
 
-    renderer.attach(surfaceRef.current);
-    renderer.render();
+    if (surfaceRef.current) {
+      renderer.attach(surfaceRef.current);
+      renderer.render();
+    }
 
     return () => {
       renderer.detach();
