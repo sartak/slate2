@@ -14,8 +14,8 @@ export class ConsoleManager {
     }
     this.attached = true;
 
-    const filter = ([first, second, third]) => {
-      if (first && first.startsWith && first.startsWith('[HMR] ')) {
+    const filter = (level, [first, second, third]) => {
+      if (level === 'log' && first && first.startsWith && first.startsWith('[HMR] ') && first !== '[HMR] App is up to date.') {
         return false;
       }
 
@@ -29,7 +29,7 @@ export class ConsoleManager {
     ['trace', 'debug', 'log', 'info', 'warn', 'error'].forEach((level) => {
       const original = originalMethod[level] = console[level];
       console[level] = function (...args) {
-        if (filter(args)) {
+        if (filter(level, args)) {
           lines.push([level, args]);
           manager.subscriptions.forEach((cb) => cb(level, args));
         }
@@ -42,7 +42,7 @@ export class ConsoleManager {
     ['success'].forEach((level) => {
       novelMethods.push(level);
       console[level] = function (...args) {
-        if (filter(args)) {
+        if (filter(level, args)) {
           lines.push([level, args]);
           manager.subscriptions.forEach((cb) => cb(level, args));
         }
