@@ -142,6 +142,11 @@ export class Preflight {
       this.regenerateAssembly();
     }
 
+    if (!this.assembly) {
+      console.error('Cannot start; assembly is null');
+      return;
+    }
+
     this.isRunning = true;
     this.assemblyDirty = true;
 
@@ -154,6 +159,10 @@ export class Preflight {
   }
 
   _stop() {
+    if (!this.isRunning) {
+      return;
+    }
+
     this.isRunning = false;
     this.loop.pause();
     this.assembly.deinitPreflight();
