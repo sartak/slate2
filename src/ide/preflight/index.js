@@ -64,7 +64,7 @@ export class Preflight {
   regenerateAssembly() {
     const { project, renderer, isRunning, debuggers } = this;
 
-    if (!renderer || isRunning) {
+    if (isRunning) {
       return;
     }
 
@@ -72,6 +72,12 @@ export class Preflight {
       if (!this.assembly?.didDeinitDesign && this.assembly?.deinitDesign) {
         this.assembly.didDeinitDesign = true;
         this.assembly.deinitDesign();
+      }
+
+      this.assembly = null;
+
+      if (!renderer) {
+        return;
       }
 
       const [assembler, context, code] = evaluateGameForPreflight({
