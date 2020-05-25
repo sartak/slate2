@@ -1,6 +1,6 @@
-import BaseCanvasRenderer from '../engine/renderer/canvas';
-import BaseWebGLRenderer from '../engine/renderer/webgl';
-import BaseWebGPURenderer from '../engine/renderer/webgpu';
+import BaseCanvasRenderer from '../../engine/renderer/canvas';
+import BaseWebGLRenderer from '../../engine/renderer/webgl';
+import BaseWebGPURenderer from '../../engine/renderer/webgpu';
 
 const classes = {};
 
