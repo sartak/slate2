@@ -149,7 +149,7 @@ export class PreflightManager {
     this.isRunning = true;
     this.assemblyDirty = true;
 
-    this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart());
+    this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart(assembly));
 
     assembly.initPreflight();
     this.renderer.focus();

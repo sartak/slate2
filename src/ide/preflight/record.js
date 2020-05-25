@@ -1,8 +1,11 @@
 export default class RecordDebugger {
   label = "record";
 
-  preflightStart() {
-    this.capturedFrames = [];
+  preflightStart(assembly) {
+    this.recording = {
+      frames: [],
+      assemblyCode: assembly.code,
+    };
   }
 
   assemble_inputEnd(map, project, ctx) {
@@ -44,13 +47,14 @@ export default class RecordDebugger {
   }
 
   frameEnd() {
-    this.capturedFrames.push(this.frame);
+    this.recording.frames.push(this.frame);
     this.frame = null;
   }
 
   preflightStop() {
-    const { capturedFrames, frame: leftoverFrame } = this;
-    const { length } = capturedFrames;
+    const { recording, frame: leftoverFrame } = this;
+    const { frames } = recording;
+    const { length } = frames;
 
     if (leftoverFrame) {
       console.error("Preflight stopped mid-frame; this shouldn't happen");
