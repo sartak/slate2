@@ -7,9 +7,7 @@ export class KeyboardInputSystem extends BaseSystem {
   label = 'KeyboardInput';
   requiredComponents = [];
 
-  initSkipDesignMode = true;
-
-  init(commandKeys) {
+  init(commandKeys, addEventListener) {
     const pressed = {};
     const keyToCommands = {};
     const commandsDown = new Array(Object.keys(commandKeys).length);
@@ -26,7 +24,7 @@ export class KeyboardInputSystem extends BaseSystem {
       });
     });
 
-    const downListener = (event) => {
+    addEventListener('keydown', (event) => {
       const { key } = event;
 
       if (key in pressed) {
@@ -39,9 +37,9 @@ export class KeyboardInputSystem extends BaseSystem {
           }
         });
       }
-    };
+    });
 
-    const upListener = (event) => {
+    addEventListener('keyup', (event) => {
       const { key } = event;
 
       if (key in pressed) {
@@ -56,24 +54,12 @@ export class KeyboardInputSystem extends BaseSystem {
           }
         });
       }
-    };
+    });
 
-    window.addEventListener('keydown', downListener);
-    window.addEventListener('keyup', upListener);
-
-    const detach = () => {
-      window.removeEventListener('keydown', downListener);
-      window.removeEventListener('keyup', upListener);
-    };
-
-    return [commandsDown, detach];
+    return commandsDown;
   }
 
-  deinit([commandsDown, detach]) {
-    detach();
-  }
-
-  input([commandsDown], frame) {
+  input(commandsDown, frame) {
     for (let i = 0, len = commandsDown.length; i < len; ++i) {
       frame[commandsDown[i]] = true;
     }

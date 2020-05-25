@@ -37,6 +37,37 @@ const __assemblePreflightEval = (project, ctx) => {
   ].join("\n"));
 };
 
+const __assembleDesignAttachDetach = (project, ctx) => {
+  const { attachListenerFn } = ctx;
+
+  const attach = [
+    `const ${attachListenerFn} = (event, callback) => {`,
+      `/* do nothing */`,
+    `};`,
+  ].join("\n");
+
+  return [attach, ''];
+};
+
+const __assemblePreflightAttachDetach = (project, ctx) => {
+  const { attachListenerFn, detachCallbacksVar } = ctx;
+
+  const attach = [
+    `const ${attachListenerFn} = (event, callback) => {`,
+      `window.addEventListener(event, callback);`,
+      `${ctx.detachCallbacksVar}.push(() => {`,
+        `window.removeEventListener(event, callback);`,
+      `});`,
+    `};`,
+  ].join("\n");
+
+  const detach = [
+    `${ctx.detachCallbacksVar}.forEach((cb) => cb());`,
+  ].join("\n");
+
+  return [attach, detach];
+};
+
 const __assembleGameForPreflight = (originalProject) => {
   const project = {
     ...originalProject,
@@ -74,10 +105,14 @@ const __assembleGameForPreflight = (originalProject) => {
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
 
-  ctx.designMode = true;
+  ctx.detachCallbacksVar = `${ctx.prefix}detachCallbacks`;
+
+  const [designAttach, designDetach] = __assembleDesignAttachDetach(project, ctx);
+  const [preflightAttach, preflightDetach] = __assemblePreflightAttachDetach(project, ctx);
 
   const initDesign = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
+      designAttach,
       ...ctx.init.map((fn) => fn(ctx)),
     ...__assembleDebugCall('initEnd', '();', project, ctx),
   ].join("\n");
@@ -91,13 +126,13 @@ const __assembleGameForPreflight = (originalProject) => {
   const deinitDesign = [
     ...__assembleDebugCall('deinitBegin', '();', project, ctx),
       ...ctx.deinit.map((fn) => fn(ctx)),
+      designDetach,
     ...__assembleDebugCall('deinitEnd', '();', project, ctx),
   ].join("\n");
 
-  ctx.designMode = false;
-
   const initPreflight = [
     ...__assembleDebugCall('initBegin', '();', project, ctx),
+      preflightAttach,
       ...ctx.init.map((fn) => fn(ctx)),
     ...__assembleDebugCall('initEnd', '();', project, ctx),
   ].join("\n");
@@ -105,6 +140,7 @@ const __assembleGameForPreflight = (originalProject) => {
   const deinitPreflight = [
     ...__assembleDebugCall('deinitBegin', '();', project, ctx),
       ...ctx.deinit.map((fn) => fn(ctx)),
+      preflightDetach,
     ...__assembleDebugCall('deinitEnd', '();', project, ctx),
   ].join("\n");
 
@@ -112,6 +148,7 @@ const __assembleGameForPreflight = (originalProject) => {
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
       `let ${ctx.evalVar} = [];`,
+      `const ${ctx.detachCallbacksVar} = [];`,
       ...ecs,
       ...command,
       ...debug,

@@ -95,11 +95,11 @@ export const prepareComponents = (project, ctx) => {
 };
 
 export const prepareSystems = (project, ctx) => {
-  const { componentMap, systemMap, systemObjects, entityObjects, renderer, commandFrameVar, commandKeysVar } = ctx;
+  const { componentMap, systemMap, systemObjects, entityObjects, renderer, commandFrameVar, commandKeysVar, attachListenerFn } = ctx;
 
   selectEnabledSystems(project).forEach((system) => {
     const systemId = system.id;
-    const { requiredComponents, initSkipDesignMode, userDefined } = system;
+    const { requiredComponents, userDefined } = system;
 
     const componentMaps = [];
     for (let i = 0, len = requiredComponents.length; i < len; ++i) {
@@ -142,11 +142,7 @@ export const prepareSystems = (project, ctx) => {
     if (initMethod) {
       hasInit = true;
       initCodeGenerator = (ctx) => {
-        if (initSkipDesignMode && ctx.designMode) {
-          return null;
-        }
-
-        const implementation = assembleInlineSystemCall(system, 'init', initMethod, [commandKeysVar], project, ctx);
+        const implementation = assembleInlineSystemCall(system, 'init', initMethod, [commandKeysVar, attachListenerFn], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
 
@@ -174,10 +170,6 @@ export const prepareSystems = (project, ctx) => {
     const deinitMethod = getMethod('deinit');
     if (deinitMethod) {
       deinitCodeGenerator = (ctx) => {
-        if (initSkipDesignMode && ctx.designMode) {
-          return null;
-        }
-
         return assembleInlineSystemCall(system, 'deinit', deinitMethod, [...baseParams], project, ctx);
       };
     }

@@ -16,7 +16,6 @@ export const newContext = (project, overrides = {}) => {
     prefix,
 
     forPreflight: false,
-    designMode: false,
 
     imports: [],
 
@@ -56,6 +55,7 @@ export const newContext = (project, overrides = {}) => {
     systemObjects: [],
     systemClassPrefix: prefix,
 
+    attachListenerFn: `${prefix}attachListener`,
     commandPressedFn: `command`,
     commandKeysVar: `${prefix}commandKeys`,
     commandFrameVar: `${prefix}commandFrame`,

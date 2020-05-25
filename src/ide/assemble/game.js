@@ -23,7 +23,18 @@ export const assembleGame = (project, ctx = newContext(project)) => {
 };
 
 const prepareInstantiateGame = (project, ctx) => {
-  ctx.imports.push([ctx.gameClass, 'game', true]);
+  const { gameClass } = ctx;
+
+  ctx.imports.push([gameClass, 'game', true]);
+
+  ctx.init.unshift((ctx) => {
+    const { attachListenerFn } = ctx;
+    return [
+      `const ${attachListenerFn} = (event, callback) => {`,
+        `window.addEventListener(event, callback);`,
+      `};`,
+    ].join("\n");
+  });
 };
 
 const assembleImports = (project, ctx) => {
