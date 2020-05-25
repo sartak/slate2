@@ -10,6 +10,7 @@ import { selectProject } from './project/selectors';
 import { AlertProvider } from './alert/context';
 import { ConsoleProvider } from './console/context';
 import { FloatingEditorProvider } from './code-editor/context';
+import { PreflightProvider } from './preflight/context';
 
 const App = () => {
   const project = useSelector(selectProject, (prev, next) => prev?.id === next?.id);
@@ -30,9 +31,11 @@ const AppWrapper = () => {
   return (
     <ConsoleProvider>
       <AlertProvider>
-        <FloatingEditorProvider>
-          <App />
-        </FloatingEditorProvider>
+        <PreflightProvider>
+          <FloatingEditorProvider>
+            <App />
+          </FloatingEditorProvider>
+        </PreflightProvider>
       </AlertProvider>
     </ConsoleProvider>
   );
