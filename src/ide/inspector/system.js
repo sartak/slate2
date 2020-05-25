@@ -6,6 +6,8 @@ import { makeSelectSystem, selectEnabledComponents, selectProject } from '../pro
 import { lookupComponentWithId  } from '../ecs/components';
 import { TextControlled } from '../field/text-controlled';
 import { useFloatingEditor } from '../code-editor';
+import { InspectCommands } from './commands';
+import { KeyboardInputSystemId } from '../systems/keyboard-input';
 
 // @Cleanup: find a more canonical location for this list.
 const SystemMethods = [
@@ -206,7 +208,13 @@ export const InspectSystem = ({ id }) => {
         <div className="label">{system.label}</div>
       )}
       <ul>
-        <li><InspectSystemComponents id={id} /></li>
+        {
+          id === KeyboardInputSystemId ? (
+            <li><InspectCommands /></li>
+          ) : (
+            <li><InspectSystemComponents id={id} /></li>
+          )
+        }
         <li><InspectSystemMethods id={id} /></li>
       </ul>
     </div>
