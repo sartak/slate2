@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 20;
+export const currentVersion = 21;
 
 export const newProject = () => {
   return {
@@ -22,6 +22,9 @@ export const newProject = () => {
     userDefinedComponents: {},
     nextUserDefinedComponentId: 1,
     activeComponentId: null,
+
+    commands: {},
+    nextCommandId: 1,
 
     surface: {
       panX: 0,
@@ -330,6 +333,11 @@ export const upgradeProject = (project) => {
       });
 
     });
+  }
+
+  if (project.version < 21) {
+    project.commands = {};
+    project.nextCommandId = 1;
   }
 
   console.info(`Upgraded project from version ${project.version} to ${currentVersion}`);

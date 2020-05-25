@@ -96,3 +96,11 @@ export const makeSelectTabLabel = (id) => {
 export const makeSelectBuildOption = (key) => {
   return ({ build }) => build[key];
 };
+
+export const selectCommands = ({ commands }) => commands;
+
+export const selectCommandsList = ({ commands }) => Object.values(commands);
+
+export const makeSelectCommand = (id) => {
+  return ({ commands }) => commands[id];
+}

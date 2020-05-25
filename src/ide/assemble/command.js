@@ -1,7 +1,12 @@
+import { selectCommandsList } from '../project/selectors';
+
 export const prepareCommand = (project, ctx) => {
   const { init } = ctx;
 
-  ctx.commandKeys = {};
+  const commandKeys = ctx.commandKeys = {};
+  selectCommandsList(project).forEach((command) => {
+    commandKeys[command.label] = command.keys;
+  });
 
   init.unshift((ctx) => {
     const { commandKeys, commandKeysVar } = ctx;

@@ -23,6 +23,11 @@ export const ADD_REQUIRED_COMPONENT_TO_USER_DEFINED_SYSTEM = 'ADD_REQUIRED_COMPO
 export const REMOVE_REQUIRED_COMPONENT_FROM_USER_DEFINED_SYSTEM = 'REMOVE_REQUIRED_COMPONENT_FROM_USER_DEFINED_SYSTEM';
 export const SET_SELECTED_TAB_LABEL = 'SET_SELECTED_TAB_LABEL';
 export const SET_BUILD_OPTION = 'SET_BUILD_OPTION';
+export const ADD_COMMAND = 'ADD_COMMAND';
+export const REMOVE_COMMAND = 'REMOVE_COMMAND';
+export const ADD_KEY_FOR_COMMAND = 'ADD_KEY_FOR_COMMAND';
+export const REMOVE_KEY_FOR_COMMAND = 'REMOVE_KEY_FOR_COMMAND';
+export const SET_LABEL_FOR_COMMAND = 'SET_LABEL_FOR_COMMAND';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -429,6 +434,89 @@ export const projectReducer = (state = null, action) => {
         build: {
           ...build,
           [key]: value,
+        },
+      };
+    }
+
+    case ADD_COMMAND: {
+      const { nextCommandId, commands } = state;
+      const id = `command${nextCommandId}`;
+
+      return {
+        ...state,
+        nextCommandId: 1 + nextCommandId,
+        commands: {
+          ...commands,
+          [id]: {
+            id,
+            label: id,
+            keys: [],
+          },
+        },
+      };
+    }
+
+    case REMOVE_COMMAND: {
+      const { id } = action;
+      const { commands } = state;
+      const newCommands = { ...commands };
+      delete newCommands[id];
+
+      return {
+        ...state,
+        commands: newCommands,
+      };
+    }
+
+    case ADD_KEY_FOR_COMMAND: {
+      const { id, key } = action;
+      const { commands } = state;
+      const command = commands[id];
+      const { keys } = command;
+
+      return {
+        ...state,
+        commands: {
+          ...commands,
+          [id]: {
+            ...command,
+            keys: [...keys, key],
+          },
+        },
+      };
+    }
+
+    case REMOVE_KEY_FOR_COMMAND: {
+      const { id, key } = action;
+      const { commands } = state;
+      const command = commands[id];
+      const { keys } = command;
+
+      return {
+        ...state,
+        commands: {
+          ...commands,
+          [id]: {
+            ...command,
+            keys: keys.filter((k) => k !== key),
+          },
+        },
+      };
+    }
+
+    case SET_LABEL_FOR_COMMAND: {
+      const { id, label } = action;
+      const { commands } = state;
+      const command = commands[id];
+
+      return {
+        ...state,
+        commands: {
+          ...commands,
+          [id]: {
+            ...command,
+            label,
+          },
         },
       };
     }

@@ -91,3 +91,23 @@ export const setSelectedTabLabelAction = (id, label) => {
 export const setBuildOption = (key, value) => {
   return { type: t.SET_BUILD_OPTION, key, value };
 };
+
+export const addCommandAction = () => {
+  return { type: t.ADD_COMMAND };
+};
+
+export const removeCommandAction = (id) => {
+  return { type: t.REMOVE_COMMAND, id };
+};
+
+export const addKeyForCommandAction = (id, key) => {
+  return { type: t.ADD_KEY_FOR_COMMAND, id, key };
+};
+
+export const removeKeyForCommandAction = (id, key) => {
+  return { type: t.REMOVE_KEY_FOR_COMMAND, id, key };
+};
+
+export const setLabelForCommandAction = (id, label) => {
+  return { type: t.SET_LABEL_FOR_COMMAND, id, label };
+};
