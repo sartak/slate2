@@ -21,11 +21,12 @@ const ClickDistanceThreshold = 10;
     zoom = 1;
     prevZoom = 0.5;
     onCommitTransform = null;
+    onSelectEntityId = null;
     wheelTimeout = null;
     isTransforming = false;
     preflight = null;
 
-    constructor(preflight, opts, onCommitTransform) {
+    constructor(preflight, opts, onCommitTransform, onSelectEntityId) {
       super();
 
       this.preflight = preflight;
@@ -36,6 +37,7 @@ const ClickDistanceThreshold = 10;
       this.zoom = Number(opts.zoom) || 1;
       this.prevZoom = Number(opts.prevZoom) || 0.5;
       this.onCommitTransform = onCommitTransform;
+      this.onSelectEntityId = onSelectEntityId;
     }
 
     isTransform({ panX, panY, zoom }) {
@@ -88,6 +90,11 @@ const ClickDistanceThreshold = 10;
       });
     }
 
+    didSelectEntity(entityId) {
+      this.isTransforming = false;
+      this.onSelectEntityId?.(entityId);
+    }
+
     zoomAtScreenPoint(dz, x, y) {
       const newZoom = this.zoom * dz;
 
@@ -133,7 +140,7 @@ const ClickDistanceThreshold = 10;
           document.removeEventListener('mouseup', finishMove);
 
           if (clickedEntityId && distance < ClickDistanceThreshold && window.performance.now() - downStart < ClickDurationThreshold) {
-            // TODO
+            this.didSelectEntity(clickedEntityId);
             return;
           }
 
@@ -307,7 +314,7 @@ const ClickDistanceThreshold = 10;
             beganTransform = false;
 
             if (maxTouches == 1 && clickedEntityId && distance < ClickDistanceThreshold && window.performance.now() - downStart < ClickDurationThreshold) {
-              // TODO
+              this.didSelectEntity(clickedEntityId);
             } else {
               this.commitTransform();
             }

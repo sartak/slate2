@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { commitSurfaceTransformAction } from './project/actions';
+import { commitSurfaceTransformAction, setActiveEntityAction } from './project/actions';
 import { rendererForType } from './renderer';
 import { TransformComponentId } from './components/transform';
 import { usePreflight } from './preflight';
@@ -44,6 +44,8 @@ export const Surface = () => {
 
     const renderer = new rendererClass(preflight, surfaceOpts, (opts) => {
       dispatch(commitSurfaceTransformAction(opts));
+    }, (entityId) => {
+      dispatch(setActiveEntityAction(entityId));
     });
 
     rendererRef.current = renderer;
