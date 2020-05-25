@@ -2,6 +2,7 @@ import { evaluateGameForPreflight } from '../assemble/preflight';
 import Loop from '../../engine/loop';
 import LiveEntityValuesDebugger from './live-entity-values';
 import EvalDebugger from './eval';
+import RecordDebugger from './record';
 
 export { usePreflight, PreflightProvider } from './context';
 
@@ -14,7 +15,8 @@ export class Preflight {
   loop = null;
   liveEntityValuesDebugger = new LiveEntityValuesDebugger();
   evalDebugger = new EvalDebugger();
-  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger];
+  recordDebugger = new RecordDebugger();
+  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger];
   storeUnsubscribe = null;
 
   constructor(projectStore) {
