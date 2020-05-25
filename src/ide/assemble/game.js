@@ -87,11 +87,9 @@ export const assembleGameStep = (project, ctx) => {
         ...ctx.render.map((fn) => fn(ctx)),
       ...assembleDebugCall('renderEnd', '();', project, ctx),
 
-      ...(ctx.cleanup.length ? [
-        ...assembleDebugCall('cleanupBegin', '();', project, ctx),
-          ...ctx.cleanup.map((fn) => fn(ctx)),
-        ...assembleDebugCall('cleanupEnd', '();', project, ctx),
-      ] : []),
+      ...assembleDebugCall('cleanupBegin', '();', project, ctx),
+        ...ctx.cleanup.map((fn) => fn(ctx)),
+      ...assembleDebugCall('cleanupEnd', '();', project, ctx),
 
     ...assembleDebugCall('frameEnd', '();', project, ctx),
   ].filter(Boolean);
