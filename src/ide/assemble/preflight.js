@@ -43,9 +43,7 @@ const __assembleDesignAttachDetach = (project, ctx) => {
   const { attachListenerFn } = ctx;
 
   const attach = [
-    `const ${attachListenerFn} = (event, callback) => {`,
-      `/* do nothing */`,
-    `};`,
+    `const ${attachListenerFn} = () => { /* do nothing */ };`,
   ].join("\n");
 
   return [attach, ''];
