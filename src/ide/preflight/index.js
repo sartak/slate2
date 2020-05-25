@@ -205,6 +205,9 @@ if (module.hot) {
   Preflight.prototype._hotReplace = function (next) {
     this.storeUnsubscribe();
     this._hotReplaceContext(next);
+    preflights.forEach((preflight) => {
+      preflight.renderer?.setPreflight(next);
+    });
     preflights = preflights.filter((p) => p !== this);
   };
 

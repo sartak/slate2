@@ -40,6 +40,11 @@ const ClickDistanceThreshold = 10;
       this.onSelectEntityId = onSelectEntityId;
     }
 
+    setPreflight(preflight) {
+      this.preflight = preflight;
+      this.preflight.setRenderer(this);
+    }
+
     isTransform({ panX, panY, zoom }) {
       return this.panX === Number(panX) && this.panY === Number(panY) && this.zoom === Number(zoom);
     }
@@ -115,6 +120,8 @@ const ClickDistanceThreshold = 10;
     attach(...args) {
       const ret = super.attach(...args);
       const { canvas } = this;
+
+      this.preflight?.setRenderer(this);
 
       canvas.onmousedown = (e) => {
         e.preventDefault();
