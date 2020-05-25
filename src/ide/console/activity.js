@@ -5,6 +5,14 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import './activity.less';
 
 const renderArg = (arg) => {
+  const cleanup = (value) => {
+    if (typeof value === "string") {
+      // @Polish: Render, instead of stripping, these ANSI colors
+      return value.replace(/\x1B\[[\d;]+m/g, '');
+    }
+    return value;
+  };
+
   if (arg === null) {
     return ["javascript", "null"];
   } else if (arg === undefined) {
@@ -20,7 +28,7 @@ const renderArg = (arg) => {
   } else if (typeof arg === "function") {
     return ["javascript", String(arg)];
   } else if (arg instanceof Error) {
-    return [null, arg.toString()];
+    return [null, cleanup(arg.toString())];
   } else if (typeof arg === "object") {
     try {
       return ["javascript", JSON.stringify(arg, null, 2)];
@@ -29,7 +37,7 @@ const renderArg = (arg) => {
     }
   }
 
-  return [null, arg];
+  return [null, cleanup(arg)];
 };
 
 export const ConsoleActivity = () => {
