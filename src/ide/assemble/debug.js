@@ -70,10 +70,17 @@ export const assembleDebuggers = (project, ctx) => {
       ];
     }),
 
+    ...debuggers.map((debug, i) => debug.assemblePreflightInit?.(debuggerMap[i], project, ctx)),
+
     ...(generateDebuggerVars ? [
       `const ${ctx.debuggersVar} = [`,
         ...debuggers.map((_, i) => `${debuggerMap[i].varName},`),
       `];`,
     ] : []),
   ];
+};
+
+export const assembleDebugPreflightReturn = (project, ctx) => {
+  const { debuggers, debuggerMap } = ctx;
+  return debuggers.map((debug, i) => debug.assemblePreflightReturn?.(debuggerMap[i], project, ctx));
 };

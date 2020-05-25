@@ -149,6 +149,7 @@ const __assembleGameForPreflight = (originalProject) => {
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,
         `hitTest: ${hitTest},`,
+        ...__assembleDebugPreflightReturn(project, ctx),
       `};`,
     `}`,
   ];
