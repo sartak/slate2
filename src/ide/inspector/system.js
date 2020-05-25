@@ -50,7 +50,7 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
       code = String(system.__proto__[method]);
     }
 
-    openEditor(code, options);
+    openEditor(code, `${systemId}.${method}`, options);
   };
 
   return (

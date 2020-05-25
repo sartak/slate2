@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import { FloatingEditor } from './floating';
 
 const FloatingEditorContext = createContext(null);
@@ -7,13 +7,18 @@ export const useFloatingEditor = () => useContext(FloatingEditorContext);
 
 export const FloatingEditorProvider = ({ children }) => {
   const [editorProps, setEditorProps] = useState(null);
+  const editorId = useRef(null);
 
-  const callback = (code, options = {}) => {
-    // Only do this if the caller changes.
-    // editorProps?.close?.();
+  const callback = (code, id, options = {}) => {
+    if (editorId.current !== id) {
+      editorProps?.close?.();
+    }
+
+    editorId.current = id;
 
     setEditorProps({
       ...options,
+      editorId: id,
       close: () => {
         options.close?.();
         setEditorProps(null);
@@ -22,7 +27,9 @@ export const FloatingEditorProvider = ({ children }) => {
     });
 
     return () => {
-      setEditorProps(null);
+      if (editorId.current === id) {
+        setEditorProps(null);
+      }
     };
   };
 

@@ -11,6 +11,7 @@ export const PreviewContent = ({ stopPreviewing }) => {
   useEffect(() => {
     const closeEditor = edit(
       assembleGame(project),
+      "preview",
       {
         close: stopPreviewing,
         language: "javascript",
