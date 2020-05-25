@@ -24,14 +24,16 @@ export const prepareDebuggers = (project, ctx) => {
 
 export const assembleDebugCall = (methodName, rest, project, ctx) => {
   const { debuggers, debuggerMap } = ctx;
+  const assembleMethod = `assemble_${methodName}`;
 
   return debuggers.map((debug, i) => {
-    if (!debug.__proto__[methodName]) {
-      return null;
-    }
-
-    return `${debuggerMap[i].varName}.${methodName}${rest}`;
-  });
+    const map = debuggerMap[i];
+    const { varName } = map;
+    return [
+      (debug.__proto__[methodName] && `${varName}.${methodName}${rest}`),
+      ...(debug.__proto__[assembleMethod] ? debug[assembleMethod](map, project, ctx) : []),
+    ].filter(Boolean).join("\n");
+  }).filter((c) => c.length);
 };
 
 export const assembleDebuggers = (project, ctx) => {
