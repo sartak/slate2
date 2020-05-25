@@ -1,6 +1,15 @@
 export default class RecordDebugger {
   label = "record";
 
+  prepareAssembly(map, project, ctx) {
+    const { varName } = map;
+    ctx.assembleCaptureFn = (label, expression) => {
+      return [
+        `${varName}.capture(${JSON.stringify(label)}, ${expression});`,
+      ];
+    };
+  }
+
   preflightStart(assembly) {
     this.recording = {
       frames: [],
@@ -19,14 +28,7 @@ export default class RecordDebugger {
   assemble_updateEnd(map, project, ctx) {
     const { varName } = map;
     return [
-      `${varName}.captureKeyframe(${ctx.componentsVar});`,
-    ];
-  }
-
-  assemble_cleanupBegin(map, project, ctx) {
-    const { varName } = map;
-    return [
-      `${varName}.captureEval(${ctx.evalVar});`,
+      `${varName}.captureComponents(${ctx.componentsVar});`,
     ];
   }
 
@@ -34,16 +36,16 @@ export default class RecordDebugger {
     this.frame = {};
   }
 
+  capture(key, value) {
+    this.frame[key] = JSON.parse(JSON.stringify(value));
+  }
+
   captureInput(command) {
-    this.frame.command = JSON.parse(JSON.stringify(command));
+    this.capture('command', command);
   }
 
-  captureKeyframe(components) {
-    this.frame.components = JSON.parse(JSON.stringify(components));
-  }
-
-  captureEval(evals) {
-    this.frame.eval = evals.map(([code, params, input]) => [code, input]);
+  captureComponents(components) {
+    this.capture('components', components);
   }
 
   frameEnd() {
