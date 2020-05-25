@@ -210,6 +210,7 @@ if (module.hot) {
     this.storeUnsubscribe();
     const next = new nextClass(this.projectStore);
     this.renderer?.setPreflight(next);
+    next.regenerateAssembly();
     this._hotReplaceContext(next);
   };
 }
