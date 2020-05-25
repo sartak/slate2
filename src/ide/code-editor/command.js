@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { CodeEditor } from './index';
 
-export const CommandEditor = (props) => {
+export const CommandEditor = forwardRef((props, ref) => {
   const [text, setText] = useState(props.defaultValue ?? '');
+  const editorRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      editorRef.current?.focus();
+    },
+  }));
 
   return (
     <CodeEditor
@@ -46,6 +53,9 @@ export const CommandEditor = (props) => {
       }}
 
       editorDidMount={(editor, ...rest) => {
+        // @Performance: set this to null when editor is disposed
+        editorRef.current = editor;
+
         editor.addCommand(monaco.KeyCode.Enter, () => {
           let text = editor.getValue();
           text = text.replace(/\s+$/, "");
@@ -57,4 +67,4 @@ export const CommandEditor = (props) => {
       }}
     />
   );
-};
+});

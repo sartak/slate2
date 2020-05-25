@@ -93,30 +93,24 @@
   }
 
   & > .input {
-    position: relative;
+    display: flex;
+    height: 4em;
+    flex-direction: row;
 
     & > .sigil {
-      position: absolute;
       pointer-events: none;
-      top: 0;
-      left: 0;
       font-family: "Futura";
       color: rgb(72, 121, 230);
-      box-sizing: border-box;
       text-align: center;
       width: @left-pad;
       padding-top: @line-padding-vertical;
-      height: 100%;
+      flex-shrink: 0;
+      flex-grow: 0;
     }
 
     & > .field {
-      display: block;
-      box-sizing: border-box;
-      width: 100%;
-      font-family: Menlo, Monaco, "Courier New", monospace;
-      font-size: 12px;
-      padding: 0 0 0 @left-pad;
-      height: 4em;
+      flex-shrink: 1;
+      flex-grow: 1;
     }
   }
 }

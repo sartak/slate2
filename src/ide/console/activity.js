@@ -37,6 +37,7 @@ export const ConsoleActivity = () => {
   const listRef = useRef(null);
   const scrollTimeout = useRef(null);
   const inputRef = useRef(null);
+  const editorRef = useRef(null);
 
   const setListRef = useCallback((list) => {
     listRef.current = list;
@@ -84,8 +85,8 @@ export const ConsoleActivity = () => {
   }, [manager.lines.length]);
 
   return (
-    <div className="ConsoleActivity">
-      <ul ref={setListRef} key={Date.now()}>
+    <div className="ConsoleActivity" onClick={() => editorRef.current?.focus()}>
+      <ul ref={setListRef} key={Date.now()} onClick={(e) => e.stopPropagation()}>
         {manager.lines.map(([level, args], i) => (
           <li key={i} className={level}>
             {args.map((arg, i) => {
@@ -100,7 +101,9 @@ export const ConsoleActivity = () => {
       </ul>
       <div ref={inputRef} className="input">
         <div className="sigil">&gt;</div>
-        <div className="field"><ConsoleInput /></div>
+        <div className="field" onClick={(e) => e.stopPropagation()}>
+          <ConsoleInput ref={editorRef} />
+        </div>
       </div>
     </div>
   );
