@@ -126,9 +126,11 @@ const ClickDistanceThreshold = 10;
         const rect = canvas.getBoundingClientRect();
         const clickedEntityId = this.hitTest(e.pageX - rect.left, e.pageY - rect.top, false);
 
-        const finishMove = () => {
+        const finishMove = (e) => {
+          e.preventDefault();
+
           document.removeEventListener('mousemove', mouseMove);
-          canvas.onmouseup = null;
+          document.removeEventListener('mouseup', finishMove);
 
           if (clickedEntityId && distance < ClickDistanceThreshold && window.performance.now() - downStart < ClickDurationThreshold) {
             // TODO
@@ -142,12 +144,6 @@ const ClickDistanceThreshold = 10;
 
         const mouseMove = (e) => {
           e.preventDefault();
-
-          // this can occasionally happen
-          if (e.buttons === 0) {
-            finishMove();
-            return;
-          }
 
           const { pageX, pageY } = e;
 
@@ -167,10 +163,7 @@ const ClickDistanceThreshold = 10;
         };
 
         document.addEventListener('mousemove', mouseMove);
-        canvas.onmouseup = (e) => {
-          e.preventDefault();
-          finishMove();
-        };
+        document.addEventListener('mouseup', finishMove);
       };
 
       // multitouch with trackpad
