@@ -44,6 +44,7 @@ export const newContext = (project, overrides = {}) => {
 
     entitiesVar: `${prefix}allEntities`,
     entityMap: {},
+    entityReverseMap: {},
     entityObjects: [],
 
     componentsVar: `${prefix}allComponents`,

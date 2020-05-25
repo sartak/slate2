@@ -3,14 +3,16 @@ import { canonicalizeValue, zeroValueForType } from '../types';
 import { selectEntityList, selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 
 export const prepareEntities = (project, ctx) => {
-  const { entityMap, entityObjects } = ctx;
+  const { entityMap, entityReverseMap, entityObjects } = ctx;
 
   selectEntityList(project).forEach((entity, i) => {
     entityObjects.push(entity);
+    const index = 1 + i;
     entityMap[entity.id] = {
       entity,
-      index: 1 + i,
+      index,
     };
+    entityReverseMap[index] = entity.id;
   });
 };
 
