@@ -103,8 +103,6 @@ if (module.hot) {
   ConsoleManager.prototype._hotReplace = function (next) {
     this.detach();
 
-    // @Cleanup this doesn't allow unsubscribe since `this` will be the wrong
-    // object. Maybe have unsubscribe look it up, but only in HMR.
     next.subscriptions = this.subscriptions;
     next.lines = this.lines;
 
