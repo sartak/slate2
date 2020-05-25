@@ -64,14 +64,14 @@ export default class WebGLRenderer {
   }
 
   addEventListener(event, callback) {
-    this.canvas.addEventListener(event, callback);
+    this.canvas?.addEventListener(event, callback);
   }
 
   removeEventListener(event, callback) {
-    this.canvas.removeEventListener(event, callback);
+    this.canvas?.removeEventListener(event, callback);
   }
 
   focus() {
-    this.canvas.focus();
+    this.canvas?.focus();
   }
 }
