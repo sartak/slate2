@@ -100,15 +100,16 @@ export class ConsoleManager {
 }
 
 if (module.hot) {
-  ConsoleManager.prototype._hotReplace = function (next) {
+  ConsoleManager.prototype._hotReplace = function (nextClass) {
     this.detach();
+    const next = new nextClass();
 
     next.subscriptions = this.subscriptions;
     next.lines = this.lines;
+    this._unsubscribeUsing = next;
 
     next.attach();
 
-    this._unsubscribeUsing = next;
     this._hotReplaceContext(next);
   };
 }

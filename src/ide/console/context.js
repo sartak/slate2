@@ -22,8 +22,6 @@ export const ConsoleProvider = ({ children }) => {
 
 if (module.hot) {
   module.hot.accept('./manager', () => {
-    const prev = currentConsoleManager;
-    currentConsoleManager = new ConsoleManager();
-    prev._hotReplace(currentConsoleManager);
+    currentConsoleManager._hotReplace(ConsoleManager);
   });
 }

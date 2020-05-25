@@ -50,8 +50,6 @@ export const AlertProvider = ({ children }) => {
 
 if (module.hot) {
   module.hot.accept('./manager', () => {
-    const prev = currentAlertProvider;
-    currentAlertProvider = new AlertManager();
-    prev._hotReplace(currentAlertProvider);
+    currentAlertProvider._hotReplace(AlertManager);
   });
 }

@@ -44,6 +44,10 @@ export class AlertManager {
   }
 
   dismissAlerts(ids, options = {}) {
+    if (this._dismissUsing) {
+      return this._dismissUsing.dismissAlerts(ids, options);
+    }
+
     const { immediately } = options;
 
     let keep = [];
@@ -96,10 +100,12 @@ export class AlertManager {
 }
 
 if (module.hot) {
-  AlertManager.prototype._hotReplace = function (next) {
+  AlertManager.prototype._hotReplace = function (nextClass) {
+    const next = new nextClass(this.projectStore);
     next.alerts = this.alerts;
     next.setAlerts = this.setAlerts;
     next.nextId = this.nextId;
+    this._dismissUsing = next;
     this._hotReplaceContext(next);
   };
 }
