@@ -56,12 +56,21 @@ export default class RecordDebugger {
   preflightStop() {
     const { recording, frame: leftoverFrame } = this;
     const { frames } = recording;
-    const { length } = frames;
 
     if (leftoverFrame) {
       console.error("Preflight stopped mid-frame; this shouldn't happen");
     }
 
-    console.log(`Captured ${length} frames`);
+    const evals = frames.map(({ evals }) => evals).filter((evals) => evals.length).flat();
+
+    const summaryFields = [
+      [frames.length, 'frames'],
+      [evals.length, 'evals'],
+    ];
+
+    const summary = summaryFields.filter(([count]) => count).map(([count, label]) => `${count} ${label}`).join(', ');
+    if (summary) {
+      console.log(`Captured ${summary}`);
+    }
   }
 }
