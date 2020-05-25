@@ -74,13 +74,14 @@ export class Preflight {
         this.assembly.deinitDesign();
       }
 
-      const [assembler, context] = evaluateGameForPreflight({
+      const [assembler, context, code] = evaluateGameForPreflight({
         ...project,
         debuggers,
       });
 
       const assembly = assembler(renderer, debuggers);
       assembly.context = context;
+      assembly.code = code;
 
       assembly.initDesign();
 

@@ -14,7 +14,7 @@ export const TopMenu = () => {
       <DownloadButton isBusy={isBusy} setBusy={setBusy} />
       <BuildButton isBusy={isBusy} setBusy={setBusy} />
       <PreviewButton isBusy={isBusy} setBusy={setBusy} />
-      <PreviewButton isBusy={isBusy} setBusy={setBusy} preflight />
+      <PreviewButton isBusy={isBusy} setBusy={setBusy} isPreflight />
       <PreflightButton isBusy={isBusy} setBusy={setBusy} />
     </div>
   );
