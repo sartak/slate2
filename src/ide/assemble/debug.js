@@ -19,6 +19,8 @@ export const prepareDebuggers = (project, ctx) => {
       varName,
       className,
     };
+
+    debug.prepareAssembly?.(debuggerMap[i], project, ctx);
   });
 };
 
