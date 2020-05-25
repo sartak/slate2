@@ -2,16 +2,18 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectProject } from '../project/selectors';
 import { assembleGame } from '../assemble/game';
+import { assembleGameForPreflight } from '../assemble/preflight';
 import { useFloatingEditor } from '../code-editor';
 
-export const PreviewContent = ({ stopPreviewing }) => {
+export const PreviewContent = ({ stopPreviewing, preflight }) => {
   const edit = useFloatingEditor();
   const project = useSelector(selectProject);
 
   useEffect(() => {
+    const code = preflight ? assembleGameForPreflight(project)[0] : assembleGame(project);
     const closeEditor = edit(
-      assembleGame(project),
-      "preview",
+      code,
+      preflight ? "preflight" : "build",
       {
         close: stopPreviewing,
         language: "javascript",
@@ -22,7 +24,7 @@ export const PreviewContent = ({ stopPreviewing }) => {
     return () => {
       closeEditor();
     };
-  }, [project, assembleGame]);
+  }, [project, preflight, preflight ? assembleGameForPreflight : assembleGame]);
 
   return <React.Fragment />;
 };

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { PreviewContent } from './preview-content';
 
-export const PreviewButton = ({ isBusy }) => {
+export const PreviewButton = ({ isBusy, preflight }) => {
   const [isPreviewing, setPreviewing] = useState(false);
 
   if (!isPreviewing) {
     return (
-      <button disabled={isBusy} onClick={() => setPreviewing(true)}>Preview Build</button>
+      <button disabled={isBusy} onClick={() => setPreviewing(true)}>Preview {preflight ? "Preflight" : "Build"}</button>
     );
   }
 
@@ -18,6 +18,7 @@ export const PreviewButton = ({ isBusy }) => {
       {isPreviewing && (
         <PreviewContent
           stopPreviewing={stopPreviewing}
+          preflight={preflight}
         />
       )}
     </React.Fragment>
