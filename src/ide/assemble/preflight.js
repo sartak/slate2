@@ -4,8 +4,10 @@ import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepare
 import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs';
 import { prepareCommand as __prepareCommand, assembleCommandSetup as __assembleCommandSetup } from './command';
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
-import { flattenList as __flattenList } from './inline';
+import { assembleInlineSystemCall as __assembleInlineSystemCall, flattenList as __flattenList } from './inline';
 import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
+import { RenderSystemId as __RenderSystemId } from '../systems/render';
+import { lookupSystemWithId as __lookupSystemWithId } from '../ecs/systems';
 
 const __assembleEvalCall = (codeVar, paramsVar, inputVar, project, ctx) => {
   return [
@@ -68,6 +70,23 @@ const __assemblePreflightAttachDetach = (project, ctx) => {
   return [attach, detach];
 };
 
+const __assembleHitTest = (project, ctx) => {
+  const { systemMap } = ctx;
+  const id = __RenderSystemId;
+  const { entitiesVar } = systemMap[id];
+  const renderSystem = __lookupSystemWithId(project, id);
+  const code = { file: renderSystem.constructor.sourceCode };
+
+  const body = __assembleInlineSystemCall(renderSystem, 'hitTest', code, [entitiesVar, 'x', 'y', 'all'], project, ctx);
+
+  return [
+    `(x, y, all) => {`,
+      `const __ret = ${body};`,
+      `return __ret;`,
+    `}`,
+  ].join("\n");
+};
+
 const __assembleGameForPreflight = (originalProject) => {
   const project = {
     ...originalProject,
@@ -106,6 +125,8 @@ const __assembleGameForPreflight = (originalProject) => {
   ctx.preparedLoop = true;
 
   ctx.detachCallbacksVar = `${ctx.prefix}detachCallbacks`;
+
+  const hitTest = __assembleHitTest(project, ctx);
 
   const [designAttach, designDetach] = __assembleDesignAttachDetach(project, ctx);
   const [preflightAttach, preflightDetach] = __assemblePreflightAttachDetach(project, ctx);
@@ -164,6 +185,7 @@ const __assembleGameForPreflight = (originalProject) => {
         `deinitPreflight: () => { ${deinitPreflight} },`,
         `scheduleEval: (code, params, input) => { ${ctx.evalVar}.push([code, params, input]) },`,
         `immediateEval: (__code, __params, __input) => { ${__assembleEvalCall('__code', '__params', '__input', project, ctx)} },`,
+        `hitTest: ${hitTest},`,
       `};`,
     `}`,
   ];

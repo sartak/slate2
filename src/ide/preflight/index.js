@@ -164,6 +164,18 @@ export class Preflight {
   eval(code) {
     this.evalDebugger.eval(code);
   }
+
+  hitTest(...args) {
+    const { assembly } = this;
+    const { entityReverseMap } = assembly.context;
+
+    const ret = this.assembly.hitTest(...args);
+    if (ret && typeof ret === 'object') {
+      return ret.map((entity) => entityReverseMap[entity]);
+    } else {
+      return entityReverseMap[ret];
+    }
+  }
 }
 
 if (module.hot) {

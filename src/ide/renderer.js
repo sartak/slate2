@@ -7,6 +7,8 @@ const classes = {};
 const MaxZoom = 10;
 const MinZoom = 0.1;
 const PrevZoomThreshold = 0.05;
+const ClickDurationThreshold = 300;
+const ClickDistanceThreshold = 10;
 
 [
   ['CanvasRenderer', BaseCanvasRenderer],
@@ -114,12 +116,24 @@ const PrevZoomThreshold = 0.05;
 
         const originX = e.pageX;
         const originY = e.pageY;
+        let prevX = originX;
+        let prevY = originY;
         const { panX, panY } = this;
         let sawMove = false;
+        let downStart = window.performance.now();
+        let distance = 0;
+
+        const rect = canvas.getBoundingClientRect();
+        const clickedEntityId = this.hitTest(e.pageX - rect.left, e.pageY - rect.top, false);
 
         const finishMove = () => {
           document.removeEventListener('mousemove', mouseMove);
           canvas.onmouseup = null;
+
+          if (clickedEntityId && distance < ClickDistanceThreshold && window.performance.now() - downStart < ClickDurationThreshold) {
+            // TODO
+            return;
+          }
 
           if (sawMove) {
             this.commitTransform();
@@ -135,11 +149,20 @@ const PrevZoomThreshold = 0.05;
             return;
           }
 
+          const { pageX, pageY } = e;
+
+          const dx = pageX - prevX;
+          const dy = pageY - prevY;
+          distance += Math.hypot(dx, dy);
           sawMove = true;
-          const dx = e.pageX - originX;
-          const dy = e.pageY - originY;
-          this.panX = panX + dx;
-          this.panY = panY + dy;
+          prevX = pageX;
+          prevY = pageY;
+
+          const totalDx = pageX - originX;
+          const totalDy = pageY - originY;
+
+          this.panX = panX + totalDx;
+          this.panY = panY + totalDy;
           this.render();
         };
 
@@ -214,6 +237,10 @@ const PrevZoomThreshold = 0.05;
         let prevX, prevY;
         let beganTransform = false;
         let canvasLeft, canvasTop;
+        let downStart;
+        let distance;
+        let maxTouches = 0;
+        let clickedEntityId;
 
         canvas.ontouchstart = (e) => {
           e.preventDefault();
@@ -228,6 +255,8 @@ const PrevZoomThreshold = 0.05;
           prevX -= canvasLeft;
           prevY -= canvasTop;
 
+          maxTouches++;
+
           if (beganTransform) {
             return;
           }
@@ -236,6 +265,10 @@ const PrevZoomThreshold = 0.05;
           beganTransform = true;
 
           startZoom = this.zoom;
+          downStart = window.performance.now()
+          distance = 0;
+
+          clickedEntityId = this.hitTest(prevX, prevY, false);
         };
 
         canvas.ontouchmove = (e) => {
@@ -262,10 +295,14 @@ const PrevZoomThreshold = 0.05;
             this.panY = cy - (cy - this.panY) * dz;
           }
 
-          this.panX += cx - prevX;
-          this.panY += cy - prevY;
+          const dx = cx - prevX;
+          const dy = cy - prevY;
+          this.panX += dx;
+          this.panY += dy;
           prevX = cx;
           prevY = cy;
+
+          distance += Math.hypot(dx, dy);
 
           this.render();
         };
@@ -275,7 +312,14 @@ const PrevZoomThreshold = 0.05;
 
           if (e.touches.length === 0) {
             beganTransform = false;
-            this.commitTransform();
+
+            if (maxTouches == 1 && clickedEntityId && distance < ClickDistanceThreshold && window.performance.now() - downStart < ClickDurationThreshold) {
+              // TODO
+            } else {
+              this.commitTransform();
+            }
+
+            maxTouches = 0;
           } else {
             [prevX, prevY] = centroidForTouches(e.touches);
             prevX -= canvasLeft;
@@ -351,6 +395,16 @@ const PrevZoomThreshold = 0.05;
         this.height = canvas.height = Math.floor(height);
         this.render();
       }
+    }
+
+    hitTest(screenX, screenY, all) {
+      const { panX, panY, zoom } = this;
+      const worldX = (screenX - panX) / zoom;
+      const worldY = (screenY - panY) / zoom;
+
+      // @Polish: add a radius to account for finger size on touch events
+
+      return this.preflight.hitTest(screenX, screenY, all);
     }
 
     beginRender() {
