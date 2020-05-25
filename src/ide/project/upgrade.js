@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 19;
+export const currentVersion = 20;
 
 export const newProject = () => {
   return {
@@ -264,6 +264,72 @@ export const upgradeProject = (project) => {
       postbuild: null,
       webpackConfig: null,
     };
+  }
+
+  if (project.version < 20) {
+    Object.entries(project.entities).forEach(([id, entity]) => {
+      delete project.entities[id];
+      project.entities[entity.id] = entity;
+
+      if (String(project.activeEntityId) === id) {
+        project.activeEntityId = entity.id;
+      }
+    });
+
+    Object.entries(project.userDefinedSystems).forEach(([id, system]) => {
+      delete project.userDefinedSystems[id];
+      project.userDefinedSystems[system.id] = system;
+
+      if (String(project.activeSystemId) === id) {
+        project.activeSystemId = system.id;
+      }
+    });
+
+    Object.entries(project.userDefinedComponents).forEach(([id, component]) => {
+      console.log(component);
+      delete project.userDefinedComponents[id];
+      project.userDefinedComponents[component.id] = component;
+
+      Object.values(project.userDefinedSystems).forEach((system) => {
+        system.requiredComponents = system.requiredComponents.map((c) => String(c) === id ? component.id : c);
+      });
+
+      Object.values(project.entities).forEach((entity) => {
+        entity.componentIds = entity.componentIds.map((c) => String(c) === id ? component.id : c);
+        if (entity.componentConfig[id]) {
+          const entityComponent = entity.componentConfig[id];
+          delete entity.componentConfig[id];
+          entity.componentConfig[component.id] = entityComponent;
+          entityComponent.id = component.id;
+        }
+      });
+
+      if (String(project.activeComponentId) === id) {
+        project.activeComponentId = component.id;
+      }
+    });
+
+    Object.values(project.userDefinedComponents).forEach((component) => {
+      component.fields.forEach((field) => {
+        const { id } = field;
+        if (!String(id).match(/^\d+$/)) {
+          return;
+        }
+
+        const newId = `field${id}`;
+        field.id = newId;
+
+        Object.values(project.entities).forEach((entity) => {
+          const config = entity.componentConfig[component.id];
+          if (config) {
+            const fieldValue = config.values[id];
+            delete config.values[id];
+            config.values[newId] = fieldValue;
+          }
+        });
+      });
+
+    });
   }
 
   console.info(`Upgraded project from version ${project.version} to ${currentVersion}`);

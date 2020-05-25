@@ -42,17 +42,18 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_ENTITY: {
-      const { nextEntityId: id, entities } = state;
+      const { nextEntityId, entities } = state;
+      const id = `Entity${nextEntityId}`;
 
       return {
         ...state,
-        nextEntityId: 1 + id,
+        nextEntityId: 1 + nextEntityId,
         entities: {
           ...entities,
           [id]: {
             ...action.entity,
-            id: `Entity${id}`,
-            label: `Entity${id}`,
+            id,
+            label: id,
           },
         },
 
@@ -187,17 +188,18 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_USER_DEFINED_SYSTEM: {
-      const { nextUserDefinedSystemId: id, userDefinedSystems } = state;
+      const { nextUserDefinedSystemId, userDefinedSystems } = state;
+      const id = `System${nextUserDefinedSystemId}`;
 
       return {
         ...state,
-        nextUserDefinedSystemId: 1 + id,
+        nextUserDefinedSystemId: 1 + nextUserDefinedSystemId,
         userDefinedSystems: {
           ...userDefinedSystems,
           [id]: {
             ...action.system,
-            id: `System${id}`,
-            label: `System${id}`,
+            id,
+            label: id,
           },
         },
 
@@ -216,17 +218,18 @@ export const projectReducer = (state = null, action) => {
     }
 
     case ADD_USER_DEFINED_COMPONENT: {
-      const { nextUserDefinedComponentId: id, userDefinedComponents } = state;
+      const { nextUserDefinedComponentId, userDefinedComponents } = state;
+      const id = `Component${nextUserDefinedComponentId}`;
 
       return {
         ...state,
-        nextUserDefinedComponentId: 1 + id,
+        nextUserDefinedComponentId: 1 + nextUserDefinedComponentId,
         userDefinedComponents: {
           ...userDefinedComponents,
           [id]: {
             ...action.component,
-            id: `Component${id}`,
-            label: `Component${id}`,
+            id,
+            label: id,
           },
         },
 
@@ -299,7 +302,8 @@ export const projectReducer = (state = null, action) => {
       const { id: componentId, field } = action;
       const { userDefinedComponents } = state;
       const component = userDefinedComponents[componentId];
-      const { fields, nextFieldId: fieldId } = component;
+      const { fields, nextFieldId } = component;
+      const fieldId = `field${nextFieldId}`;
 
       return {
         ...state,
@@ -307,13 +311,13 @@ export const projectReducer = (state = null, action) => {
           ...userDefinedComponents,
           [componentId]: {
             ...component,
-            nextFieldId: 1 + fieldId,
+            nextFieldId: 1 + nextFieldId,
             fields: [
               ...fields,
               {
                 ...field,
                 id: fieldId,
-                label: `field${fieldId}`,
+                label: fieldId,
               },
             ],
           },
