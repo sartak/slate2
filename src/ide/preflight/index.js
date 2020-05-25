@@ -133,8 +133,10 @@ export class Preflight {
   }
 
   _start() {
-    this.assembly.deinitDesign();
-    this.assembly.didDeinitDesign = true;
+    if (this.assembly) {
+      this.assembly.deinitDesign?.();
+      this.assembly.didDeinitDesign = true;
+    }
 
     if (this.assemblyDirty) {
       this.regenerateAssembly();
