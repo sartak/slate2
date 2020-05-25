@@ -75,8 +75,10 @@ export const assembleGameStep = (project, ctx) => {
 
       ...assembleDebugCall('updateBegin', '();', project, ctx),
 
-        ...assembleCommandStepPrepare(project, ctx),
-        ...ctx.input.map((fn) => fn(ctx)),
+        ...assembleDebugCall('inputBegin', '();', project, ctx),
+          ...assembleCommandStepPrepare(project, ctx),
+          ...ctx.input.map((fn) => fn(ctx)),
+        ...assembleDebugCall('inputEnd', `();`, project, ctx),
 
         ...ctx.update.map((fn) => fn(ctx)),
       ...assembleDebugCall('updateEnd', '();', project, ctx),
