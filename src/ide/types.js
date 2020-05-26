@@ -2,6 +2,7 @@ import React from 'react';
 import { FloatField } from './field/float';
 import { ColorField } from './field/color';
 import { EntityField } from './field/entity';
+import { BoolField } from './field/bool';
 
 export const BuiltinTypes = {
   entity: {
@@ -21,6 +22,13 @@ export const BuiltinTypes = {
       !value ? defaultValue : value.toLowerCase()
     ),
     editor: ColorField,
+  },
+  bool: {
+    zeroValue: false,
+    canonicalize: (value, defaultValue) => (
+      !!value
+    ),
+    editor: BoolField,
   },
 };
 
