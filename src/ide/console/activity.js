@@ -43,7 +43,6 @@ const renderArg = (arg) => {
 export const ConsoleActivity = () => {
   const manager = useConsole();
   const listRef = useRef(null);
-  const scrollTimeout = useRef(null);
   const inputRef = useRef(null);
   const editorRef = useRef(null);
 
