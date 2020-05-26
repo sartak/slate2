@@ -41,6 +41,12 @@ const __assemblePreflightAttachDetach = (project, ctx) => {
 const __assembleHitTest = (project, ctx) => {
   const { systemMap } = ctx;
   const id = __RenderSystemId;
+
+  // We don't have the render system (maybe there are no entities)
+  if (!systemMap[id]) {
+    return `() => null`;
+  }
+
   const { entitiesVar } = systemMap[id];
   const renderSystem = __lookupSystemWithId(project, id);
   const code = { file: renderSystem.constructor.sourceCode };
