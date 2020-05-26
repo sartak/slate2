@@ -168,6 +168,14 @@ export class PreflightManager {
 
     this.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
 
+    if (this._hotReplaceWhenDoneRunning) {
+      setTimeout(() => {
+        console.log('PreflightManager now executing deferred hot reload');
+        this._hotReplace(this._hotReplaceWhenDoneRunning);
+      });
+      return;
+    }
+
     // @Feature: make this optional, for inspecting the end state
     this.runRenderSystems();
   }
@@ -207,6 +215,12 @@ export class PreflightManager {
 
 if (module.hot) {
   PreflightManager.prototype._hotReplace = function (nextClass) {
+    if (this.isRunning) {
+      this._hotReplaceWhenDoneRunning = nextClass;
+      console.log('Note: Suppressing PreflightManager hot reload until after done running');
+      return;
+    }
+
     this.storeUnsubscribe();
     const next = new nextClass(this.projectStore);
     this.renderer?.setPreflight(next);
