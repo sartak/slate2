@@ -58,6 +58,9 @@ export const CommandEditor = forwardRef((props, ref) => {
 
         editor.addCommand(monaco.KeyCode.Enter, () => {
           let text = editor.getValue();
+          if (text === "") {
+            return;
+          }
           text = text.replace(/\s+$/, "");
           setText('');
           props.onCommand?.(text);
