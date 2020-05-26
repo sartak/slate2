@@ -62,10 +62,12 @@ export default class RecordDebugger {
     }
 
     const evals = frames.map(({ evals }) => evals).filter((evals) => evals.length).flat();
+    const entityValueUpdates = frames.map(({ entityValueUpdates }) => entityValueUpdates).filter((entityValueUpdates) => entityValueUpdates.length).flat();
 
     const summaryFields = [
       [frames.length, 'frames'],
       [evals.length, 'evals'],
+      [entityValueUpdates.length, 'entity value updates'],
     ];
 
     const summary = summaryFields.filter(([count]) => count).map(([count, label]) => `${count} ${label}`).join(', ');

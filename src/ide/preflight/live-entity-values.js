@@ -12,8 +12,8 @@ export default class LiveEntityValuesDebugger {
   label = "live_entity_values";
   project = null;
   dispatch = null;
+  assembly = null;
   entityMap = null;
-  components = null;
   preflightRunning = false;
   componentsSubscriptions = [];
   valueSubscriptions = [];
@@ -27,7 +27,7 @@ export default class LiveEntityValuesDebugger {
   }
 
   didUpdateAssembly(project, assembly) {
-    this.components = assembly.components;
+    this.assembly = assembly;
     this.entityMap = assembly.context.entityMap;
   }
 
@@ -35,8 +35,42 @@ export default class LiveEntityValuesDebugger {
     return this.entityMap[id].index;
   }
 
+  prepareAssembly(map, project, ctx) {
+    ctx.entityValueUpdatesVar = `${ctx.prefix}entityValueUpdates`;
+  }
+
+  assemblePreflightInit(map, project, ctx) {
+    return [
+      `let ${ctx.entityValueUpdatesVar} = [];`,
+    ];
+  }
+
+  assemble_updateBegin(map, project, ctx) {
+    const { entityValueUpdatesVar, assembleCaptureFn, componentsVar } = ctx;
+
+    return [
+      `(function () {`,
+        ...assembleCaptureFn('entityValueUpdates', entityValueUpdatesVar),
+        `${entityValueUpdatesVar}.forEach(([componentId, fieldId, entity, value]) => {`,
+          `${componentsVar}[componentId][fieldId][entity] = value;`,
+        `});`,
+        `${entityValueUpdatesVar} = [];`,
+      `})();`,
+    ];
+  }
+
+  assemblePreflightReturn(map, project, ctx) {
+    const { entityValueUpdatesVar } = ctx;
+    return [
+      `pushEntityValueUpdate: (componentId, fieldId, entity, value) => {`,
+        `${entityValueUpdatesVar}.push([componentId, fieldId, entity, value]);`,
+      `},`,
+    ];
+  }
+
   publishAssemblyValues(mode) {
-    const { valueSubscriptions, componentsSubscriptions, components } = this;
+    const { valueSubscriptions, componentsSubscriptions, assembly } = this;
+    const { components } = assembly;
 
     valueSubscriptions.forEach(([callback, entityId, componentId, fieldId]) => {
       const entity = this.entityForEntityId(entityId);
@@ -85,7 +119,7 @@ export default class LiveEntityValuesDebugger {
   }
 
   changeEntityComponentValuePreflight(entityId, componentId, fieldId, value) {
-    const { components, project } = this;
+    const { project, assembly } = this;
 
     const component = lookupComponentWithId(project, componentId);
     const field = component.fieldWithId(fieldId);
@@ -93,7 +127,8 @@ export default class LiveEntityValuesDebugger {
 
     const entity = this.entityForEntityId(entityId);
 
-    components[componentId][fieldId][entity] = canonicalizeValue(type, value, defaultValue);
+    const canonicalized = canonicalizeValue(type, value, defaultValue);
+    assembly.pushEntityValueUpdate(componentId, fieldId, entity, canonicalized);
   }
 
   changeEntityComponentValue(...args) {
