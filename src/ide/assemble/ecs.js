@@ -228,9 +228,9 @@ export const assembleComponents = (project, ctx) => {
           const value = JSON.stringify(values);
 
           if (generateComponentVars) {
-            return `${varName} = ${value};`;
+            return `${varName} = ${value}; /* ${ field.label ?? field.id } */`;
           } else {
-            return `const ${varName} = ${value};`;
+            return `const ${varName} = ${value}; /* ${ field.label ?? field.id } */`;
           }
         }),
       ];
