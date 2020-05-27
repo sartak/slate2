@@ -18,6 +18,13 @@ export default class RecordDebugger {
     };
   }
 
+  assemble_frameBegin(map, project, ctx) {
+    const { varName } = map;
+    return [
+      `${varName}.captureTime(dt, time);`,
+    ];
+  }
+
   assemble_inputEnd(map, project, ctx) {
     const { commandFrameVar } = ctx;
     const { varName } = map;
@@ -39,6 +46,11 @@ export default class RecordDebugger {
 
   capture(key, value) {
     this.frame[key] = JSON.parse(JSON.stringify(value));
+  }
+
+  captureTime(dt, time) {
+    this.capture('dt', dt);
+    this.capture('time', time);
   }
 
   captureInput(command) {
