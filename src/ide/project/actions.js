@@ -111,3 +111,7 @@ export const removeKeyForCommandAction = (id, key) => {
 export const setLabelForCommandAction = (id, label) => {
   return { type: t.SET_LABEL_FOR_COMMAND, id, label };
 };
+
+export const addRecordingAction = (recording) => {
+  return { type: t.ADD_RECORDING, recording };
+};

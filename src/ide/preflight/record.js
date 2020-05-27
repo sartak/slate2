@@ -1,5 +1,6 @@
 export default class RecordDebugger {
   label = "record";
+  recording = null;
 
   prepareAssembly(map, project, ctx) {
     const { varName } = map;
@@ -74,5 +75,11 @@ export default class RecordDebugger {
     if (summary) {
       console.log(`Captured ${summary}`);
     }
+  }
+
+  provideRecording() {
+    const { recording } = this;
+    this.recording = null;
+    return recording;
   }
 }

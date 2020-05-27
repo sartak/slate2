@@ -28,6 +28,7 @@ export const REMOVE_COMMAND = 'REMOVE_COMMAND';
 export const ADD_KEY_FOR_COMMAND = 'ADD_KEY_FOR_COMMAND';
 export const REMOVE_KEY_FOR_COMMAND = 'REMOVE_KEY_FOR_COMMAND';
 export const SET_LABEL_FOR_COMMAND = 'SET_LABEL_FOR_COMMAND';
+export const ADD_RECORDING = 'ADD_RECORDING';
 
 export const projectReducer = (state = null, action) => {
   switch (action.type) {
@@ -518,6 +519,16 @@ export const projectReducer = (state = null, action) => {
             label,
           },
         },
+      };
+    }
+
+    case ADD_RECORDING: {
+      const { recording } = action;
+      const { recordings } = state;
+
+      return {
+        ...state,
+        recordings: [...recordings, recording],
       };
     }
 

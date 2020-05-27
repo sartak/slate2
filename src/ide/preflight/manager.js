@@ -1,4 +1,5 @@
 import { evaluateGameForPreflight } from '../assemble/preflight';
+import { addRecordingAction } from '../project/actions';
 import Loop from '../../engine/loop';
 import LiveEntityValuesDebugger from './live-entity-values';
 import EvalDebugger from './eval';
@@ -17,6 +18,7 @@ export class PreflightManager {
   debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger];
   storeUnsubscribe = null;
   projectStore = null;
+  dispatch = null;
 
   constructor(projectStore) {
     this.projectStore = projectStore;
@@ -32,6 +34,7 @@ export class PreflightManager {
     this.didUpdateProject(null, this.project);
 
     const dispatch = (action) => projectStore.dispatch(action);
+    this.dispatch = dispatch;
     this.debuggers.forEach((debug) => debug.registerDispatch && debug.registerDispatch(dispatch));
   }
 
@@ -167,6 +170,11 @@ export class PreflightManager {
     this.assembly.deinitPreflight();
 
     this.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
+
+    const recording = this.recordDebugger.provideRecording();
+    if (recording) {
+      this.dispatch(addRecordingAction(recording));
+    }
 
     if (this._hotReplaceWhenDoneRunning) {
       setTimeout(() => {
