@@ -103,4 +103,8 @@ export const selectCommandsList = ({ commands }) => Object.values(commands);
 
 export const makeSelectCommand = (id) => {
   return ({ commands }) => commands[id];
-}
+};
+
+export const selectLatestRecording = ({ recordings }) => {
+  return recordings.length ? recordings[recordings.length - 1] : null;
+};

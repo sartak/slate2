@@ -1,15 +1,17 @@
 import { v4 as uuid } from 'uuid';
 
-export const currentVersion = 22;
+export const currentVersion = 23;
 
 export const newProject = () => {
   return {
     version: currentVersion,
     id: uuid(),
     renderer: 'canvas',
-    preflightRunning: false,
     width: 800,
     height: 600,
+
+    preflightRunning: false,
+    preflightReplay: null,
 
     entities: {},
     nextEntityId: 1,
@@ -344,6 +346,10 @@ export const upgradeProject = (project) => {
 
   if (project.version < 22) {
     project.recordings = [];
+  }
+
+  if (project.version < 23) {
+    project.preflightReplay = null;
   }
 
   console.info(`Upgraded project from version ${project.version} to ${currentVersion}`);

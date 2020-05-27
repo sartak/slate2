@@ -190,6 +190,7 @@ export const projectReducer = (state = null, action) => {
       return {
         ...state,
         preflightRunning: action.preflightRunning,
+        preflightReplay: action.preflightReplay,
       };
     }
 
