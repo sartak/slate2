@@ -3,6 +3,7 @@ import { assembleDebugCall, assembleDebuggers, prepareDebuggers } from './debug'
 import { prepareCommand, assembleCommandSetup, assembleCommandStepPrepare } from './command';
 import { newContext } from './context';
 import { flattenList } from './inline';
+import { parseSync } from '@babel/core';
 
 export const assembleGame = (project, ctx = newContext(project)) => {
   prepareECS(project, ctx);
@@ -19,7 +20,9 @@ export const assembleGame = (project, ctx = newContext(project)) => {
 
   assembly.unshift(assembleImports(project, ctx));
 
-  return flattenList(assembly).join("\n");
+  const code = flattenList(assembly).join("\n");
+  parseSync(code); // get better error from babel
+  return code;
 };
 
 const prepareInstantiateGame = (project, ctx) => {

@@ -8,6 +8,7 @@ import { assembleInlineSystemCall as __assembleInlineSystemCall, flattenList as 
 import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
 import { RenderSystemId as __RenderSystemId } from '../systems/render';
 import { lookupSystemWithId as __lookupSystemWithId } from '../ecs/systems';
+import { parseSync as __parseSync } from '@babel/core';
 
 const __assembleDesignAttachDetach = (project, ctx) => {
   const { attachListenerFn } = ctx;
@@ -178,6 +179,7 @@ const __evaluateGameForPreflight = (__project) => {
 
   const [__assembly, __context] = __assembleGameForPreflight(__project);
   try {
+    __parseSync(__assembly); // get better error from babel
     return [eval(__assembly), __context, __assembly];
   } catch (e) {
     console.error(e);
