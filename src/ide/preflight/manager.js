@@ -165,6 +165,7 @@ export class PreflightManager {
       replay.onEnd = () => {
         this.loop.pause();
         this.dispatch(preflightRunningAction(false));
+        return false;
       };
     }
 

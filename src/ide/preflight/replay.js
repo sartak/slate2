@@ -59,8 +59,9 @@ export default class RecordDebugger {
   frameEnd() {
     this.frameIndex++;
     if (this.frameIndex === this.replay.frames.length) {
-      console.log(`Finished replay of ${this.replay.frames.length} frames`);
-      this.replay.onEnd();
+      if (this.replay.onEnd() === false) {
+        console.log(`Finished replay of ${this.replay.frames.length} frames`);
+      }
     }
   }
 
