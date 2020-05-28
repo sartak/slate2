@@ -46,11 +46,15 @@ export default class LiveEntityValuesDebugger {
   }
 
   assemble_updateBegin(map, project, ctx) {
-    const { entityValueUpdatesVar, assembleCaptureFn, componentsVar } = ctx;
+    const { entityValueUpdatesVar, assembleCaptureEmitFn, componentsVar } = ctx;
 
     return [
       `(function () {`,
-        ...assembleCaptureFn('entityValueUpdates', entityValueUpdatesVar),
+        ...assembleCaptureEmitFn(
+          'entityValueUpdates',
+          entityValueUpdatesVar,
+          (val) => [`${entityValueUpdatesVar} = ${val};`],
+        ),
         `${entityValueUpdatesVar}.forEach(([componentId, fieldId, entity, value]) => {`,
           `${componentsVar}[componentId][fieldId][entity] = value;`,
         `});`,

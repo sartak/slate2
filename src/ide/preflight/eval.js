@@ -34,7 +34,8 @@ export default class EvalDebugger {
   }
 
   assemble_cleanupEnd(map, project, ctx) {
-    const { evalVar, assembleCaptureFn } = ctx;
+    const { varName: debuggerVar } = map;
+    const { evalVar, assembleCaptureEmitFn } = ctx;
     const prevEvalVar = `${evalVar}_prev`;
     const codeVar = `${ctx.prefix}code`;
     const paramsVar = `${ctx.prefix}params`;
@@ -42,8 +43,19 @@ export default class EvalDebugger {
 
     return [
       `(function () {`,
-        ...assembleCaptureFn(
-          "evals", `${evalVar}.map(([code, params, input]) => input)`),
+        ...assembleCaptureEmitFn(
+          'evals',
+          `${evalVar}.map(([code, params, input]) => input)`,
+          (val) => {
+            return [
+              `${evalVar} = ${val}.map((input) => {`,
+                `const code = ${debuggerVar}.preprocessCodeForEval(input);`,
+                `const params = ${debuggerVar}.paramsForEval();`,
+                `return [code, params, input];`,
+              `});`,
+            ];
+          },
+        ),
         `const ${prevEvalVar} = ${evalVar};`,
         `${evalVar} = [];`,
         `${prevEvalVar}.forEach(([${[codeVar, paramsVar, inputVar].join(", ")}]) => {`,
