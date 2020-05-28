@@ -41,6 +41,10 @@ const ClickDistanceThreshold = 10;
     }
 
     setPreflight(preflight) {
+      if (this.preflight === preflight) {
+        return;
+      }
+
       this.preflight = preflight;
       this.preflight.setRenderer(this);
     }

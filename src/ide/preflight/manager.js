@@ -127,7 +127,12 @@ export class PreflightManager {
   }
 
   setRenderer(renderer) {
+    if (this.renderer === renderer) {
+      return;
+    }
+
     this.renderer = renderer;
+    this.renderer.setPreflight(this);
     this.assemblyDirty = true;
   }
 
