@@ -95,6 +95,7 @@ export class PreflightManager {
       const assembly = assembler(renderer, debuggers);
       assembly.context = context;
       assembly.code = code;
+      assembly.debuggers = debuggers;
 
       assembly.initDesign();
 
@@ -152,7 +153,7 @@ export class PreflightManager {
     this.isRunning = true;
     this.assemblyDirty = true;
 
-    this.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart(assembly));
+    assembly.debuggers.forEach((debug) => debug.preflightStart && debug.preflightStart(assembly, replay));
 
     assembly.initPreflight();
     this.renderer.focus();
@@ -161,15 +162,17 @@ export class PreflightManager {
   }
 
   _stop() {
+    const { assembly } = this;
+
     if (!this.isRunning) {
       return;
     }
 
     this.isRunning = false;
     this.loop.pause();
-    this.assembly.deinitPreflight();
+    assembly.deinitPreflight();
 
-    this.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
+    assembly.debuggers.forEach((debug) => debug.preflightStop && debug.preflightStop());
 
     const recording = this.recordDebugger.provideRecording();
     if (recording) {
