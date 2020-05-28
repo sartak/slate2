@@ -152,7 +152,7 @@ export class PreflightManager {
   }
 
   freshAssembly() {
-    if (this.assemblyDirty) {
+    if (this.assemblyDirty || !this.assembly) {
       this.regenerateAssembly();
     }
     return this.assembly;
