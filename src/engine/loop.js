@@ -19,7 +19,9 @@ export default class Loop {
 
       prev = now;
 
-      this.raf = window.requestAnimationFrame(frame);
+      if (this.raf) {
+        this.raf = window.requestAnimationFrame(frame);
+      }
     };
 
     this.raf = window.requestAnimationFrame(frame);
