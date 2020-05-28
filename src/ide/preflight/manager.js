@@ -6,6 +6,8 @@ import EvalDebugger from './eval';
 import RecordDebugger from './record';
 import ReplayDebugger from './replay';
 
+const LoopReplays = true;
+
 export class PreflightManager {
   renderer = null;
   project = null;
@@ -163,9 +165,14 @@ export class PreflightManager {
       this.assemblyDirty = true;
 
       replay.onEnd = () => {
-        this.loop.pause();
-        this.dispatch(preflightRunningAction(false));
-        return false;
+        if (LoopReplays) {
+          this._stop(replay);
+          return true;
+        } else {
+          this.loop.pause();
+          this.dispatch(preflightRunningAction(false));
+          return false;
+        }
       };
     }
 
@@ -191,7 +198,7 @@ export class PreflightManager {
     this.loop.run();
   }
 
-  _stop() {
+  _stop(loopReplay) {
     const { assembly } = this;
 
     if (!this.isRunning) {
@@ -215,6 +222,12 @@ export class PreflightManager {
         console.log('PreflightManager now executing deferred hot reload');
         this._hotReplace(this._hotReplaceWhenDoneRunning);
       });
+
+      return;
+    }
+
+    if (loopReplay) {
+      this._start(loopReplay);
       return;
     }
 
