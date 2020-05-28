@@ -24,8 +24,10 @@ export class PreflightManager {
   storeUnsubscribe = null;
   projectStore = null;
   dispatch = null;
+  _hotDeferStart = null;
 
-  constructor(projectStore) {
+  constructor(projectStore, hotDeferStart) {
+    this._hotDeferStart = hotDeferStart;
     this.projectStore = projectStore;
     this.project = projectStore.getState();
 
@@ -48,6 +50,9 @@ export class PreflightManager {
 
     if (next?.preflightRunning) {
       if (!this.isRunning) {
+        if (this._hotDeferStart) {
+          return;
+        }
         this._start(next.preflightReplay);
       }
 
@@ -220,7 +225,10 @@ export class PreflightManager {
     if (this._hotReplaceWhenDoneRunning) {
       setTimeout(() => {
         console.log('PreflightManager now executing deferred hot reload');
-        this._hotReplace(this._hotReplaceWhenDoneRunning);
+        const next = this._hotReplace(this._hotReplaceWhenDoneRunning);
+        if (loopReplay) {
+          next._start(loopReplay);
+        }
       });
 
       return;
@@ -277,9 +285,11 @@ if (module.hot) {
     }
 
     this.storeUnsubscribe();
-    const next = new nextClass(this.projectStore);
+    const next = new nextClass(this.projectStore, true);
     this.renderer?.setPreflight(next);
     next.regenerateAssembly();
+    next._hotDeferStart = false;
     this._hotReplaceContext(next);
+    return next;
   };
 }
