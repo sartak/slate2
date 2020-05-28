@@ -1,9 +1,10 @@
 import { evaluateGameForPreflight } from '../assemble/preflight';
-import { addRecordingAction } from '../project/actions';
+import { addRecordingAction, preflightRunningAction } from '../project/actions';
 import Loop from '../../engine/loop';
 import LiveEntityValuesDebugger from './live-entity-values';
 import EvalDebugger from './eval';
 import RecordDebugger from './record';
+import ReplayDebugger from './replay';
 
 export class PreflightManager {
   renderer = null;
@@ -11,11 +12,13 @@ export class PreflightManager {
   assemblyDirty = true;
   assembly = null;
   isRunning = false;
+  replay = null;
   loop = null;
   liveEntityValuesDebugger = new LiveEntityValuesDebugger();
   evalDebugger = new EvalDebugger();
   recordDebugger = new RecordDebugger();
-  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger];
+  replayDebugger = new ReplayDebugger();
+  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger, this.replayDebugger];
   storeUnsubscribe = null;
   projectStore = null;
   dispatch = null;
@@ -43,7 +46,7 @@ export class PreflightManager {
 
     if (next?.preflightRunning) {
       if (!this.isRunning) {
-        this._start();
+        this._start(next.preflightReplay);
       }
 
       return;
@@ -63,7 +66,7 @@ export class PreflightManager {
   }
 
   regenerateAssembly() {
-    const { project, renderer, isRunning, debuggers } = this;
+    const { project, renderer, isRunning, replay } = this;
 
     if (isRunning) {
       return;
@@ -80,6 +83,16 @@ export class PreflightManager {
       if (!renderer) {
         return;
       }
+
+      const debuggers = this.debuggers.filter((debug) => {
+        if (debug === this.replayDebugger && !replay) {
+          return false;
+        }
+        if (debug === this.recordDebugger && replay) {
+          return false;
+        }
+        return true;
+      });
 
       const [assembler, context, code] = evaluateGameForPreflight({
         ...project,
@@ -138,7 +151,18 @@ export class PreflightManager {
     return this.assembly;
   }
 
-  _start() {
+  _start(replay = null) {
+    this.replay = replay;
+
+    if (replay) {
+      this.assemblyDirty = true;
+
+      replay.onEnd = () => {
+        this.loop.pause();
+        this.dispatch(preflightRunningAction(false));
+      };
+    }
+
     if (this.assembly) {
       this.assembly.deinitDesign?.();
       this.assembly.didDeinitDesign = true;
@@ -169,6 +193,7 @@ export class PreflightManager {
     }
 
     this.isRunning = false;
+    this.replay = null;
     this.loop.pause();
     assembly.deinitPreflight();
 
