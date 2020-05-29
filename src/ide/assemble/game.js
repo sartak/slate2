@@ -84,7 +84,11 @@ export const assembleGameStep = (project, ctx) => {
         ...assembleDebugCall('inputEnd', `();`, project, ctx),
 
         `${ctx.timeUpdateVar} += ${ctx.dtUpdateAmount};`,
-        ...ctx.update.map((fn) => fn(ctx)),
+        `${ctx.lagUpdateVar} += ${ctx.dtStepVar};`,
+        `while (${ctx.lagUpdateVar} >= ${ctx.dtUpdateAmount}) {`,
+          ...ctx.update.map((fn) => fn(ctx)),
+          `${ctx.lagUpdateVar} -= ${ctx.dtUpdateAmount};`,
+        `}`,
       ...assembleDebugCall('updateEnd', '();', project, ctx),
 
       ...assembleDebugCall('renderBegin', '();', project, ctx),
@@ -124,6 +128,7 @@ export const assembleInstantiateGame = (project, ctx) => {
     ] : []),
 
     `let ${ctx.timeUpdateVar} = 0;`,
+    `let ${ctx.lagUpdateVar} = 0;`,
 
     `export default new ${ctx.gameClass}({`,
       `width: ${project.width},`,

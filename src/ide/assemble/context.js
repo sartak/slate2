@@ -21,6 +21,7 @@ export const newContext = (project, overrides = {}) => {
 
     timeUpdateVar: 'timeUpdate',
     dtUpdateAmount: 1000 / 60,
+    lagUpdateVar: 'lagUpdate',
 
     dtStepVar: 'dt',
     timeStepVar: 'time',
