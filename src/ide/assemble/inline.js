@@ -60,7 +60,7 @@ const invokeInlineFunction = (functionAst, methodName, args, ctx) => {
                 body,
               ),
             ),
-            args.map((arg) => t.Identifier(arg)),
+            args.map((arg) => typeof arg === 'number' ? t.NumericLiteral(arg) : t.Identifier(arg)),
           ),
         ),
       );
@@ -247,27 +247,34 @@ const inlineFunctionArguments = (ast, ctx, rawAst) => {
         let isSafe = true;
         let isIdentical = false;
 
-        if (!t.isIdentifier(param) || !t.isIdentifier(arg)) {
+        if (!t.isIdentifier(param)) {
           isSafe = false;
         } else {
           const { name: paramName } = param;
-          const { name: argName } = arg;
-
           if (seenAssignment[paramName]) {
             isSafe = false;
-          } else if (paramName === argName && isSafe) {
-            isIdentical = true;
-          } else if (seenIdentifier[argName]) {
-            isSafe = false;
-          }
+          } else if (t.isNumericLiteral(arg)) {
+            replacementFor[paramName] = arg;
+            replacements.push([paramName, arg.value]);
+          } else if (t.isIdentifier(arg)) {
+            const { name: argName } = arg;
 
-          if (isSafe) {
-            if (isIdentical) {
-              identical.push([paramName, argName]);
-            } else {
-              replacementFor[paramName] = argName;
-              replacements.push([paramName, argName]);
+            if (paramName === argName && isSafe) {
+              isIdentical = true;
+            } else if (seenIdentifier[argName]) {
+              isSafe = false;
             }
+
+            if (isSafe) {
+              if (isIdentical) {
+                identical.push([paramName, argName]);
+              } else {
+                replacementFor[paramName] = argName;
+                replacements.push([paramName, argName]);
+              }
+            }
+          } else {
+            isSafe = false;
           }
         }
 
@@ -280,7 +287,13 @@ const inlineFunctionArguments = (ast, ctx, rawAst) => {
       traverse(body, {
         Identifier(path) {
           const replacement = replacementFor[path.node.name];
-          if (replacement) {
+          if (!replacement) {
+            return;
+          }
+
+          if (typeof replacement === "object") {
+            path.replaceWith(replacement);
+          } else {
             path.node.name = replacement;
           }
         }
