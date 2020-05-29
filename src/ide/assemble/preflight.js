@@ -151,7 +151,7 @@ const __assembleGameForPreflight = (originalProject) => {
         `systems: ${ctx.systemsVar},`,
         `initDesign: () => { ${initDesign} },`,
         `initPreflight: () => { ${initPreflight} },`,
-        `renderDesign: (dt, time) => { ${renderDesign} },`,
+        `renderDesign: (${ctx.dtStepVar}, ${ctx.timeStepVar}) => { ${renderDesign} },`,
         `step: ${step},`,
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,

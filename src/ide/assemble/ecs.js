@@ -159,14 +159,14 @@ export const prepareSystems = (project, ctx) => {
     const updateMethod = getMethod('update');
     if (updateMethod) {
       needsEntities = true;
-      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, 'dt', 'time'], project, ctx);
+      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, ctx.dtUpdateVar, ctx.timeUpdateVar], project, ctx);
     }
 
     const renderMethod = getMethod(renderMethodName);
     if (renderMethod) {
       needsEntities = true;
       needsRenderer = true;
-      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethodName, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, 'dt', 'time'], project, ctx);
+      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethodName, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, ctx.dtStepVar, ctx.timeStepVar], project, ctx);
     }
 
     const deinitMethod = getMethod('deinit');

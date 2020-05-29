@@ -21,7 +21,7 @@ export default class RecordDebugger {
   assemble_frameBegin(map, project, ctx) {
     const { varName } = map;
     return [
-      `${varName}.captureTime(dt, time);`,
+      `${varName}.captureTime(${ctx.dtStepVar}, ${ctx.timeStepVar});`,
     ];
   }
 

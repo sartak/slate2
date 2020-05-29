@@ -19,6 +19,12 @@ export const newContext = (project, overrides = {}) => {
 
     imports: [],
 
+    dtUpdateVar: 'dt',
+    timeUpdateVar: 'time',
+
+    dtStepVar: 'dt',
+    timeStepVar: 'time',
+
     init: [],
     input: [],
     update: [],

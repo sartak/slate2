@@ -102,9 +102,9 @@ export const assembleGameStep = (project, ctx) => {
   }
 
   return [
-    '(dt, time) => {',
+    `(${ctx.dtStepVar}, ${ctx.timeStepVar}) => {`,
       ...step,
-    '}',
+    `}`,
   ].join("\n");
 };
 
