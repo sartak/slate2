@@ -53,7 +53,7 @@ export default class LiveEntityValuesDebugger {
         ...assembleCaptureEmitFn(
           'entityValueUpdates',
           entityValueUpdatesVar,
-          (val) => [`${entityValueUpdatesVar} = ${val};`],
+          (val) => [`${entityValueUpdatesVar}.push(...${val});`],
         ),
         `${entityValueUpdatesVar}.forEach(([componentId, fieldId, entity, value]) => {`,
           `${componentsVar}[componentId][fieldId][entity] = value;`,
