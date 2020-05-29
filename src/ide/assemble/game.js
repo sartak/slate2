@@ -83,6 +83,7 @@ export const assembleGameStep = (project, ctx) => {
           ...ctx.input.map((fn) => fn(ctx)),
         ...assembleDebugCall('inputEnd', `();`, project, ctx),
 
+        `${ctx.timeUpdateVar} += ${ctx.dtUpdateAmount};`,
         ...ctx.update.map((fn) => fn(ctx)),
       ...assembleDebugCall('updateEnd', '();', project, ctx),
 
@@ -121,6 +122,9 @@ export const assembleInstantiateGame = (project, ctx) => {
       `const ${ctx.rendererVar} = new ${ctx.rendererClass}();`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
     ] : []),
+
+    `const ${ctx.dtUpdateVar} = ${ctx.dtUpdateAmount};`,
+    `let ${ctx.timeUpdateVar} = 0;`,
 
     `export default new ${ctx.gameClass}({`,
       `width: ${project.width},`,
