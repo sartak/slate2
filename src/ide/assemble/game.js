@@ -85,7 +85,7 @@ export const assembleGameStep = (project, ctx) => {
 
         `${ctx.timeUpdateVar} += ${ctx.dtUpdateAmount};`,
         `${ctx.lagUpdateVar} += ${ctx.dtStepVar};`,
-        `while (${ctx.lagUpdateVar} >= ${ctx.dtUpdateAmount}) {`,
+        `for (let __steps = 0; __steps < 5 && ${ctx.lagUpdateVar} >= ${ctx.dtUpdateAmount}; ++__steps) {`,
           ...ctx.update.map((fn) => fn(ctx)),
           `${ctx.lagUpdateVar} -= ${ctx.dtUpdateAmount};`,
         `}`,
