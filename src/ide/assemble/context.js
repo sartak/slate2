@@ -19,7 +19,6 @@ export const newContext = (project, overrides = {}) => {
 
     imports: [],
 
-    dtUpdateVar: 'dtUpdate',
     timeUpdateVar: 'timeUpdate',
     dtUpdateAmount: 1000 / 60,
 

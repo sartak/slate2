@@ -123,7 +123,6 @@ export const assembleInstantiateGame = (project, ctx) => {
       `let [${ctx.renderVars.join(', ')}] = [];`,
     ] : []),
 
-    `const ${ctx.dtUpdateVar} = ${ctx.dtUpdateAmount};`,
     `let ${ctx.timeUpdateVar} = 0;`,
 
     `export default new ${ctx.gameClass}({`,

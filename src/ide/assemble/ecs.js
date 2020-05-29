@@ -159,7 +159,7 @@ export const prepareSystems = (project, ctx) => {
     const updateMethod = getMethod('update');
     if (updateMethod) {
       needsEntities = true;
-      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, ctx.dtUpdateVar, ctx.timeUpdateVar], project, ctx);
+      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, ctx.dtUpdateAmount, ctx.timeUpdateVar], project, ctx);
     }
 
     const renderMethod = getMethod(renderMethodName);

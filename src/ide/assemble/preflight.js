@@ -142,7 +142,6 @@ const __assembleGameForPreflight = (originalProject) => {
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
       `const ${ctx.detachCallbacksVar} = [];`,
-      `const ${ctx.dtUpdateVar} = ${ctx.dtUpdateAmount};`,
       `let ${ctx.timeUpdateVar} = 0;`,
       ...ecs,
       ...command,
