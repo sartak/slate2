@@ -253,6 +253,9 @@ export const inlineFunctionArguments = (ast, rawAst) => {
           if (t.isAssignmentExpression(parent) && parent.left === node) {
             seenAssignment[name] = true;
           }
+          if (t.isUpdateExpression(parent)) {
+            seenAssignment[name] = true;
+          }
           seenIdentifier[name] = true;
         }
       }, path.scope, path);
