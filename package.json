@@ -8,7 +8,8 @@
     "package": "NODE_ENV=production electron-forge package",
     "make": "NODE_ENV=production electron-forge make",
     "publish": "NODE_ENV=production electron-forge publish",
-    "build-web-ide": "NODE_ENV=production SLATE2_ENV=web webpack --config webpack.ide.config.js"
+    "build-web-ide": "NODE_ENV=production SLATE2_ENV=web webpack --config webpack.ide.config.js",
+    "test": "NODE_ENV=test mochapack --webpack-config webpack.test.config.js \"test/**/*.test.js\""
   },
   "main": ".webpack/main",
   "author": {
@@ -88,6 +89,8 @@
     "html-webpack-plugin": "^4.3.0",
     "less-loader": "^6.1.0",
     "mini-css-extract-plugin": "^0.9.0",
+    "mocha": "^7.2.0",
+    "mochapack": "^2.0.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "monaco-vim": "^0.1.7",
     "raw-loader": "^4.0.1",
@@ -100,6 +103,7 @@
     "require-from-string": "^2.0.2",
     "style-loader": "^1.2.1",
     "uuid": "^8.0.0",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
   }
 }
