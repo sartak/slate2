@@ -275,7 +275,7 @@ export const inlineFunctionArguments = (ast, rawAst) => {
           const { name: paramName } = param;
           if (seenAssignment[paramName]) {
             isSafe = false;
-          } else if (t.isNumericLiteral(arg)) {
+          } else if (t.isNumericLiteral(arg) || t.isStringLiteral(arg) || t.isNullLiteral(arg) || t.isBooleanLiteral(arg)) {
             replacementFor[paramName] = arg;
             replacements.push([paramName, arg.value]);
           } else if (t.isIdentifier(arg)) {
