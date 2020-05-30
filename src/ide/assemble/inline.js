@@ -205,7 +205,7 @@ const rewriteTreeToUseComponentVariables = (ast, components, componentDictionary
   }, ...(rawAst ? [] : [ast.scope, ast]));
 };
 
-const inlineFunctionArguments = (ast, ctx, rawAst) => {
+export const inlineFunctionArguments = (ast, rawAst) => {
   const identical = [];
   const replacements = [];
 
@@ -213,15 +213,20 @@ const inlineFunctionArguments = (ast, ctx, rawAst) => {
     CallExpression(path) {
       const { callee: wrapper, arguments: args } = path.node;
 
-      if (!t.isParenthesizedExpression) {
-        throw new Error("Expected CallExpression(ParenthesizedExpression(FunctionExpression))");
+      let callee;
+
+      if (t.isParenthesizedExpression(wrapper)) {
+        if (t.isFunctionExpression(wrapper.expression)) {
+          callee = wrapper.expression;
+        } else {
+          throw new Error(`Expected CallExpression(ParenthesizedExpression(FunctionExpression)) or CallExpression(FunctionExpression), got CallExpression(ParenthesizedExpression(${wrapper.expression.type}))`);
+        }
+      } else if (t.isFunctionExpression(wrapper)) {
+        callee = wrapper;
+      } else {
+        throw new Error(`Expected CallExpression(ParenthesizedExpression(FunctionExpression)) or CallExpression(FunctionExpression), got CallExpression(${wrapper.type})`);
       }
 
-      if (!t.isFunctionExpression(wrapper.expression)) {
-        throw new Error("Expected CallExpression(ParenthesizedExpression(FunctionExpression))");
-      }
-
-      const callee = wrapper.expression;
       const { params, body } = callee;
 
       const seenIdentifier = {};
@@ -340,7 +345,7 @@ export const assembleInlineSystemCall = (system, methodName, code, args, project
   }
 
   rewriteTreeToUseComponentVariables(subtree, components, null, ctx, rawAst);
-  const inlinedArgs = inlineFunctionArguments(subtree, ctx, rawAst);
+  const inlinedArgs = inlineFunctionArguments(subtree, rawAst);
   const output = generate(subtree.program ?? subtree.node).code;
 
   return [
