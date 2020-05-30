@@ -209,6 +209,20 @@ export const inlineFunctionArguments = (ast, rawAst) => {
   const identical = [];
   const replacements = [];
 
+  let sawEval = false;
+  traverse(rawAst ? ast : ast.node, {
+    CallExpression(path) {
+      const { callee } = path.node;
+      if (t.isIdentifier(callee) && callee.name === 'eval') {
+        sawEval = true;
+      }
+    }
+  }, ...(rawAst ? [] : [ast.scope, ast]));
+
+  if (sawEval) {
+    return [];
+  }
+
   traverse(rawAst ? ast : ast.node, {
     CallExpression(path) {
       const { callee: wrapper, arguments: args } = path.node;
