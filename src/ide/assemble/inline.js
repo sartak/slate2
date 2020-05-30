@@ -246,6 +246,24 @@ export const inlineFunctionArguments = (ast, rawAst) => {
       const seenIdentifier = {};
       const seenAssignment = {};
 
+      const handleParams = (path) => {
+        path.node.params.forEach((param) => {
+          if (t.isIdentifier(param)) {
+            const { name } = param;
+            seenAssignment[name] = true;
+            seenIdentifier[name] = true;
+          } else {
+            traverse(param, {
+              Identifier(subpath) {
+                const { name } = subpath.node;
+                seenAssignment[name] = true;
+                seenIdentifier[name] = true;
+              }
+            }, path.scope, path);
+          }
+        });
+      };
+
       traverse(body, {
         Identifier(path) {
           const { parent, node } = path;
@@ -257,7 +275,10 @@ export const inlineFunctionArguments = (ast, rawAst) => {
             seenAssignment[name] = true;
           }
           seenIdentifier[name] = true;
-        }
+        },
+        FunctionDeclaration(path) { handleParams(path) },
+        FunctionExpression(path) { handleParams(path) },
+        ArrowFunctionExpression(path) { handleParams(path) },
       }, path.scope, path);
 
       const newParams = [];
