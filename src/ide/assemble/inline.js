@@ -397,6 +397,255 @@ export const assembleInlineSystemCall = (system, methodName, code, args, project
   ].join("\n");
 };
 
+export const inlineIIFEs = (code) => {
+  const ast = parseSync(code);
+  inlineIIFEsInTree(ast, true);
+  let output = generate(ast).code;
+  output = output.replace(/;$/, '');
+  return output;
+};
+
+const inlineIIFEsInTree = (ast, rawAst) => {
+  if (rawAst) {
+    if (ast.program.body.length !== 1) {
+      throw new Error(`Expected body of length 1, got ${ast.program.body.length}`);
+    }
+  }
+
+  let subpath = null;
+  traverse(rawAst ? ast : ast.node, {
+    enter(path) {
+      if (t.isProgram(path.node)) {
+        return;
+      } else if (t.isProgram(path.parentPath) && t.isExpressionStatement(path.node)) {
+        return;
+      } else if (t.isProgram(path.parentPath.parentPath) && t.isExpressionStatement(path.parentPath) && t.isArrowFunctionExpression(path.node)) {
+        return;
+      } else if (t.isProgram(path.parentPath.parentPath.parentPath) && t.isExpressionStatement(path.parentPath.parentPath) && t.isArrowFunctionExpression(path.parentPath) && path.listKey === 'params') {
+        path.skip();
+      } else if (t.isProgram(path.parentPath.parentPath.parentPath) && t.isExpressionStatement(path.parentPath.parentPath) && t.isArrowFunctionExpression(path.parentPath) && t.isBlockStatement(path.node)) {
+        subpath = path;
+        path.stop();
+      } else {
+        const parts = [];
+        let p = path;
+        while (p && p.node) {
+          parts.unshift(p.node.type);
+          p = p.parentPath;
+        }
+
+        throw new Error("Expected Program(ExpressionStatement(ArrowFunctionExpression(BlockStatement()))), got " + parts.map((p) => `${p}(`).join('') + parts.map((p) => ')').join(''));
+      }
+    }
+  }, ...(rawAst ? [] : [ast.scope, ast]));
+
+  let sawEval = false;
+  let topLevelVars = {};
+  let functionVars = {};
+  subpath.node.body.forEach((node) => {
+    if (sawEval) {
+      return;
+    }
+
+    // eval completely blows us up
+    traverse(node, {
+      Identifier(path) {
+        if (path.node.name === 'eval') {
+          sawEval = true;
+          path.stop();
+        }
+      }
+    }, subpath.scope, subpath);
+
+    // collect top-level vars
+    if (t.isVariableDeclaration(node)) {
+      node.declarations.forEach((decl) => {
+        if (t.isIdentifier(decl)) {
+          topLevelVars[decl.id.name] = true;
+        } else {
+          traverse(decl, {
+            Identifier(path) {
+              topLevelVars[path.node.name] = true;
+            }
+          }, subpath.scope, subpath);
+        }
+      });
+    }
+
+    const handleVariableNode = (node) => {
+      if (node.kind !== 'var') {
+        return;
+      }
+
+      node.declarations.forEach((decl) => {
+        if (t.isIdentifier(decl.id)) {
+          functionVars[decl.id.name] = true;
+        } else {
+          traverse(decl, {
+            Identifier(path) {
+              functionVars[path.node.name] = true;
+            }
+          }, subpath.scope, subpath);
+        }
+      });
+    };
+
+    if (t.isVariableDeclaration(node)) {
+      handleVariableNode(node);
+    }
+
+    traverse(node, {
+      FunctionDeclaration(path) {
+        path.skip();
+      },
+      FunctionExpression(path) {
+        path.skip();
+      },
+      ArrowFunctionExpression(path) {
+        path.skip();
+      },
+      VariableDeclaration(path) {
+        handleVariableNode(path.node);
+      }
+    }, subpath.scope, subpath);
+  });
+
+  if (sawEval) {
+    return;
+  }
+
+  const newBody = [];
+  subpath.node.body.forEach((node) => {
+    if (t.isExpressionStatement(node) && t.isCallExpression(node.expression)) {
+      const { callee } = node.expression;
+      if (t.isFunctionExpression(callee) || t.isArrowFunctionExpression(callee)) {
+        let isSafe = true;
+        let interjectBlock = false;
+
+        if (callee.params.length || node.expression.arguments.length) {
+          isSafe = false;
+        }
+
+        // don't allow return
+        if (isSafe) {
+          traverse(callee, {
+            ReturnStatement(path) {
+              isSafe = false;
+              path.stop();
+            },
+            FunctionExpression(path) {
+              // ignore returns inside this function
+              path.skip();
+            },
+            ArrowFunctionExpression(path) {
+              // ignore returns inside this function
+              path.skip();
+            },
+            FunctionDeclaration(path) {
+              // ignore returns inside this function
+              path.skip();
+            },
+          }, subpath.scope, subpath);
+        }
+
+        const newFunctionVars = { ...functionVars };
+        const possibleNewTopLevelVars = {};
+        const handleVariableNode = (node, path) => {
+          if (node.kind !== 'var') {
+            return;
+          }
+
+          node.declarations.forEach((decl) => {
+            if (t.isIdentifier(decl.id)) {
+              const { name } = decl.id;
+              newFunctionVars[name] = true;
+              possibleNewTopLevelVars[name] = true;
+              if (functionVars[name] || topLevelVars[name]) {
+                isSafe = false;
+              }
+            } else {
+              traverse(decl, {
+                Identifier(path) {
+                  const { name } = path.node;
+                  newFunctionVars[name] = true;
+                  possibleNewTopLevelVars[name] = true;
+                  if (functionVars[name] || topLevelVars[name]) {
+                    isSafe = false;
+                  }
+                }
+              }, path.scope, path);
+            }
+          });
+        };
+
+        traverse(callee.body, {
+          FunctionDeclaration(path) {
+            path.skip();
+          },
+          FunctionExpression(path) {
+            path.skip();
+          },
+          ArrowFunctionExpression(path) {
+            path.skip();
+          },
+          VariableDeclaration(path) {
+            handleVariableNode(path.node, path);
+          }
+        }, subpath.scope, subpath);
+
+        // check for variable collisions in top-level scope and collect new vars
+        const newTopLevelVars = { ...topLevelVars };
+        callee.body.body.forEach((node) => {
+          if (t.isVariableDeclaration(node)) {
+            node.declarations.forEach((decl) => {
+              if (t.isIdentifier(decl)) {
+                const { name } = decl.id;
+                newTopLevelVars[name] = true;
+                if (topLevelVars[name]) {
+                  interjectBlock = true;
+                }
+              } else {
+                traverse(decl, {
+                  Identifier(path) {
+                    const { name } = path.node;
+                    newTopLevelVars[name] = true;
+                    if (topLevelVars[name]) {
+                      interjectBlock = true;
+                    }
+                  }
+                }, subpath.scope, subpath);
+              }
+            });
+          }
+        });
+
+        if (!interjectBlock) {
+          topLevelVars = newTopLevelVars;
+        }
+
+        if (isSafe) {
+          functionVars = newFunctionVars;
+          topLevelVars = { ...topLevelVars, ...possibleNewTopLevelVars };
+
+          if (interjectBlock) {
+            newBody.push(t.BlockStatement(callee.body.body));
+          } else {
+            newBody.push(...callee.body.body);
+          }
+        } else {
+          newBody.push(node);
+        }
+      } else {
+        newBody.push(node);
+      }
+    } else {
+      newBody.push(node);
+    }
+  });
+
+  subpath.node.body = newBody;
+};
+
 export const flattenList = (list) => {
   return list.reduce((result, element) => (
     result.concat(Array.isArray(element) ? flattenList(element) : element)
