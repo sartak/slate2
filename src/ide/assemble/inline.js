@@ -213,9 +213,8 @@ export const inlineFunctionArguments = (ast, rawAst) => {
 
   let sawEval = false;
   traverse(rawAst ? ast : ast.node, {
-    CallExpression(path) {
-      const { callee } = path.node;
-      if (t.isIdentifier(callee) && callee.name === 'eval') {
+    Identifier(path) {
+      if (path.node.name === 'eval') {
         sawEval = true;
       }
     }
