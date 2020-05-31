@@ -33,14 +33,21 @@ export const assembleDebugCall = (methodName, rest, project, ctx, quiet = false)
     ...debuggers.map((debug, i) => {
       const map = debuggerMap[i];
       const { varName } = map;
-      return [
+
+      let assembly = [
         (debug.__proto__[methodName] && `${varName}.${methodName}${rest}`),
         ...(debug.__proto__[assembleMethod] ? [
           (quiet ? null : `/* begin ${debug.label} ${assembleMethod}() */`),
           ...debug[assembleMethod](map, project, ctx),
           (quiet ? null : `/* end ${debug.label} ${assembleMethod}() */`),
         ] : []),
-      ].filter(Boolean).join("\n");
+      ].filter(Boolean);
+
+      if (assembly.length && debug.__proto__.wrapAssembly) {
+        assembly = debug.wrapAssembly(assembly, map, project, ctx).filter(Boolean);
+      }
+
+      return assembly.join("\n");
     }).filter((c) => c.length),
     (quiet ? '' : `/* end ${methodName} phase */`),
   ];
