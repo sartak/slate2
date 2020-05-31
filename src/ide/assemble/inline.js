@@ -163,7 +163,9 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
       const componentLabel = componentNode.name;
       const fieldLabel = fieldNode.name;
 
-      if (!componentByLabel[componentLabel]) {
+      const component = componentByLabel[componentLabel];
+
+      if (!component) {
         // entity.Nonexistent.velocity_x
         return;
       }
@@ -171,7 +173,6 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
       // Now at this point we know we have a true positive and we switch from
       // excluding
 
-      const component = componentByLabel[componentLabel];
 
       if (fieldLabel === 'remove') {
         if (t.isMemberExpression(parent)) {
