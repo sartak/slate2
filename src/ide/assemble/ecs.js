@@ -1,4 +1,4 @@
-import { assembleInlineSystemCall } from './inline';
+import { assembleInlineSystemCall, assembleRemoveEntryFromList } from './inline';
 import { canonicalizeValue, zeroValueForType } from '../types';
 import { selectEntityList, selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 
@@ -406,10 +406,7 @@ export const assembleManager = (project, ctx) => {
             // to be more careful.
             ...attachedSystems.map((system) => {
               const { entitiesVar } = systemMap[system.id];
-              return [
-                `${entitiesVar}[${entitiesVar}.indexOf(entity)] = ${entitiesVar}[${entitiesVar}.length - 1];`,
-                `${entitiesVar}.length--;`,
-              ];
+              return assembleRemoveEntryFromList(entitiesVar, 'entity');
             }),
           `}`,
         `};`,

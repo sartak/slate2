@@ -732,3 +732,10 @@ export const flattenList = (list) => {
     result.concat(Array.isArray(element) ? flattenList(element) : element)
   ), []).filter(Boolean);
 };
+
+export const assembleRemoveEntryFromList = (listVar, entryVar) => {
+  return [
+    `${listVar}[${listVar}.indexOf(${entryVar})] = ${listVar}[${listVar}.length - 1];`,
+    `${listVar}.length--;`,
+  ];
+};
