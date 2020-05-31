@@ -221,6 +221,7 @@ export const prepareSystems = (project, ctx) => {
 export const prepareManager = (project, ctx) => {
   const { prefix, componentMap } = ctx;
   Object.values(componentMap).forEach((map) => {
+    map.addToEntityFn = `${prefix}add${map.component.id}ToEntity`;
     map.removeFromEntityFn = `${prefix}remove${map.component.id}FromEntity`;
   });
 };
@@ -328,8 +329,47 @@ export const assembleManager = (project, ctx) => {
 
   return [
     ...Object.values(componentMap).map((map) => {
-      const { removeFromEntityFn, attachedSystems, entityHasComponentVar } = map;
+      const { component, addToEntityFn, removeFromEntityFn, fieldVarNames, attachedSystems, entityHasComponentVar } = map;
+      const fieldParams = component.fields.map(({ id }) => `${ctx.prefix}${id}`);
       return [
+        `const ${addToEntityFn} = (entity, ${fieldParams.join(", ")}) => {`,
+          `if (!${entityHasComponentVar}[entity]) {`,
+            `${entityHasComponentVar}[entity] = true;`,
+
+            ...component.fields.map((field, i) => {
+              return [
+                `${fieldVarNames[field.id]}[entity] = ${fieldParams[i]};`,
+              ];
+            }),
+
+            // @Incomplete: when an entity can be part of a system through
+            // multiple paths (e.g. render rect or render sprite), we'll need
+            // to be more careful.
+            ...attachedSystems.map((system) => {
+              const { entitiesVar, componentObjects } = systemMap[system.id];
+              const checkComponents = componentObjects.filter((c) => c !== component);
+              return [
+                (checkComponents.length ? [
+                  `if (`,
+                  checkComponents.map((component) => {
+                    const { entityHasComponentVar } = componentMap[component.id];
+                    return [
+                      `${entityHasComponentVar}[entity]`,
+                    ];
+                  }).join(' && '),
+                  `) {`,
+                ].join("") : null),
+
+                `${entitiesVar}.push(entity);`,
+
+                ...(checkComponents.length ? [
+                  `}`,
+                ] : []),
+              ];
+            }),
+          `}`,
+        `};`,
+
         `const ${removeFromEntityFn} = (entity) => {`,
           `if (${entityHasComponentVar}[entity]) {`,
             `${entityHasComponentVar}[entity] = false;`,
