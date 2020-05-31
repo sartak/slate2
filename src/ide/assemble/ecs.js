@@ -103,6 +103,7 @@ export const prepareComponents = (project, ctx) => {
       fields,
       fieldVarNames,
       fieldVarNamesByLabel,
+      attachedSystems: [],
     };
   });
 };
@@ -124,6 +125,10 @@ export const prepareSystems = (project, ctx) => {
         componentMaps.push(map);
       }
     }
+
+    componentMaps.forEach(({ attachedSystems }) => {
+      attachedSystems.push(system);
+    });
 
     const varName = `${ctx.prefix}system_${system.label}`;
     const entitiesVar = `${varName}_entities`;
