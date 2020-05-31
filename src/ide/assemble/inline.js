@@ -330,10 +330,11 @@ export const inlineFunctionArguments = (ast, rawAst) => {
 
       traverse(body, {
         Identifier(path) {
-          const replacement = replacementFor[path.node.name];
-          if (!replacement) {
+          if (!replacementFor.hasOwnProperty(path.node.name)) {
             return;
           }
+
+          const replacement = replacementFor[path.node.name];
 
           if (typeof replacement === "object") {
             path.replaceWith(replacement);

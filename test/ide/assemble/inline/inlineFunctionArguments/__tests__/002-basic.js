@@ -44,3 +44,12 @@
 (function () {
   console.log(bar, "foo");
 })();
+
+// it: doesn't get confused by builtins
+(function (foo) {
+  (foo).toString();
+})(1);
+// expects:
+(function () {
+  1 .toString();
+})();
