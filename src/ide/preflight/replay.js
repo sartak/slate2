@@ -30,6 +30,22 @@ export default class ReplayDebugger {
     this.frameSubscriptions.forEach((cb) => cb(null, 0));
   }
 
+  assemble_frameBegin(map, project, ctx) {
+    const { varName } = map;
+    return [
+      `${ctx.dtStepVar} = ${varName}.emit('dt');`,
+      `${ctx.timeStepVar} = ${varName}.emit('time');`,
+    ];
+  }
+
+  assemble_updateBeforeLoop(map, project, ctx) {
+    const { varName } = map;
+    return [
+      `${ctx.timeUpdateVar} = ${varName}.emit('timeUpdate');`,
+      `${ctx.lagUpdateVar} = ${varName}.emit('lagUpdate');`,
+    ];
+  }
+
   assemble_inputEnd(map, project, ctx) {
     const { commandFrameVar } = ctx;
     const { varName } = map;
