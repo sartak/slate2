@@ -251,6 +251,23 @@ export class PreflightManager {
     return this.liveEntityValuesDebugger.subscribeComponents(...args);
   }
 
+  subscribeToReplayFrame(...args) {
+    return this.replayDebugger.subscribeToFrame(...args);
+  }
+
+  beginReplayControl() {
+    this.loop.pause();
+  }
+
+  endReplayControl() {
+    this.loop.run();
+  }
+
+  setReplayFrameIndex(...args) {
+    this.replayDebugger.setFrameIndex(...args);
+    this.assembly.step();
+  }
+
   changeEntityComponentValue(...args) {
     this.debuggers.forEach((debug) => debug.changeEntityComponentValue && debug.changeEntityComponentValue(...args));
   }

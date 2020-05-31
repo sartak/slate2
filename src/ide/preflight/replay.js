@@ -1,7 +1,9 @@
-export default class RecordDebugger {
+export default class ReplayDebugger {
   label = "replay";
   replay = null;
   frameIndex = null;
+  frameSubscriptions = [];
+  assembly = null;
 
   prepareAssembly(map, project, ctx) {
     const { varName } = map;
@@ -12,6 +14,10 @@ export default class RecordDebugger {
       }
       return assembleSetter(`${varName}.emit(${JSON.stringify(label)})`)
     };
+  }
+
+  didUpdateAssembly(project, assembly) {
+    this.assembly = assembly;
   }
 
   preflightStart(assembly, replay) {
@@ -53,7 +59,9 @@ export default class RecordDebugger {
   }
 
   frameBegin() {
-    this.frame = this.replay.frames[this.frameIndex];
+    const { frameIndex } = this;
+    const frame = this.frame = this.replay.frames[frameIndex];
+    this.frameSubscriptions.forEach((cb) => cb(frame, frameIndex));
   }
 
   frameEnd() {
@@ -67,5 +75,28 @@ export default class RecordDebugger {
 
   emit(key) {
     return this.frame[key];
+  }
+
+  subscribeToFrame(callback) {
+    this.frameSubscriptions.push(callback);
+
+    return () => {
+      this.frameSubscriptions = this.frameSubscriptions.filter((cb) => cb !== callback);
+    };
+  }
+
+  setFrameIndex(index) {
+    const { assembly } = this;
+    this.frameIndex = index;
+    const frame = this.frame = this.replay.frames[index];
+    Object.entries(frame.components).forEach(([componentId, fields]) => {
+      const assemblyComponent = assembly.components[componentId];
+      Object.entries(fields).forEach(([fieldId, values]) => {
+        const assemblyField = assemblyComponent[fieldId];
+        values.forEach((value, i) => {
+          assemblyField[i] = value;
+        });
+      });
+    });
   }
 }

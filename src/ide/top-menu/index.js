@@ -5,6 +5,7 @@ import { BuildButton } from './build-button';
 import { PreviewButton } from './preview-button';
 import { PreflightButton } from './preflight-button';
 import { ReplayButton } from './replay-button';
+import { ReplayScrubber } from './replay-scrubber';
 
 export const TopMenu = () => {
   const [isBusy, setBusy] = useState(false);
@@ -18,6 +19,7 @@ export const TopMenu = () => {
       <PreviewButton isBusy={isBusy} setBusy={setBusy} isPreflight />
       <PreflightButton isBusy={isBusy} setBusy={setBusy} />
       <ReplayButton isBusy={isBusy} setBusy={setBusy} />
+      <ReplayScrubber />
     </div>
   );
 };

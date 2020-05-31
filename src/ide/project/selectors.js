@@ -108,3 +108,5 @@ export const makeSelectCommand = (id) => {
 export const selectLatestRecording = ({ recordings }) => {
   return recordings.length ? recordings[recordings.length - 1] : null;
 };
+
+export const selectCurrentReplay = ({ preflightReplay }) => preflightReplay;
