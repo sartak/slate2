@@ -218,6 +218,13 @@ export const prepareSystems = (project, ctx) => {
   });
 };
 
+export const prepareManager = (project, ctx) => {
+  const { prefix, componentMap } = ctx;
+  Object.values(componentMap).forEach((map) => {
+    map.removeFromEntityFn = `${prefix}remove${map.component.id}FromEntity`;
+  });
+};
+
 export const assembleEntities = (project, ctx) => {
   const { entitiesVar, entityMap, entityObjects } = ctx;
   const indexes = entityObjects.map(({ id }) => entityMap[id].index);
@@ -316,10 +323,39 @@ export const assembleSystems = (project, ctx) => {
   ];
 };
 
+export const assembleManager = (project, ctx) => {
+  const { prefix, componentMap, systemMap } = ctx;
+
+  return [
+    ...Object.values(componentMap).map((map) => {
+      const { removeFromEntityFn, attachedSystems, entityHasComponentVar } = map;
+      return [
+        `const ${removeFromEntityFn} = (entity) => {`,
+          `if (${entityHasComponentVar}[entity]) {`,
+            `${entityHasComponentVar}[entity] = false;`,
+
+            // @Incomplete: when an entity can be part of a system through
+            // multiple paths (e.g. render rect or render sprite), we'll need
+            // to be more careful.
+            ...attachedSystems.map((system) => {
+              const { entitiesVar } = systemMap[system.id];
+              return [
+                `${entitiesVar}[${entitiesVar}.indexOf(entity)] = ${entitiesVar}[${entitiesVar}.length - 1];`,
+                `${entitiesVar}.length--;`,
+              ];
+            }),
+          `}`,
+        `};`,
+      ];
+    }),
+  ];
+};
+
 export const prepareECS = (project, ctx) => {
   prepareEntities(project, ctx);
   prepareComponents(project, ctx);
   prepareSystems(project, ctx);
+  prepareManager(project, ctx);
 }
 
 export const assembleECS = (project, ctx) => {
@@ -327,5 +363,6 @@ export const assembleECS = (project, ctx) => {
     ...assembleEntities(project, ctx),
     ...assembleComponents(project, ctx),
     ...assembleSystems(project, ctx),
+    ...assembleManager(project, ctx),
   ];
 }
