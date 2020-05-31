@@ -8,6 +8,7 @@ import { TextControlled } from '../field/text-controlled';
 import { useFloatingEditor } from '../code-editor';
 import { InspectCommands } from './commands';
 import { KeyboardInputSystemId } from '../systems/keyboard-input';
+import { usePreflight } from '../preflight';
 
 // @Cleanup: find a more canonical location for this list.
 const SystemMethods = [
@@ -24,6 +25,7 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
   const dispatch = useDispatch();
   const system = useSelector(makeSelectSystem(systemId));
   const openEditor = useFloatingEditor();
+  const preflight = usePreflight();
 
   const setCode = (code) => {
     dispatch(setCodeForUserDefinedSystemMethodAction(systemId, method, code));
@@ -53,6 +55,16 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
     openEditor(code, `${systemId}.${method}`, options);
   };
 
+  const viewGenerated = () => {
+    const options = {
+      language: "javascript",
+      readOnly: true,
+    };
+
+    const code = preflight.generatedCodeForSystemMethod(systemId, method);
+    openEditor(code, `${systemId}.generated.${method}`, options);
+  };
+
   return (
     <React.Fragment>
       <div className="label">{method}</div>
@@ -64,7 +76,10 @@ const InspectSystemMethod = ({ systemId, method, userDefined }) => {
             <button onClick={edit}>Add Method</button>
           )
         ) : (
-          <button onClick={edit}>View Code</button>
+          <button onClick={edit}>View Source</button>
+        )}
+        {(!userDefined || system.methods[method]) && (
+          <button onClick={viewGenerated}>View Generated</button>
         )}
       </div>
     </React.Fragment>

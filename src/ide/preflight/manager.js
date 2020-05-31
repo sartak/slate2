@@ -291,6 +291,27 @@ export class PreflightManager {
       return entityReverseMap[ret];
     }
   }
+
+  generatedCodeForSystemMethod(systemId, method) {
+    const assembly = this.freshAssembly();
+    if (!assembly) {
+      return `/* Sorry, currently unavailable due to compile errors */`;
+    }
+
+    const { context } = assembly;
+    const map = context.systemMap[systemId];
+
+    if (map) {
+      const generator = map.codeGenerators[method];
+      if (generator) {
+        return generator(context);
+      }
+    }
+
+    // @Incomplete: If the system is not _currently_ in the assembly (because no entities use
+    // all of its required components) then we can't show the generated code for it.
+    return `/* No method ${method} found on ${map ? map.system.label : systemId} */`;
+  }
 }
 
 if (module.hot) {
