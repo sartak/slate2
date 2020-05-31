@@ -2,7 +2,7 @@ import { assembleECS, prepareECS } from './ecs';
 import { assembleDebugCall, assembleDebuggers, prepareDebuggers } from './debug';
 import { prepareCommand, assembleCommandSetup, assembleCommandStepPrepare } from './command';
 import { newContext } from './context';
-import { flattenList } from './inline';
+import { inlineIIFEs, flattenList } from './inline';
 import { parseSync } from '@babel/core';
 
 export const assembleGame = (project, ctx = newContext(project)) => {
@@ -106,11 +106,13 @@ export const assembleGameStep = (project, ctx) => {
     return null;
   }
 
-  return [
+  const raw = [
     `(${ctx.dtStepVar}, ${ctx.timeStepVar}) => {`,
       ...step,
     `}`,
   ].join("\n");
+
+  return inlineIIFEs(raw);
 };
 
 export const assembleInstantiateGame = (project, ctx) => {

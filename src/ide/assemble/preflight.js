@@ -4,7 +4,7 @@ import { assembleDebugCall as __assembleDebugCall, prepareDebuggers as __prepare
 import { assembleECS as __assembleECS, prepareECS as __prepareECS } from './ecs';
 import { prepareCommand as __prepareCommand, assembleCommandSetup as __assembleCommandSetup } from './command';
 import { selectEnabledSystems as __selectEnabledSystems } from '../project/selectors';
-import { assembleInlineSystemCall as __assembleInlineSystemCall, flattenList as __flattenList } from './inline';
+import { assembleInlineSystemCall as __assembleInlineSystemCall, inlineIIFEs as __inlineIIFEs, flattenList as __flattenList } from './inline';
 import { UserDefinedSystem as __UserDefinedSystem } from '../systems/user-defined';
 import { RenderSystemId as __RenderSystemId } from '../systems/render';
 import { lookupSystemWithId as __lookupSystemWithId } from '../ecs/systems';
@@ -111,7 +111,7 @@ const __assembleGameForPreflight = (originalProject) => {
     ...__assembleDebugCall('initEnd', '();', project, ctx),
   ].join("\n");
 
-  const renderDesign = [
+  const renderDesignBody = [
     ...__assembleDebugCall('renderBegin', '();', project, ctx),
       ...ctx.render.map((fn) => fn(ctx)),
     ...__assembleDebugCall('renderEnd', '();', project, ctx),
@@ -138,6 +138,9 @@ const __assembleGameForPreflight = (originalProject) => {
     ...__assembleDebugCall('deinitEnd', '();', project, ctx),
   ].join("\n");
 
+  const renderDesignRaw = `(${ctx.dtStepVar}, ${ctx.timeStepVar}) => { ${renderDesignBody} }`;
+  const renderDesign = __inlineIIFEs(renderDesignRaw);
+
   const assembly = [
     `(${ctx.rendererVar}, [${ctx.debuggerVars.join(', ')}]) => {`,
       `let [${ctx.renderVars.join(', ')}] = [];`,
@@ -153,7 +156,7 @@ const __assembleGameForPreflight = (originalProject) => {
         `systems: ${ctx.systemsVar},`,
         `initDesign: () => { ${initDesign} },`,
         `initPreflight: () => { ${initPreflight} },`,
-        `renderDesign: (${ctx.dtStepVar}, ${ctx.timeStepVar}) => { ${renderDesign} },`,
+        `renderDesign: ${renderDesign},`,
         `step: ${step},`,
         `deinitDesign: () => { ${deinitDesign} },`,
         `deinitPreflight: () => { ${deinitPreflight} },`,
