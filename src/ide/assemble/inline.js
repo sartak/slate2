@@ -74,17 +74,20 @@ const invokeInlineFunction = (functionAst, methodName, args, ctx) => {
   return functionAst;
 };
 
-export const rewriteCodeToUseComponentVariables = (code, components, componentDictionaryLookup, ctx) => {
+export const rewriteCodeToUseComponentVariables = (code, systemComponents, componentDictionaryLookup, ctx) => {
   const ast = parseSync(code);
-  rewriteTreeToUseComponentVariables(ast, components, componentDictionaryLookup, ctx, true);
+  rewriteTreeToUseComponentVariables(ast, systemComponents, componentDictionaryLookup, ctx, true);
   return generate(ast).code;
 };
 
-const rewriteTreeToUseComponentVariables = (ast, components, componentDictionaryLookup, ctx, rawAst) => {
+const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDictionaryLookup, ctx, rawAst) => {
   const { componentMap } = ctx;
 
+  // @Incomplete: if a system uses a non-required component in a way that is invalid, then we should
+  // forbid it. We may also want to add a list of "interested" components on a system so you can add
+  // a component you don't require.
   const componentByLabel = {};
-  components.forEach((component) => {
+  Object.values(componentMap).forEach(({ component }) => {
     componentByLabel[component.label] = component;
   });
 
