@@ -2,12 +2,14 @@ import React, { forwardRef } from 'react';
 import { useSetValue } from './useSetValue';
 
 export const BoolField = forwardRef(({ value, defaultValue, onChange, readOnly }, ref) => {
-  const inputRef = useSetValue(ref);
+  const inputRef = useSetValue(ref, (checkbox, value) => {
+    checkbox.checked = value;
+  });
 
   const valueProp = (value === undefined || value === null) ? {
     defaultValue,
   } : {
-    value,
+    checked: value,
   };
 
   return (
@@ -15,7 +17,7 @@ export const BoolField = forwardRef(({ value, defaultValue, onChange, readOnly }
       type="checkbox"
       ref={inputRef}
       readOnly={readOnly}
-      onChange={readOnly ? null : ({ target }) => onChange(target.value)}
+      onChange={readOnly ? null : ({ target }) => onChange(target.checked)}
       {...valueProp}
     />
   );
