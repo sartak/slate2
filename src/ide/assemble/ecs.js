@@ -318,10 +318,44 @@ export const assembleSystems = (project, ctx) => {
 };
 
 export const assembleManager = (project, ctx) => {
-  const { prefix, componentMap, systemMap } = ctx;
+  const { prefix, componentMap, systemMap, entitiesVar, cloneEntityFn } = ctx;
+
+  const allComponentMaps = Object.values(componentMap);
+  const allSystemMaps = Object.values(systemMap);
 
   return [
-    ...Object.values(componentMap).map((map) => {
+    `const ${cloneEntityFn} = (source) => {`,
+      `const clone = ${entitiesVar}.length + 1;`,
+
+      `${entitiesVar}.push(clone);`,
+
+      ...allComponentMaps.map(({ component, entityHasComponentVar, fieldVarNames }) => {
+        return [
+          `${entityHasComponentVar}[clone] = ${entityHasComponentVar}[source];`,
+          ...component.fields.map((field) => {
+            return [
+              `${fieldVarNames[field.id]}[clone] = ${fieldVarNames[field.id]}[source];`,
+            ];
+          }),
+        ];
+      }),
+
+      ...allSystemMaps.map(({ entitiesVar }) => {
+        if (!entitiesVar) {
+          return;
+        }
+
+        return [
+          `if (${entitiesVar}.indexOf(source) !== -1) {`,
+          `${entitiesVar}.push(clone);`,
+          `}`,
+        ];
+      }),
+
+      `return clone;`,
+    `};`,
+
+    ...allComponentMaps.map((map) => {
       const { component, addToEntityFn, removeFromEntityFn, fieldVarNames, attachedSystems, entityHasComponentVar } = map;
       const fieldParams = component.fields.map(({ id }) => `${ctx.prefix}${id}`);
       return [
