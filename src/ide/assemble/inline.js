@@ -3,6 +3,8 @@ import generate from "@babel/generator";
 import * as t from "@babel/types";
 import BabelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
 
+const boxValue = (arg) => typeof arg === 'number' ? t.NumericLiteral(arg) : t.Identifier(arg);
+
 const extractMethodSubtree = (classAst, methodName, args, ctx) => {
   let subtree;
 
@@ -23,7 +25,7 @@ const extractMethodSubtree = (classAst, methodName, args, ctx) => {
                   node.body,
                 ),
               ),
-              args.map((arg) => t.Identifier(arg)),
+              args.map(boxValue),
             ),
           ),
         );
@@ -60,7 +62,7 @@ const invokeInlineFunction = (functionAst, methodName, args, ctx) => {
                 body,
               ),
             ),
-            args.map((arg) => typeof arg === 'number' ? t.NumericLiteral(arg) : t.Identifier(arg)),
+            args.map(boxValue),
           ),
         ),
       );
