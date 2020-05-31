@@ -21,7 +21,14 @@ export default class RecordDebugger {
   assemble_frameBegin(map, project, ctx) {
     const { varName } = map;
     return [
-      `${varName}.captureTime(${ctx.dtStepVar}, ${ctx.timeStepVar});`,
+      `${varName}.captureStepTime(${ctx.dtStepVar}, ${ctx.timeStepVar});`,
+    ];
+  }
+
+  assemble_updateBeforeLoop(map, project, ctx) {
+    const { varName } = map;
+    return [
+      `${varName}.captureUpdateTime(${ctx.timeUpdateVar}, ${ctx.lagUpdateVar});`,
     ];
   }
 
@@ -48,9 +55,14 @@ export default class RecordDebugger {
     this.frame[key] = JSON.parse(JSON.stringify(value));
   }
 
-  captureTime(dt, time) {
+  captureStepTime(dt, time) {
     this.capture('dt', dt);
     this.capture('time', time);
+  }
+
+  captureUpdateTime(timeUpdate, lagUpdate) {
+    this.capture('timeUpdate', timeUpdate);
+    this.capture('lagUpdate', lagUpdate);
   }
 
   captureInput(command) {
