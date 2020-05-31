@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './index.less';
 import { SaveButton } from './save-button';
 import { DownloadButton } from './download-button';
 import { BuildButton } from './build-button';
