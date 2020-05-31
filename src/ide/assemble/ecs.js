@@ -204,7 +204,7 @@ export const prepareSystems = (project, ctx) => {
       initReturnVar,
       hasInit,
       needsEntities,
-      entitiesVar,
+      entitiesVar: needsEntities ? entitiesVar : null,
       entityObjects: systemEntities,
       componentObjects: componentMaps.map(({ component }) => component),
     };
