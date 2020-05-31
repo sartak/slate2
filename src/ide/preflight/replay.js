@@ -26,6 +26,10 @@ export default class ReplayDebugger {
     console.log(`Starting replay of ${replay.frames.length} frames`);
   }
 
+  preflightStop() {
+    this.frameSubscriptions.forEach((cb) => cb(null, 0));
+  }
+
   assemble_inputEnd(map, project, ctx) {
     const { commandFrameVar } = ctx;
     const { varName } = map;
