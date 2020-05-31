@@ -739,3 +739,13 @@ export const assembleRemoveEntryFromList = (listVar, entryVar) => {
     `${listVar}.length--;`,
   ];
 };
+
+export const assembleRemoveEntryFromListIfPresent = (listVar, entryVar, tmpVar) => {
+  return [
+    `const ${tmpVar} = ${listVar}.indexOf(${entryVar});`,
+    `if (${tmpVar} !== -1) {`,
+      `${listVar}[${tmpVar}] = ${listVar}[${listVar}.length - 1];`,
+      `${listVar}.length--;`,
+    `}`,
+  ];
+};
