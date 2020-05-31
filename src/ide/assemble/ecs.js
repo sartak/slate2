@@ -138,11 +138,7 @@ export const prepareSystems = (project, ctx) => {
     let needsEntities = false;
     let needsRenderer = false;
     let hasInit = false;
-    let initCodeGenerator = null;
-    let inputCodeGenerator = null;
-    let updateCodeGenerator = null;
-    let renderCodeGenerator = null;
-    let deinitCodeGenerator = null;
+    const codeGenerators = {};
 
     const baseParams = [];
 
@@ -159,7 +155,7 @@ export const prepareSystems = (project, ctx) => {
     const initMethod = getMethod('init');
     if (initMethod) {
       hasInit = true;
-      initCodeGenerator = (ctx) => {
+      codeGenerators.init = (ctx) => {
         const implementation = assembleInlineSystemCall(system, 'init', initMethod, [commandKeysVar, attachListenerFn], project, ctx);
         return `${initReturnVar} = ${implementation};`
       };
@@ -169,25 +165,25 @@ export const prepareSystems = (project, ctx) => {
 
     const inputMethod = getMethod('input');
     if (inputMethod) {
-      inputCodeGenerator = () => assembleInlineSystemCall(system, 'input', inputMethod, [...baseParams, commandFrameVar], project, ctx);
+      codeGenerators.input = () => assembleInlineSystemCall(system, 'input', inputMethod, [...baseParams, commandFrameVar], project, ctx);
     }
 
     const updateMethod = getMethod('update');
     if (updateMethod) {
       needsEntities = true;
-      updateCodeGenerator = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, ctx.dtUpdateAmount, ctx.timeUpdateVar], project, ctx);
+      codeGenerators.update = () => assembleInlineSystemCall(system, 'update', updateMethod, [...baseParams, entitiesVar, ctx.dtUpdateAmount, ctx.timeUpdateVar], project, ctx);
     }
 
     const renderMethod = getMethod(renderMethodName);
     if (renderMethod) {
       needsEntities = true;
       needsRenderer = true;
-      renderCodeGenerator = () => assembleInlineSystemCall(system, renderMethodName, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, ctx.dtStepVar, ctx.timeStepVar], project, ctx);
+      codeGenerators[renderMethodName] = () => assembleInlineSystemCall(system, renderMethodName, renderMethod, [...baseParams, ...ctx.renderVars, entitiesVar, ctx.dtStepVar, ctx.timeStepVar], project, ctx);
     }
 
     const deinitMethod = getMethod('deinit');
     if (deinitMethod) {
-      deinitCodeGenerator = (ctx) => {
+      codeGenerators.deinit = (ctx) => {
         return assembleInlineSystemCall(system, 'deinit', deinitMethod, [...baseParams], project, ctx);
       };
     }
@@ -202,11 +198,8 @@ export const prepareSystems = (project, ctx) => {
     systemMap[systemId] = {
       system,
       varName,
-      initCodeGenerator,
-      inputCodeGenerator,
-      updateCodeGenerator,
-      renderCodeGenerator,
-      deinitCodeGenerator,
+      codeGenerators,
+      renderMethodName,
       needsRenderer,
       initReturnVar,
       hasInit,
@@ -273,7 +266,7 @@ export const assembleSystems = (project, ctx) => {
   return [
     ...systemObjects.map((system) => {
       const systemId = system.id;
-      const { varName, initCodeGenerator, inputCodeGenerator, updateCodeGenerator, needsRenderer, renderCodeGenerator, deinitCodeGenerator, hasInit, initReturnVar, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
+      const { varName, codeGenerators, renderMethodName, needsRenderer, hasInit, initReturnVar, needsEntities, entitiesVar, entityObjects, componentObjects } = systemMap[systemId];
 
       if (needsRenderer && !ctx.preparedRenderer) {
         ctx.preparedRenderer = true;
@@ -287,24 +280,24 @@ export const assembleSystems = (project, ctx) => {
         ));
       }
 
-      if (initCodeGenerator) {
-        ctx.init.push(initCodeGenerator);
+      if (codeGenerators.init) {
+        ctx.init.push(codeGenerators.init);
       }
 
-      if (inputCodeGenerator) {
-        ctx.input.push(inputCodeGenerator);
+      if (codeGenerators.input) {
+        ctx.input.push(codeGenerators.input);
       }
 
-      if (updateCodeGenerator) {
-        ctx.update.push(updateCodeGenerator);
+      if (codeGenerators.update) {
+        ctx.update.push(codeGenerators.update);
       }
 
-      if (renderCodeGenerator) {
-        ctx.render.push(renderCodeGenerator);
+      if (codeGenerators[renderMethodName]) {
+        ctx.render.push(codeGenerators[renderMethodName]);
       }
 
-      if (deinitCodeGenerator) {
-        ctx.deinit.push(deinitCodeGenerator);
+      if (codeGenerators.deinit) {
+        ctx.deinit.push(codeGenerators.deinit);
       }
 
       return [
