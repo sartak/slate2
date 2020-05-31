@@ -169,39 +169,68 @@ const rewriteTreeToUseComponentVariables = (ast, components, componentDictionary
       // excluding
 
       const component = componentByLabel[componentLabel];
-      const field = component.fieldWithLabel(fieldLabel);
 
-      if (!field) {
-        // entity.Motion.nonexistent
-        throw new Error(`Nonexistent field ${fieldLabel} on component ${componentLabel}`);
-      }
+      if (fieldLabel === 'remove') {
+        if (t.isMemberExpression(parent)) {
+          // foo.entity.Motion.velocity_x
+          throw new Error(`Unexpected compound invocation of component method ${componentLabel}.${fieldLabel}`);
+        }
 
-      if (t.isMemberExpression(parent)) {
-        // foo.entity.Motion.velocity_x
-        throw new Error(`Unexpected compound lookup of component field ${componentLabel}.${fieldName}`);
-      }
+        if (!t.isCallExpression(parent) || parent.callee !== node) {
+          // entity.Motion.add with no parens
+          throw new Error(`Unexpected property lookup of component method ${componentLabel}.${fieldLabel} - it should be a method invocation`);
+        }
 
-      if (t.isCallExpression(parent) && parent.callee == node) {
-        // entity.Motion.velocity_x()
-        throw new Error(`Unexpected method invocation of component field ${componentLabel}.${fieldName}(…) - it should just be a property lookup`);
-      }
+        if (fieldLabel === 'remove') {
+          // entity.Motion.remove(x)
+          if (parent.arguments.length) {
+            throw new Error(`Component method ${componentLabel}.${fieldLabel}() takes no arguments`);
+          }
 
-      const fieldVarName = componentMap[component.id].fieldVarNames[field.id];
-      const match = fieldVarName.match(/^([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)$/);
-      if (match) {
-        const [, componentVarName, fieldPropertyName] = match;
-        path.replaceWith(
-          t.MemberExpression(
-            t.MemberExpression(t.Identifier(componentVarName), t.Identifier(fieldPropertyName), false),
-            entityNode,
-            true,
-          ),
-        );
-      }
-      else {
-        path.replaceWith(
-          t.MemberExpression(t.Identifier(fieldVarName), entityNode, true),
-        );
+          const { removeFromEntityFn } = componentMap[component.id];
+
+          path.parentPath.replaceWith(
+            t.CallExpression(
+              t.Identifier(removeFromEntityFn),
+              [ entityNode ],
+            ),
+          );
+        }
+      } else {
+        const field = component.fieldWithLabel(fieldLabel);
+
+        if (!field) {
+          // entity.Motion.nonexistent
+          throw new Error(`Nonexistent field ${fieldLabel} on component ${componentLabel}`);
+        }
+
+        if (t.isMemberExpression(parent)) {
+          // foo.entity.Motion.velocity_x
+          throw new Error(`Unexpected compound lookup of component field ${componentLabel}.${fieldLabel}`);
+        }
+
+        if (t.isCallExpression(parent) && parent.callee == node) {
+          // entity.Motion.velocity_x()
+          throw new Error(`Unexpected method invocation of component field ${componentLabel}.${fieldName}(…) - it should just be a property lookup`);
+        }
+
+        const fieldVarName = componentMap[component.id].fieldVarNames[field.id];
+        const match = fieldVarName.match(/^([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)$/);
+        if (match) {
+          const [, componentVarName, fieldPropertyName] = match;
+          path.replaceWith(
+            t.MemberExpression(
+              t.MemberExpression(t.Identifier(componentVarName), t.Identifier(fieldPropertyName), false),
+              entityNode,
+              true,
+            ),
+          );
+        }
+        else {
+          path.replaceWith(
+            t.MemberExpression(t.Identifier(fieldVarName), entityNode, true),
+          );
+        }
       }
     }
   }, ...(rawAst ? [] : [ast.scope, ast]));
