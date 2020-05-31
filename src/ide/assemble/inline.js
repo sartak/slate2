@@ -173,8 +173,7 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
       // Now at this point we know we have a true positive and we switch from
       // excluding
 
-
-      if (fieldLabel === 'remove') {
+      if (fieldLabel === 'add' || fieldLabel === 'remove') {
         if (t.isMemberExpression(parent)) {
           // foo.entity.Motion.velocity_x
           throw new Error(`Unexpected compound invocation of component method ${componentLabel}.${fieldLabel}`);
@@ -185,7 +184,55 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
           throw new Error(`Unexpected property lookup of component method ${componentLabel}.${fieldLabel} - it should be a method invocation`);
         }
 
-        if (fieldLabel === 'remove') {
+        if (fieldLabel === 'add') {
+          if (parent.arguments.length !== 1) {
+            throw new Error(`Component method ${componentLabel}.${fieldLabel}(…) takes one argument: a complete literal dictionary of field values`);
+          }
+
+          const arg = parent.arguments[0];
+          if (!t.isObjectExpression(arg)) {
+            throw new Error(`Component method ${componentLabel}.${fieldLabel}(…)'s must be a complete literal dictionary of field values, it cannot be a ${arg.type}`);
+          }
+
+          const values = {};
+
+          arg.properties.forEach((property) => {
+            if (!t.isObjectProperty(property)) {
+              throw new Error(`Component method ${componentLabel}.${fieldLabel}(…)'s must be a complete literal dictionary of field values, saw \`${generate(property).code}\``);
+            }
+
+            if ((!t.isIdentifier(property.key) && !t.isStringLiteral(property.key)) || property.computed || property.method) {
+              throw new Error(`Component method ${componentLabel}.${fieldLabel}(…)'s must be a complete literal dictionary of field values, saw \`${generate(property).code}\``);
+            }
+
+            const key = t.isIdentifier(property.key) ? property.key.name : property.key.value;
+            values[key] = property.value;
+          });
+
+          const { addToEntityFn } = componentMap[component.id];
+          const params = [entityNode];
+
+          component.fields.forEach((field) => {
+            const key = field.label ?? field.id;
+            if (!(key in values)) {
+              throw new Error(`Component method ${componentLabel}.${fieldLabel}(…)'s must be a complete literal dictionary of field values, it lacks field '${key}'`);
+            }
+
+            params.push(values[key]);
+            delete values[key];
+          });
+
+          if (Object.keys(values).length) {
+            throw new Error(`Component method ${componentLabel}.${fieldLabel}(…)'s must be a complete literal dictionary of field values, it has extra fields: ${Object.keys(values).map((v) => `'${v}'`).join(', ')}`);
+          }
+
+          path.parentPath.replaceWith(
+            t.CallExpression(
+              t.Identifier(addToEntityFn),
+              params,
+            ),
+          );
+        } else if (fieldLabel === 'remove') {
           // entity.Motion.remove(x)
           if (parent.arguments.length) {
             throw new Error(`Component method ${componentLabel}.${fieldLabel}() takes no arguments`);
