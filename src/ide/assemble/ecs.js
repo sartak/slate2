@@ -240,11 +240,7 @@ export const assembleComponents = (project, ctx) => {
           // @Performance: use ArrayBuffer?
           const value = JSON.stringify(values);
 
-          if (generateComponentVars) {
-            return `${varName} = ${value}; /* ${ field.label ?? field.id } */`;
-          } else {
-            return `const ${varName} = ${value}; /* ${ field.label ?? field.id } */`;
-          }
+          return `${generateComponentVars ? "" : "const "}${varName} = ${value}; /* ${ field.label ?? field.id } */`;
         }),
       ];
     }),
