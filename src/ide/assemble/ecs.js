@@ -17,26 +17,35 @@ export const prepareEntities = (project, ctx) => {
 };
 
 export const prepareComponents = (project, ctx) => {
-  const { componentMap, componentObjects, entityMap, entityObjects } = ctx;
+  const { componentMap, componentObjects, entityMap, entityObjects: allEntities } = ctx;
   const { generateComponentVars } = project;
 
   selectEnabledComponents(project).forEach((component) => {
     const componentId = component.id;
 
-    const entities = entityObjects.filter((entity) => entity.componentConfig[componentId]);
+    const entityHasComponent = [false];
+    const entities = [];
+    const entityComponents = {};
+
+    allEntities.forEach((entity) => {
+      if (entity.componentConfig[componentId]) {
+        entityHasComponent.push(true);
+        entities.push(entity);
+        entityComponents[entity.id] = entity.componentConfig[componentId];
+      } else {
+        entityHasComponent.push(false);
+      }
+    });
+
     if (!entities.length) {
       return;
     }
 
-    const entityComponents = {};
     const fields = [];
     const fieldVarNames = {};
     const fieldVarNamesByLabel = {};
     const componentVarName = `${ctx.prefix}component_${component.label}`;
-
-    entities.forEach((entity) => {
-      entityComponents[entity.id] = entity.componentConfig[componentId];
-    });
+    const entityHasComponentVar = generateComponentVars ? `${componentVarName}.hasEntity` : `${componentVarName}_hasEntity`;;
 
     component.fields.forEach((field) => {
       const { id: fieldId, type, defaultValue } = field;
@@ -44,7 +53,7 @@ export const prepareComponents = (project, ctx) => {
       const zeroValue = zeroValueForType(type);
       const values = [zeroValue];
 
-      entityObjects.forEach((entity) => {
+      allEntities.forEach((entity) => {
         const entityId = entity.id;
 
         if (!entityComponents[entityId]) {
@@ -88,6 +97,8 @@ export const prepareComponents = (project, ctx) => {
       component,
       entityObjects: entities,
       entityComponents,
+      entityHasComponent,
+      entityHasComponentVar,
       varName: componentVarName,
       fields,
       fieldVarNames,
@@ -217,9 +228,11 @@ export const assembleComponents = (project, ctx) => {
 
   return [
     ...componentObjects.map((component) => {
-      const { fields, varName: componentVarName, fieldVarNames } = componentMap[component.id];
+      const { fields, varName: componentVarName, fieldVarNames, entityHasComponent, entityHasComponentVar } = componentMap[component.id];
       return [
         (generateComponentVars && `const ${componentVarName} = {};`),
+
+        `${generateComponentVars ? "" : "const "}${entityHasComponentVar} = [${entityHasComponent.map((has) => has ? "true" : "false").join(', ')}];`,
 
         ...fields.map(([field, values]) => {
           const varName = fieldVarNames[field.id];
