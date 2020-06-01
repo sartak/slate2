@@ -27,6 +27,7 @@ export const newContext = (project, overrides = {}) => {
     timeStepVar: 'time',
 
     cloneEntityFn: `${prefix}cloneEntity`,
+    destroyEntityFn: `${prefix}destroyEntity`,
 
     init: [],
     input: [],

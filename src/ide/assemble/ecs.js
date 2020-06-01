@@ -1,4 +1,4 @@
-import { assembleInlineSystemCall, assembleRemoveEntryFromList } from './inline';
+import { assembleInlineSystemCall, assembleRemoveEntryFromList, assembleRemoveEntryFromListIfPresent  } from './inline';
 import { canonicalizeValue, zeroValueForType } from '../types';
 import { selectEntityList, selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 
@@ -318,7 +318,7 @@ export const assembleSystems = (project, ctx) => {
 };
 
 export const assembleManager = (project, ctx) => {
-  const { prefix, componentMap, systemMap, entitiesVar, cloneEntityFn } = ctx;
+  const { prefix, componentMap, systemMap, entitiesVar, cloneEntityFn, destroyEntityFn } = ctx;
 
   const allComponentMaps = Object.values(componentMap);
   const allSystemMaps = Object.values(systemMap);
@@ -353,6 +353,28 @@ export const assembleManager = (project, ctx) => {
       }),
 
       `return clone;`,
+    `};`,
+
+    `const ${destroyEntityFn} = (entity) => {`,
+      assembleRemoveEntryFromList(entitiesVar, 'entity'),
+
+      ...allComponentMaps.map(({ component, entityHasComponentVar, fieldVarNames }) => {
+        return [
+          ...assembleRemoveEntryFromList(entityHasComponentVar, 'entity'),
+          ...component.fields.map((field) => {
+            return assembleRemoveEntryFromList(fieldVarNames[field.id], 'entity');
+          }),
+        ];
+      }),
+
+      ...allSystemMaps.map(({ entitiesVar }) => {
+        if (!entitiesVar) {
+          return;
+        }
+
+        const tmpVar = `${entitiesVar}_tmp`;
+        return assembleRemoveEntryFromListIfPresent(entitiesVar, 'entity', tmpVar);
+      }),
     `};`,
 
     ...allComponentMaps.map((map) => {
