@@ -83,7 +83,7 @@ export default class EvalDebugger {
 
   paramsForEval() {
     const { project, assembly } = this;
-    const { context, entities, components, systems } = assembly;
+    const { context, entities, components, systems, entityIndexLookup } = assembly;
     const { entityMap, componentObjects } = context;
 
     const [activeType, activeId] = selectActiveTypeId(project);
@@ -110,7 +110,7 @@ export default class EvalDebugger {
     });
 
     return {
-      $e: activeType === 'Entity' ? entityMap[activeId].index : null,
+      $e: activeType === 'Entity' ? entityMap[activeId].id : null,
       $c,
       $s: activeType === 'System' ? systems[activeId] : null,
 
@@ -122,17 +122,19 @@ export default class EvalDebugger {
       $assembly: assembly,
       $context: context,
 
-      $cel: (componentLabel, entity) => {
+      $cel: (componentLabel, entityId) => {
         // There's a chance of false positives, since the pattern
         // is just .ComponentName
-        if (!Number.isInteger(entity)) {
-          return entity[componentLabel];
+        if (!entityIndexLookup.hasOwnProperty(entityId)) {
+          return entityId[componentLabel];
         }
+
+        const entityIndex = entityIndexLookup[entityId];
 
         const component = $cm[componentLabel];
         const out = {};
         Object.entries(component).forEach(([fieldLabel, values]) => {
-          out[fieldLabel] = values[entity];
+          out[fieldLabel] = values[entityIndex];
         });
 
         return out;

@@ -53,6 +53,7 @@ export const newContext = (project, overrides = {}) => {
     debuggerClassPrefix: prefix,
 
     entitiesVar: `${prefix}allEntities`,
+    entityIndexLookupVar: `${prefix}entityIndexLookup`,
     entityMap: {},
     entityReverseMap: {},
     entityObjects: [],

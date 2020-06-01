@@ -81,7 +81,7 @@ export const rewriteCodeToUseComponentVariables = (code, systemComponents, compo
 };
 
 const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDictionaryLookup, ctx, rawAst) => {
-  const { componentMap } = ctx;
+  const { componentMap, entityIndexLookupVar } = ctx;
 
   // @Incomplete: if a system uses a non-required component in a way that is invalid, then we should
   // forbid it. We may also want to add a list of "interested" components on a system so you can add
@@ -272,14 +272,16 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
           path.replaceWith(
             t.MemberExpression(
               t.MemberExpression(t.Identifier(componentVarName), t.Identifier(fieldPropertyName), false),
-              entityNode,
+              t.MemberExpression(t.Identifier(entityIndexLookupVar), entityNode, true),
               true,
             ),
           );
         }
         else {
           path.replaceWith(
-            t.MemberExpression(t.Identifier(fieldVarName), entityNode, true),
+            t.MemberExpression(t.Identifier(fieldVarName),
+            t.MemberExpression(t.Identifier(entityIndexLookupVar), entityNode, true),
+            true),
           );
         }
       }

@@ -14,6 +14,7 @@ export default class LiveEntityValuesDebugger {
   dispatch = null;
   assembly = null;
   entityMap = null;
+  entityIndexLookup = null;
   preflightRunning = false;
   componentsSubscriptions = [];
   valueSubscriptions = [];
@@ -29,10 +30,11 @@ export default class LiveEntityValuesDebugger {
   didUpdateAssembly(project, assembly) {
     this.assembly = assembly;
     this.entityMap = assembly.context.entityMap;
+    this.entityIndexLookup = assembly.entityIndexLookup;
   }
 
-  entityForEntityId(id) {
-    return this.entityMap[id].index;
+  preflightEntityIdForDesignEntityId(id) {
+    return this.entityMap[id].id;
   }
 
   prepareAssembly(map, project, ctx) {
@@ -46,7 +48,7 @@ export default class LiveEntityValuesDebugger {
   }
 
   assemble_updateBegin(map, project, ctx) {
-    const { entityValueUpdatesVar, assembleCaptureEmitFn, componentsVar } = ctx;
+    const { entityValueUpdatesVar, entityIndexLookupVar, assembleCaptureEmitFn, componentsVar } = ctx;
 
     return [
       `(function () {`,
@@ -55,8 +57,9 @@ export default class LiveEntityValuesDebugger {
           entityValueUpdatesVar,
           (val) => [`${entityValueUpdatesVar}.push(...${val});`],
         ),
-        `${entityValueUpdatesVar}.forEach(([componentId, fieldId, entity, value]) => {`,
-          `${componentsVar}[componentId][fieldId][entity] = value;`,
+        `${entityValueUpdatesVar}.forEach(([componentId, fieldId, entityId, value]) => {`,
+          `const entityIndex = ${entityIndexLookupVar}[entityId];`,
+          `${componentsVar}[componentId][fieldId][entityIndex] = value;`,
         `});`,
         `${entityValueUpdatesVar} = [];`,
       `})();`,
@@ -66,8 +69,8 @@ export default class LiveEntityValuesDebugger {
   assemblePreflightReturn(map, project, ctx) {
     const { entityValueUpdatesVar } = ctx;
     return [
-      `pushEntityValueUpdate: (componentId, fieldId, entity, value) => {`,
-        `${entityValueUpdatesVar}.push([componentId, fieldId, entity, value]);`,
+      `pushEntityValueUpdate: (componentId, fieldId, entityId, value) => {`,
+        `${entityValueUpdatesVar}.push([componentId, fieldId, entityId, value]);`,
       `},`,
     ];
   }
@@ -76,20 +79,22 @@ export default class LiveEntityValuesDebugger {
     const { valueSubscriptions, componentsSubscriptions, assembly } = this;
     const { components } = assembly;
 
-    valueSubscriptions.forEach(([callback, entityId, componentId, fieldId]) => {
-      const entity = this.entityForEntityId(entityId);
-      const value = components[componentId][fieldId][entity];
+    valueSubscriptions.forEach(([callback, designEntityId, componentId, fieldId]) => {
+      const preflightEntityId = this.preflightEntityIdForDesignEntityId(designEntityId);
+      const entityIndex = this.entityIndexLookup[preflightEntityId];
+      const value = components[componentId][fieldId][entityIndex];
       callback(mode, value);
     });
 
-    componentsSubscriptions.forEach(([callback, entityId, componentIds]) => {
-      const entity = this.entityForEntityId(entityId);
+    componentsSubscriptions.forEach(([callback, designEntityId, componentIds]) => {
+      const preflightEntityId = this.preflightEntityIdForDesignEntityId(designEntityId);
+      const entityIndex = this.entityIndexLookup[preflightEntityId];
 
       const componentValues = componentIds.map((componentId) => {
         const fieldValues = {};
 
         Object.entries(components[componentId]).forEach(([fieldId, values]) => {
-          const value = values[entity];
+          const value = values[entityIndex];
           fieldValues[fieldId] = value;
         });
 
@@ -122,17 +127,17 @@ export default class LiveEntityValuesDebugger {
     this.dispatch(changeEntityComponentValueAction(entityId, componentId, fieldId, value));
   }
 
-  changeEntityComponentValuePreflight(entityId, componentId, fieldId, value) {
+  changeEntityComponentValuePreflight(designEntityId, componentId, fieldId, value) {
     const { project, assembly } = this;
 
     const component = lookupComponentWithId(project, componentId);
     const field = component.fieldWithId(fieldId);
     const { defaultValue, type } = field;
 
-    const entity = this.entityForEntityId(entityId);
+    const preflightEntityId = this.preflightEntityIdForDesignEntityId(designEntityId);
 
     const canonicalized = canonicalizeValue(type, value, defaultValue);
-    assembly.pushEntityValueUpdate(componentId, fieldId, entity, canonicalized);
+    assembly.pushEntityValueUpdate(componentId, fieldId, preflightEntityId, canonicalized);
   }
 
   changeEntityComponentValue(...args) {

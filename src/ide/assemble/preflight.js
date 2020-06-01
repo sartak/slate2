@@ -152,6 +152,7 @@ const __assembleGameForPreflight = (originalProject) => {
       ...debug,
       `return {`,
         `entities: ${ctx.entitiesVar},`,
+        `entityIndexLookup: ${ctx.entityIndexLookupVar},`,
         `components: ${ctx.componentsVar},`,
         `systems: ${ctx.systemsVar},`,
         `initDesign: () => { ${initDesign} },`,

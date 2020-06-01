@@ -1,4 +1,4 @@
-import { assembleInlineSystemCall, assembleRemoveEntryFromList, assembleRemoveEntryFromListIfPresent  } from './inline';
+import { assembleInlineSystemCall, assembleRemoveIndexFromList, assembleRemoveEntryFromList, assembleRemoveEntryFromListIfPresent  } from './inline';
 import { canonicalizeValue, zeroValueForType } from '../types';
 import { selectEntityList, selectEnabledComponents, selectEnabledSystems } from '../project/selectors';
 
@@ -8,11 +8,13 @@ export const prepareEntities = (project, ctx) => {
   selectEntityList(project).forEach((entity, i) => {
     entityObjects.push(entity);
     const index = 1 + i;
+    const preflightId = `entity_${entity.id}`;
     entityMap[entity.id] = {
       entity,
+      id: preflightId,
       index,
     };
-    entityReverseMap[index] = entity.id;
+    entityReverseMap[preflightId] = entity.id;
   });
 };
 
@@ -64,7 +66,7 @@ export const prepareComponents = (project, ctx) => {
         let value = entity.componentConfig[componentId].values[fieldId];
 
         if (type === 'entity') {
-          value = value ? entityMap[value].index : 0;
+          value = value ? entityMap[value].id : 0;
         } else {
           value = canonicalizeValue(type, value, defaultValue);
         }
@@ -220,11 +222,22 @@ export const prepareManager = (project, ctx) => {
 };
 
 export const assembleEntities = (project, ctx) => {
-  const { entitiesVar, entityMap, entityObjects } = ctx;
-  const indexes = entityObjects.map(({ id }) => entityMap[id].index);
+  const { entitiesVar, entityIndexLookupVar, entityMap, entityObjects } = ctx;
   return [
-    ...entityObjects.map(({ label, id }) => `// ${entityMap[id].index}: ${label}`),
-    `const ${entitiesVar} = [${indexes.join(', ')}];`,
+    `const ${entitiesVar} = [`,
+      '0,',
+      ...entityObjects.map((entity) => (
+        `${JSON.stringify(entityMap[entity.id].id)}, // ${entity.label}`
+      )),
+    `];`,
+    `const ${entityIndexLookupVar} = {`,
+      ...entityObjects.map((entity) => {
+        const { id, index } = entityMap[entity.id];
+        return (
+          `${JSON.stringify(id)}: ${index},`
+        );
+      }),
+    `};`,
   ];
 };
 
@@ -303,7 +316,7 @@ export const assembleSystems = (project, ctx) => {
       return [
         (generateSystemVars && `const ${varName} = new ${systemClassPrefix}${system.id}();`),
 
-        (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => entityMap[id].index)}];`),
+        (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => JSON.stringify(entityMap[id].id)).join(', ')}];`),
 
         (hasInit && `let ${initReturnVar} = undefined;`),
       ];
@@ -318,23 +331,26 @@ export const assembleSystems = (project, ctx) => {
 };
 
 export const assembleManager = (project, ctx) => {
-  const { prefix, componentMap, systemMap, entitiesVar, cloneEntityFn, destroyEntityFn } = ctx;
+  const { prefix, componentMap, systemMap, entitiesVar, entityIndexLookupVar, cloneEntityFn, destroyEntityFn } = ctx;
 
   const allComponentMaps = Object.values(componentMap);
   const allSystemMaps = Object.values(systemMap);
 
   return [
-    `const ${cloneEntityFn} = (source) => {`,
-      `const clone = ${entitiesVar}.length + 1;`,
+    `const ${cloneEntityFn} = (sourceId) => {`,
+      `const sourceIndex = ${entityIndexLookupVar}[sourceId];`,
+      `const cloneId = 'entity_' + Math.random();`,
+      `const cloneIndex = ${entitiesVar}.length;`,
 
-      `${entitiesVar}.push(clone);`,
+      `${entitiesVar}.push(cloneId);`,
+      `${entityIndexLookupVar}[cloneId] = cloneIndex;`,
 
       ...allComponentMaps.map(({ component, entityHasComponentVar, fieldVarNames }) => {
         return [
-          `${entityHasComponentVar}[clone] = ${entityHasComponentVar}[source];`,
+          `${entityHasComponentVar}[cloneIndex] = ${entityHasComponentVar}[sourceIndex];`,
           ...component.fields.map((field) => {
             return [
-              `${fieldVarNames[field.id]}[clone] = ${fieldVarNames[field.id]}[source];`,
+              `${fieldVarNames[field.id]}[cloneIndex] = ${fieldVarNames[field.id]}[sourceIndex];`,
             ];
           }),
         ];
@@ -346,23 +362,31 @@ export const assembleManager = (project, ctx) => {
         }
 
         return [
-          `if (${entitiesVar}.indexOf(source) !== -1) {`,
-          `${entitiesVar}.push(clone);`,
+          `if (${entitiesVar}.indexOf(sourceId) !== -1) {`,
+          `${entitiesVar}.push(cloneId);`,
           `}`,
         ];
       }),
 
-      `return clone;`,
+      `return cloneId;`,
     `};`,
 
-    `const ${destroyEntityFn} = (entity) => {`,
-      assembleRemoveEntryFromList(entitiesVar, 'entity'),
+    `const ${destroyEntityFn} = (entityId) => {`,
+      `const entityIndex = ${entityIndexLookupVar}[entityId];`,
+
+      `if (entityIndex < ${entitiesVar}.length - 1) {`,
+        `${entitiesVar}[entityIndex] = ${entitiesVar}[${entitiesVar}.length - 1];`,
+        `${entityIndexLookupVar}[${entitiesVar}[entityIndex]] = entityIndex;`,
+      `}`,
+
+      `${entitiesVar}.length--;`,
+      `delete ${entityIndexLookupVar}[entityId];`,
 
       ...allComponentMaps.map(({ component, entityHasComponentVar, fieldVarNames }) => {
         return [
-          ...assembleRemoveEntryFromList(entityHasComponentVar, 'entity'),
+          ...assembleRemoveIndexFromList(entityHasComponentVar, 'entityIndex'),
           ...component.fields.map((field) => {
-            return assembleRemoveEntryFromList(fieldVarNames[field.id], 'entity');
+            return assembleRemoveIndexFromList(fieldVarNames[field.id], 'entityIndex');
           }),
         ];
       }),
@@ -373,7 +397,7 @@ export const assembleManager = (project, ctx) => {
         }
 
         const tmpVar = `${entitiesVar}_tmp`;
-        return assembleRemoveEntryFromListIfPresent(entitiesVar, 'entity', tmpVar);
+        return assembleRemoveEntryFromListIfPresent(entitiesVar, 'entityId', tmpVar);
       }),
     `};`,
 
@@ -381,13 +405,14 @@ export const assembleManager = (project, ctx) => {
       const { component, addToEntityFn, removeFromEntityFn, fieldVarNames, attachedSystems, entityHasComponentVar } = map;
       const fieldParams = component.fields.map(({ id }) => `${ctx.prefix}${id}`);
       return [
-        `const ${addToEntityFn} = (entity, ${fieldParams.join(", ")}) => {`,
-          `if (!${entityHasComponentVar}[entity]) {`,
-            `${entityHasComponentVar}[entity] = true;`,
+        `const ${addToEntityFn} = (entityId, ${fieldParams.join(", ")}) => {`,
+          `const entityIndex = ${entityIndexLookupVar}[entityId];`,
+          `if (!${entityHasComponentVar}[entityIndex]) {`,
+            `${entityHasComponentVar}[entityIndex] = true;`,
 
             ...component.fields.map((field, i) => {
               return [
-                `${fieldVarNames[field.id]}[entity] = ${fieldParams[i]};`,
+                `${fieldVarNames[field.id]}[entityIndex] = ${fieldParams[i]};`,
               ];
             }),
 
@@ -403,13 +428,13 @@ export const assembleManager = (project, ctx) => {
                   checkComponents.map((component) => {
                     const { entityHasComponentVar } = componentMap[component.id];
                     return [
-                      `${entityHasComponentVar}[entity]`,
+                      `${entityHasComponentVar}[entityIndex]`,
                     ];
                   }).join(' && '),
                   `) {`,
                 ].join("") : null),
 
-                `${entitiesVar}.push(entity);`,
+                `${entitiesVar}.push(entityId);`,
 
                 ...(checkComponents.length ? [
                   `}`,
@@ -419,16 +444,17 @@ export const assembleManager = (project, ctx) => {
           `}`,
         `};`,
 
-        `const ${removeFromEntityFn} = (entity) => {`,
-          `if (${entityHasComponentVar}[entity]) {`,
-            `${entityHasComponentVar}[entity] = false;`,
+        `const ${removeFromEntityFn} = (entityId) => {`,
+          `const entityIndex = ${entityIndexLookupVar}[entityId];`,
+          `if (${entityHasComponentVar}[entityIndex]) {`,
+            `${entityHasComponentVar}[entityIndex] = false;`,
 
             // @Incomplete: when an entity can be part of a system through
             // multiple paths (e.g. render rect or render sprite), we'll need
             // to be more careful.
             ...attachedSystems.map((system) => {
               const { entitiesVar } = systemMap[system.id];
-              return assembleRemoveEntryFromList(entitiesVar, 'entity');
+              return assembleRemoveEntryFromList(entitiesVar, 'entityId');
             }),
           `}`,
         `};`,
