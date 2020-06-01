@@ -733,11 +733,15 @@ export const flattenList = (list) => {
   ), []).filter(Boolean);
 };
 
-export const assembleRemoveEntryFromList = (listVar, entryVar) => {
+export const assembleRemoveIndexFromList = (listVar, indexVar) => {
   return [
-    `${listVar}[${listVar}.indexOf(${entryVar})] = ${listVar}[${listVar}.length - 1];`,
+    `${listVar}[${indexVar}] = ${listVar}[${listVar}.length - 1];`,
     `${listVar}.length--;`,
   ];
+};
+
+export const assembleRemoveEntryFromList = (listVar, entryVar) => {
+  return assembleRemoveIndexFromList(listVar, `${listVar}.indexOf(${entryVar})`);
 };
 
 export const assembleRemoveEntryFromListIfPresent = (listVar, entryVar, tmpVar) => {
