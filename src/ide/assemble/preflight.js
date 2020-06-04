@@ -76,6 +76,8 @@ const __assembleGameForPreflight = (originalProject) => {
     forPreflight: true,
   });
 
+  ctx.stepParameters = [ctx.dtStepVar, ctx.timeStepVar];
+
   __prepareECS(project, ctx);
   __prepareCommand(project, ctx);
   __prepareDebuggers(project, ctx);

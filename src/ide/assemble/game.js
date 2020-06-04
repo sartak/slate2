@@ -38,6 +38,8 @@ const prepareInstantiateGame = (project, ctx) => {
       `};`,
     ].join("\n");
   });
+
+  ctx.stepParameters = [ctx.dtStepVar, ctx.timeStepVar];
 };
 
 const assembleImports = (project, ctx) => {
@@ -108,7 +110,7 @@ export const assembleGameStep = (project, ctx) => {
   }
 
   const raw = [
-    `(${ctx.dtStepVar}, ${ctx.timeStepVar}) => {`,
+    `(${ctx.stepParameters.join(', ')}) => {`,
       ...step,
     `}`,
   ].join("\n");
