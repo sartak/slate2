@@ -289,6 +289,41 @@ const rewriteTreeToUseComponentVariables = (ast, systemComponents, componentDict
   }, ...(rawAst ? [] : [ast.scope, ast]));
 };
 
+const rewriteTreeToUseRandom = (ast, ctx, rawAst) => {
+  const { randomVar } = ctx;
+  if (!randomVar) {
+    return;
+  }
+
+  traverse((rawAst ? ast : ast.node), {
+    CallExpression(path) {
+      const { node } = path;
+      const { callee } = node;
+
+      if (!t.isMemberExpression(callee)) {
+        return;
+      }
+
+      const { object, property } = callee;
+
+      if (!t.isIdentifier(object) || object.name !== "Math") {
+        return;
+      }
+
+      if (!t.isIdentifier(property) || property.name !== "random") {
+        return;
+      }
+
+      path.replaceWith(
+        t.CallExpression(
+          t.Identifier(randomVar),
+          [],
+        ),
+      );
+    }
+  }, ...(rawAst ? [] : [ast.scope, ast]));
+};
+
 export const inlineFunctionArguments = (ast, rawAst) => {
   const identical = [];
   const replacements = [];
@@ -467,6 +502,7 @@ export const assembleInlineSystemCall = (system, methodName, code, args, project
   }
 
   rewriteTreeToUseComponentVariables(subtree, components, null, ctx, rawAst);
+  rewriteTreeToUseRandom(subtree, ctx, rawAst);
   const inlinedArgs = inlineFunctionArguments(subtree, rawAst);
   const output = generate(subtree.program ?? subtree.node).code;
 

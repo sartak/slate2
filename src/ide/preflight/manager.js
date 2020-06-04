@@ -5,6 +5,7 @@ import LiveEntityValuesDebugger from './live-entity-values';
 import EvalDebugger from './eval';
 import RecordDebugger from './record';
 import ReplayDebugger from './replay';
+import RandomDebugger from './random';
 
 const LoopReplays = true;
 
@@ -20,7 +21,8 @@ export class PreflightManager {
   evalDebugger = new EvalDebugger();
   recordDebugger = new RecordDebugger();
   replayDebugger = new ReplayDebugger();
-  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger, this.replayDebugger];
+  randomDebugger = new RandomDebugger();
+  debuggers = [this.liveEntityValuesDebugger, this.evalDebugger, this.recordDebugger, this.replayDebugger, this.randomDebugger];
   storeUnsubscribe = null;
   projectStore = null;
   dispatch = null;
