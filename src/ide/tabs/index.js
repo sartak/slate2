@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedTabLabelAction } from './project/actions';
-import { makeSelectTabLabel } from './project/selectors';
-import './tabs.less';
+import { setSelectedTabLabelAction } from '../project/actions';
+import { makeSelectTabLabel } from '../project/selectors';
+import './index.less';
 
 export const Tabs = ({ id, tabs }) => {
   const dispatch = useDispatch();
