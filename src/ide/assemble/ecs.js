@@ -318,6 +318,8 @@ export const assembleSystems = (project, ctx) => {
 
         (needsEntities && `const ${entitiesVar} = [${entityObjects.map(({id}) => JSON.stringify(entityMap[id].id)).join(', ')}];`),
 
+        (generateSystemVars && needsEntities && `${varName}.entities = ${entitiesVar};`),
+
         (hasInit && `let ${initReturnVar} = undefined;`),
       ];
     }),

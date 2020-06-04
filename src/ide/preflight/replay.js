@@ -107,8 +107,20 @@ export default class ReplayDebugger {
 
   setFrameIndex(index) {
     const { assembly } = this;
+    const { entities: assemblyEntities, entityIndexLookup: assemblyEntityLookup, systems: assemblySystems } = assembly;
     this.frameIndex = index;
     const frame = this.frame = this.replay.frames[index];
+
+    assemblyEntities.splice(frame.entityList.length);
+    frame.entityList.forEach((entity, i) => {
+      assemblyEntities[i] = entity;
+    });
+
+    for (var entity in assemblyEntityLookup) delete assemblyEntityLookup[entity];
+    Object.entries(frame.entityLookup).forEach(([entity, index]) => {
+      assemblyEntityLookup[entity] = index;
+    });
+
     Object.entries(frame.components).forEach(([componentId, fields]) => {
       const assemblyComponent = assembly.components[componentId];
       Object.entries(fields).forEach(([fieldId, values]) => {
@@ -117,6 +129,15 @@ export default class ReplayDebugger {
         values.forEach((value, i) => {
           assemblyField[i] = value;
         });
+      });
+    });
+
+    Object.entries(frame.systemEntities).forEach(([systemId, entities]) => {
+      const system = assemblySystems[systemId];
+      const { entities: systemEntities } = system;
+      systemEntities.splice(entities.length);
+      entities.forEach((entity, i) => {
+        systemEntities[i] = entity;
       });
     });
   }

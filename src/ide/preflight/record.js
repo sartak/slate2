@@ -43,7 +43,9 @@ export default class RecordDebugger {
   assemble_updateEnd(map, project, ctx) {
     const { varName } = map;
     return [
+      `${varName}.captureEntities(${ctx.entitiesVar}, ${ctx.entityIndexLookupVar});`,
       `${varName}.captureComponents(${ctx.componentsVar});`,
+      `${varName}.captureSystemEntities(${ctx.systemsVar});`,
     ];
   }
 
@@ -69,8 +71,21 @@ export default class RecordDebugger {
     this.capture('command', command);
   }
 
+  captureEntities(entityList, entityLookup) {
+    this.capture('entityList', entityList);
+    this.capture('entityLookup', entityLookup);
+  }
+
   captureComponents(components) {
     this.capture('components', components);
+  }
+
+  captureSystemEntities(systems) {
+    const systemEntities = {};
+    Object.entries(systems).forEach(([systemId, system]) => {
+      systemEntities[systemId] = system.entities;
+    });
+    this.capture('systemEntities', systemEntities);
   }
 
   frameEnd() {
