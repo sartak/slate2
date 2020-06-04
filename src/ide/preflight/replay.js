@@ -57,28 +57,6 @@ export default class ReplayDebugger {
     ];
   }
 
-  assemble_updateEnd(map, project, ctx) {
-    const { componentsVar } = ctx;
-    const { varName } = map;
-
-    if (false) { // verbose checking
-      return [
-        `Object.entries(${varName}.emitKeyframe('components')).forEach(([componentId, fields]) => {`,
-          `Object.entries(fields).forEach(([fieldId, values]) => {`,
-            `values.forEach((expected, entity) => {`,
-              `const got = ${componentsVar}[componentId][fieldId][entity];`,
-              `if (got !== expected) {`,
-                `console.log(\`Entity value mispatch for entity \${entity} component \${componentId} field \${fieldId}; got '\${got}' expected '\${expected}'\`);`,
-              `}`,
-            `});`,
-          `});`,
-        `});`,
-      ];
-    }
-
-    return [];
-  }
-
   frameBegin() {
     const { frameIndex } = this;
     const frame = this.frame = this.replay.frames[frameIndex];
