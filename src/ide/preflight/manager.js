@@ -101,6 +101,8 @@ export class PreflightManager {
         return true;
       });
 
+      debuggers.forEach((debug) => debug.willUpdateAssembly && debug.willUpdateAssembly(project, replay));
+
       const [assembler, context, code] = evaluateGameForPreflight({
         ...project,
         debuggers,
