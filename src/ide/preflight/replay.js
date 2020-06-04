@@ -113,6 +113,7 @@ export default class ReplayDebugger {
       const assemblyComponent = assembly.components[componentId];
       Object.entries(fields).forEach(([fieldId, values]) => {
         const assemblyField = assemblyComponent[fieldId];
+        assemblyField.splice(values.length);
         values.forEach((value, i) => {
           assemblyField[i] = value;
         });
