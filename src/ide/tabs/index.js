@@ -8,9 +8,9 @@ export const Tabs = ({ id, tabs }) => {
   const dispatch = useDispatch();
   const selectedTabLabel = useSelector(makeSelectTabLabel(id));
   const storeIndex = tabs.findIndex(([label]) => label === selectedTabLabel);
-  const selectedIndex = storeIndex === -1 ? 0 : storeIndex;
+  const selectedIndex = storeIndex === -1 || storeIndex >= tabs.length ? 0 : storeIndex;
 
-  const SelectedComponent = tabs[selectedIndex][1];
+  const SelectedComponent = selectedIndex < tabs.length ? tabs[selectedIndex][1] : () => <div />;
 
   return (
     <div className="tabs">
