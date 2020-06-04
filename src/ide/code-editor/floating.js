@@ -1,11 +1,10 @@
 import React from 'react';
 import { CodeEditor } from './index';
-import './floating.less';
+import { PanelFloating } from '../panel';
 
 export const FloatingEditor = ({ close, ...props }) => {
   return (
-    <div className="FloatingEditor">
-      <button className="close" onClick={close}>x</button>
+    <PanelFloating close={close}>
       <CodeEditor
         {...props}
         height={500}
@@ -26,6 +25,6 @@ export const FloatingEditor = ({ close, ...props }) => {
           wqall: close,
         }}
       />
-    </div>
+    </PanelFloating>
   );
 };
