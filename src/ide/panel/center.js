@@ -1,5 +1,5 @@
 import React from 'react';
-import { Surface } from './surface';
+import { Surface } from '../surface';
 
 export const PanelCenter = () => {
   return (
