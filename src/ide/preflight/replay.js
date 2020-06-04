@@ -141,9 +141,10 @@ export default class ReplayDebugger {
     });
 
     for (let i = keyframeIndex; i < index; ++i) {
-      // @Performance: skip rendering
+      // Skip rendering
+      assembly.step(0, 0, true);
+
       // @Performance: capture more fine-grained keyframes
-      assembly.step();
     }
   }
 }
