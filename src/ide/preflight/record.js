@@ -1,3 +1,5 @@
+const KeyframeFrequency = 120;
+
 export default class RecordDebugger {
   label = "record";
   recording = null;
@@ -59,6 +61,11 @@ export default class RecordDebugger {
   }
 
   frameBegin() {
+    const { frames } = this.recording;
+    if (frames.length > 0 && frames.length % KeyframeFrequency !== 1) {
+      delete frames[frames.length - 1].keyframe;
+    }
+
     this.frame = {
       keyframe: {},
     };

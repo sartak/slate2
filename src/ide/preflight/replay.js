@@ -116,10 +116,21 @@ export default class ReplayDebugger {
   }
 
   setFrameIndex(index) {
-    const { assembly } = this;
+    const { assembly, replay } = this;
     const { entities: assemblyEntities, entityIndexLookup: assemblyEntityLookup, systems: assemblySystems } = assembly;
-    this.frameIndex = index;
-    const frame = this.frame = this.replay.frames[index];
+    const { frames } = replay;
+
+    let keyframeIndex = index;
+    if (!frames[index].keyframe) {
+      for (keyframeIndex = index - 1; keyframeIndex >= 0; --keyframeIndex) {
+        if (frames[keyframeIndex].keyframe) {
+          break;
+        }
+      }
+    }
+
+    this.frameIndex = keyframeIndex;
+    const frame = this.frame = frames[keyframeIndex];
 
     assemblyEntities.splice(frame.keyframe.entityList.length);
     frame.keyframe.entityList.forEach((entity, i) => {
@@ -150,5 +161,11 @@ export default class ReplayDebugger {
         systemEntities[i] = entity;
       });
     });
+
+    for (let i = keyframeIndex; i < index; ++i) {
+      // @Performance: skip rendering
+      // @Performance: capture more fine-grained keyframes
+      assembly.step();
+    }
   }
 }
