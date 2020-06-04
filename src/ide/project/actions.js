@@ -88,7 +88,7 @@ export const setSelectedTabLabelAction = (id, label) => {
   return { type: t.SET_SELECTED_TAB_LABEL, id, label };
 };
 
-export const setBuildOption = (key, value) => {
+export const setBuildOptionAction = (key, value) => {
   return { type: t.SET_BUILD_OPTION, key, value };
 };
 

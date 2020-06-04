@@ -102,7 +102,7 @@ module.exports = {
     }),
     new MonacoWebpackPlugin({
       languages: [
-        'css', 'html', 'javascript', 'json', 'cpp',
+        'css', 'html', 'javascript', 'json', 'cpp', 'shell',
 
         // @Upstream: using javascript without typescript introduces
         // occasional innocuous but annoying errors of `Unexpected usage` in
