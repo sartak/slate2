@@ -7,12 +7,13 @@ export default class ReplayDebugger {
 
   prepareAssembly(map, project, ctx) {
     const { varName } = map;
-    ctx.assembleCaptureEmitFn = (label, expression, assembleSetter) => {
+    ctx.assembleCaptureEmitFn = (label, expression, assembleSetter, isKeyframe) => {
+      const emit = isKeyframe ? 'emitKeyframe' : 'emit';
       if (!assembleSetter) {
         console.warn(`No setter for ${label}; replays may ignore it. To suppress this pass a () => [] setter.`);
         return [];
       }
-      return assembleSetter(`${varName}.emit(${JSON.stringify(label)})`)
+      return assembleSetter(`${varName}.${emit}(${JSON.stringify(label)})`)
     };
   }
 
@@ -62,7 +63,7 @@ export default class ReplayDebugger {
 
     if (false) { // verbose checking
       return [
-        `Object.entries(${varName}.emit('components')).forEach(([componentId, fields]) => {`,
+        `Object.entries(${varName}.emitKeyframe('components')).forEach(([componentId, fields]) => {`,
           `Object.entries(fields).forEach(([fieldId, values]) => {`,
             `values.forEach((expected, entity) => {`,
               `const got = ${componentsVar}[componentId][fieldId][entity];`,
@@ -97,6 +98,15 @@ export default class ReplayDebugger {
     return this.frame[key];
   }
 
+  emitKeyframe(key) {
+    const { keyframe } = this.frame;
+    if (!keyframe) {
+      return null;
+    }
+
+    return keyframe[key];
+  }
+
   subscribeToFrame(callback) {
     this.frameSubscriptions.push(callback);
 
@@ -111,17 +121,17 @@ export default class ReplayDebugger {
     this.frameIndex = index;
     const frame = this.frame = this.replay.frames[index];
 
-    assemblyEntities.splice(frame.entityList.length);
-    frame.entityList.forEach((entity, i) => {
+    assemblyEntities.splice(frame.keyframe.entityList.length);
+    frame.keyframe.entityList.forEach((entity, i) => {
       assemblyEntities[i] = entity;
     });
 
     for (var entity in assemblyEntityLookup) delete assemblyEntityLookup[entity];
-    Object.entries(frame.entityLookup).forEach(([entity, index]) => {
+    Object.entries(frame.keyframe.entityLookup).forEach(([entity, index]) => {
       assemblyEntityLookup[entity] = index;
     });
 
-    Object.entries(frame.components).forEach(([componentId, fields]) => {
+    Object.entries(frame.keyframe.components).forEach(([componentId, fields]) => {
       const assemblyComponent = assembly.components[componentId];
       Object.entries(fields).forEach(([fieldId, values]) => {
         const assemblyField = assemblyComponent[fieldId];
@@ -132,7 +142,7 @@ export default class ReplayDebugger {
       });
     });
 
-    Object.entries(frame.systemEntities).forEach(([systemId, entities]) => {
+    Object.entries(frame.keyframe.systemEntities).forEach(([systemId, entities]) => {
       const system = assemblySystems[systemId];
       const { entities: systemEntities } = system;
       systemEntities.splice(entities.length);

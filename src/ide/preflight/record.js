@@ -4,17 +4,18 @@ export default class RecordDebugger {
 
   prepareAssembly(map, project, ctx) {
     const { varName } = map;
-    ctx.assembleCaptureEmitFn = (label, expression, assembleSetter) => {
+    ctx.assembleCaptureEmitFn = (label, expression, assembleSetter, isKeyframe) => {
+      const capture = isKeyframe ? 'captureKeyframe' : 'capture';
       if (typeof expression === 'function') {
         const [generator, value] = expression();
         return [
           generator,
-          `${varName}.capture(${JSON.stringify(label)}, ${value});`,
+          `${varName}.${capture}(${JSON.stringify(label)}, ${value});`,
         ];
       }
 
       return [
-        `${varName}.capture(${JSON.stringify(label)}, ${expression});`,
+        `${varName}.${capture}(${JSON.stringify(label)}, ${expression});`,
       ];
     };
   }
@@ -58,11 +59,19 @@ export default class RecordDebugger {
   }
 
   frameBegin() {
-    this.frame = {};
+    this.frame = {
+      keyframe: {},
+    };
   }
 
   capture(key, value) {
     this.frame[key] = JSON.parse(JSON.stringify(value));
+  }
+
+  captureKeyframe(key, value) {
+    if (this.frame.keyframe) {
+      this.frame.keyframe[key] = JSON.parse(JSON.stringify(value));
+    }
   }
 
   captureStepTime(dt, time) {
@@ -80,12 +89,12 @@ export default class RecordDebugger {
   }
 
   captureEntities(entityList, entityLookup) {
-    this.capture('entityList', entityList);
-    this.capture('entityLookup', entityLookup);
+    this.captureKeyframe('entityList', entityList);
+    this.captureKeyframe('entityLookup', entityLookup);
   }
 
   captureComponents(components) {
-    this.capture('components', components);
+    this.captureKeyframe('components', components);
   }
 
   captureSystemEntities(systems) {
@@ -93,7 +102,7 @@ export default class RecordDebugger {
     Object.entries(systems).forEach(([systemId, system]) => {
       systemEntities[systemId] = system.entities;
     });
-    this.capture('systemEntities', systemEntities);
+    this.captureKeyframe('systemEntities', systemEntities);
   }
 
   frameEnd() {
@@ -109,16 +118,22 @@ export default class RecordDebugger {
       console.error("Preflight stopped mid-frame; this shouldn't happen");
     }
 
+    const keyframes = frames.map(({ keyframe }, i) => [keyframe, i]).filter(([keyframe]) => keyframe);
     const evals = frames.map(({ evals }) => evals).filter((evals) => evals.length).flat();
     const entityValueUpdates = frames.map(({ entityValueUpdates }) => entityValueUpdates).filter((entityValueUpdates) => entityValueUpdates.length).flat();
 
     const summaryFields = [
       [frames.length, 'frames'],
+      [keyframes.length, 'keyframes'],
       [evals.length, 'evals'],
       [entityValueUpdates.length, 'entity value updates'],
     ];
 
-    const summary = summaryFields.filter(([count]) => count).map(([count, label]) => `${count} ${label}`).join(', ');
+    let summary = summaryFields.filter(([count]) => count).map(([count, label]) => `${count} ${label}`).join(', ');
+    if (keyframes.length) {
+      summary += `, first keyframe ${keyframes[0][1]}, last keyframe ${keyframes[keyframes.length - 1][1]}`;
+    }
+
     if (summary) {
       console.log(`Captured ${summary}`);
     }
