@@ -76,7 +76,8 @@ const __assembleGameForPreflight = (originalProject) => {
     forPreflight: true,
   });
 
-  ctx.stepParameters = [ctx.dtStepVar, ctx.timeStepVar];
+  ctx.skipRenderVar = `${ctx.prefix}skipRender`;
+  ctx.stepParameters = [ctx.dtStepVar, ctx.timeStepVar, ctx.skipRenderVar];
 
   __prepareECS(project, ctx);
   __prepareCommand(project, ctx);
@@ -96,8 +97,20 @@ const __assembleGameForPreflight = (originalProject) => {
     `${ctx.rendererVar}.finishRender();`
   ));
 
+  ctx.render.unshift((ctx) => [
+    `if (!${ctx.skipRenderVar}) {`,
+  ]);
+
+  ctx.render.push((ctx) => [
+    `}`,
+  ]);
+
   const step = __assembleGameStep(project, ctx);
   ctx.preparedLoop = true;
+
+  // remove skipRender
+  ctx.render.shift();
+  ctx.render.pop();
 
   ctx.detachCallbacksVar = `${ctx.prefix}detachCallbacks`;
 
