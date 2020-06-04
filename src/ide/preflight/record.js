@@ -5,6 +5,14 @@ export default class RecordDebugger {
   prepareAssembly(map, project, ctx) {
     const { varName } = map;
     ctx.assembleCaptureEmitFn = (label, expression, assembleSetter) => {
+      if (typeof expression === 'function') {
+        const [generator, value] = expression();
+        return [
+          generator,
+          `${varName}.capture(${JSON.stringify(label)}, ${value});`,
+        ];
+      }
+
       return [
         `${varName}.capture(${JSON.stringify(label)}, ${expression});`,
       ];
